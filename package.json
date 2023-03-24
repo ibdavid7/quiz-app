@@ -12,6 +12,7 @@
     "@testing-library/react": "^11.2.6",
     "@testing-library/user-event": "^12.8.3",
     "he": "^1.2.0",
+    "json-server": "^0.17.3",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -28,7 +29,8 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
     "storybook": "start-storybook -p 6006 -s public",
-    "build-storybook": "build-storybook -s public"
+    "build-storybook": "build-storybook -s public",
+    "server": "json-server --watch './src/api/db.json'"
   },
   "eslintConfig": {
     "extends": [

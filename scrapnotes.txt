@@ -1,0 +1,121 @@
+run in bash
+export NODE_OPTIONS=--openssl-legacy-provider
+
+
+API shape:
+1. GET quiz /quiz/:quizId:
+
+{
+    ""
+    "category":"IQ Test"
+    "response_code": 0,
+    "test_id": testId,
+    "scoring": {
+        "type": "normal_distribution", //"pass-fail", "score", "poisson_distribution" etc
+        "mean": 100,
+        "variance": 15,
+    },
+    "instructions": instructions,
+    "instructions_image": instructions_image
+    "questions": [
+        {
+            "question_id": questionId,
+            "category": "Numerical",
+            "type": "multiple",
+            "difficulty": "hard",
+            "question_text": "Who recorded the 1975 album &#039;Captain Fantastic and the Brown Dirt Cowboy&#039;?",
+            "question_image": picture_url,
+            "answer_id": 1,
+            "answer_text":"explanation",
+            "answer_image": imageUrl,
+            "score": 2,
+            "options": [
+                {"option_id": 1, "option_text": "John Denver", "option_image": imageUrl},
+                {"option_id": 2, "option_text": "Billy Joel", "option_image": imageUrl},
+                {"option_id": 3, "option_text": "Joe Cocker", "option_image": imageUrl},
+            ]
+        },
+        {
+            "category": "Entertainment: Japanese Anime & Manga",
+            "type": "multiple",
+            "difficulty": "easy",
+            "question": "Which anime heavily features music from the genre &quot;Eurobeat&quot;?",
+            "correct_answer": "Initial D",
+            "incorrect_answers": [
+                "Wangan Midnight",
+                "Kino no Tabi",
+                "Cowboy Bebop"
+            ]
+        }
+    ]
+}
+
+
+The API appends a "Response Code" to each API Call to help tell developers what the API is doing.
+
+Code 0: Success Returned results successfully.
+Code 1: No Results Could not return results. The API doesn't have enough questions for your query. (Ex. Asking for 50 Questions in a Category that only has 20.)
+Code 2: Invalid Parameter Contains an invalid parameter. Arguements passed in aren't valid. (Ex. Amount = Five)
+Code 3: Token Not Found Session Token does not exist.
+Code 4: Token Empty Session Token has returned all possible questions for the specified query. Resetting the Token is necessary.
+
+2. POST answer /test/:testId/answer/:questionId:
+
+{
+    !"test_session_id": test_session_id,
+    !"test_id": quizId,
+    !"user_id": userId,
+    "question_id": question_id,
+    "option_id": option_id,
+}
+
+{
+    "test_session_id": test_session_id,
+    "status": status // pending, completed, cancelled
+    "test_id": quizId,
+    "user_id": userId,
+    "answers": {
+        question_id: { "option_id": option_id },
+        question_id: { "option_id": option_id },
+        question_id: { "option_id": option_id },
+        question_id: { "option_id": option_id },
+        question_id: { "option_id": option_id },
+    }
+}
+
+3. POST Evaluate /test/:testId/
+{
+    !"test_session_id": test_session_id,
+    !"test_id": quizId,
+    !"user_id": userId,
+    "action": "Evaluate",
+}
+
+{
+    "test_session_id": test_session_id,
+    "status": status // pending, completed, cancelled
+    "test_id": quizId,
+    "user_id": userId,
+    "answers": {
+        question_id: { "option_id": option_id, "answer_id": answer_id, "score": score, "answer_text":"explanation", "answer_image": imageUrl, "question_text": question_text, "question_image": question_image},
+        question_id: { "option_id": option_id, "answer_id": answer_id, "score": score, "answer_text":"explanation", "answer_image": imageUrl, "question_text": question_text, "question_image": question_image},
+        question_id: { "option_id": option_id, "answer_id": answer_id, "score": score, "answer_text":"explanation", "answer_image": imageUrl, "question_text": question_text, "question_image": question_image},
+        question_id: { "option_id": option_id, "answer_id": answer_id, "score": score, "answer_text":"explanation", "answer_image": imageUrl, "question_text": question_text, "question_image": question_image},
+        question_id: { "option_id": option_id, "answer_id": answer_id, "score": score, "answer_text":"explanation", "answer_image": imageUrl, "question_text": question_text, "question_image": question_image},
+    }
+    UPDATES
+    questions: [question_id, question_id...],
+    results: {
+        "type": "normal_distribution,
+        "percentile": percentile,
+        "confidence_level": confidence_level,
+        "score" : score
+        "results_text": results_text,
+        "results_image": results_image,
+    },
+}
+
+
+4. Get results
+
+5. get Answers
