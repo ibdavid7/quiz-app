@@ -7,6 +7,8 @@ import Quiz from '../Quiz';
 import Result from '../Result';
 
 import { shuffle } from '../../utils';
+import Test from "../../api/test";
+
 
 const App = () => {
   const [loading, setLoading] = useState(false);
@@ -69,8 +71,10 @@ const App = () => {
     }, 1000);
   };
 
+
   return (
     <Layout>
+      <Test/>
       {loading && <Loader />}
       {!loading && !isQuizStarted && !isQuizCompleted && (
         <Main startQuiz={startQuiz} />

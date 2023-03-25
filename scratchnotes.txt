@@ -1,26 +1,30 @@
 run in bash
 export NODE_OPTIONS=--openssl-legacy-provider
+set NODE_OPTIONS=--openssl-legacy-provider
+$env:NODE_OPTIONS = "--openssl-legacy-provider"
 
 
 API shape:
 1. GET quiz /quiz/:quizId:
 
 {
-    ""
-    "category":"IQ Test"
     "response_code": 0,
     "test_id": testId,
-    "scoring": {
-        "type": "normal_distribution", //"pass-fail", "score", "poisson_distribution" etc
-        "mean": 100,
-        "variance": 15,
+    "test_session_id": test_session_id, --> from lambda function, needs to be appended
+    "config" : {
+        "category":"IQ Test",
+        "scoring": {
+                "type": "normal_distribution", //"pass-fail", "score", "poisson_distribution" etc
+                "mean": 100,
+                "variance": 15,
+            },
+        "instructions": instructions,
+        "instructions_image": instructions_image
     },
-    "instructions": instructions,
-    "instructions_image": instructions_image
     "questions": [
         {
             "question_id": questionId,
-            "category": "Numerical",
+            "label": "Numerical",
             "type": "multiple",
             "difficulty": "hard",
             "question_text": "Who recorded the 1975 album &#039;Captain Fantastic and the Brown Dirt Cowboy&#039;?",
@@ -63,24 +67,28 @@ Code 4: Token Empty Session Token has returned all possible questions for the sp
 
 {
     !"test_session_id": test_session_id,
-    !"test_id": quizId,
-    !"user_id": userId,
+    !"test_id": test_id,
+    !"user_id": user_id,
     "question_id": question_id,
     "option_id": option_id,
 }
 
+Object in DynamoDB
 {
     "test_session_id": test_session_id,
     "status": status // pending, completed, cancelled
     "test_id": quizId,
     "user_id": userId,
-    "answers": {
+    "timestamp_start": start,
+    "timestamp_complete": complete,
+    "questions": ...[copy from test object]
+    "answers": [
         question_id: { "option_id": option_id },
         question_id: { "option_id": option_id },
         question_id: { "option_id": option_id },
         question_id: { "option_id": option_id },
         question_id: { "option_id": option_id },
-    }
+    ]
 }
 
 3. POST Evaluate /test/:testId/
@@ -96,15 +104,49 @@ Code 4: Token Empty Session Token has returned all possible questions for the sp
     "status": status // pending, completed, cancelled
     "test_id": quizId,
     "user_id": userId,
+
+    "response_code": 0,
+        "test_id": testId,
+        "test_session_id": test_session_id, --> from lambda function, needs to be appended
+        "config" : {
+            "category":"IQ Test",
+            "scoring": {
+                    "type": "normal_distribution", //"pass-fail", "score", "poisson_distribution" etc
+                    "mean": 100,
+                    "variance": 15,
+                },
+            "instructions": instructions,
+            "instructions_image": instructions_image
+        },
+        "questions": [
+            {
+                "question_id": 1,
+                "label": "Numerical",
+                "type": "multiple",
+                "difficulty": "hard",
+                "question_text": "Who recorded the 1975 album &#039;Captain Fantastic and the Brown Dirt Cowboy&#039;?",
+                "question_image": "https://picsum.photos/200",
+                "answer_id": 1,
+                "answer_text":"explanation",
+                "answer_image": imageUrl,
+                "score": 2,
+                "options": [
+                    {"option_id": 1, "option_text": "John Denver", "option_image": "https://picsum.photos/200"},
+                    {"option_id": 2, "option_text": "Billy Joel", "option_image": "https://picsum.photos/200"},
+                    {"option_id": 3, "option_text": "Joe Cocker", "option_image": "https://picsum.photos/200"},
+                ]
+            },
+        ],
+
     "answers": {
-        question_id: { "option_id": option_id, "answer_id": answer_id, "score": score, "answer_text":"explanation", "answer_image": imageUrl, "question_text": question_text, "question_image": question_image},
-        question_id: { "option_id": option_id, "answer_id": answer_id, "score": score, "answer_text":"explanation", "answer_image": imageUrl, "question_text": question_text, "question_image": question_image},
-        question_id: { "option_id": option_id, "answer_id": answer_id, "score": score, "answer_text":"explanation", "answer_image": imageUrl, "question_text": question_text, "question_image": question_image},
-        question_id: { "option_id": option_id, "answer_id": answer_id, "score": score, "answer_text":"explanation", "answer_image": imageUrl, "question_text": question_text, "question_image": question_image},
-        question_id: { "option_id": option_id, "answer_id": answer_id, "score": score, "answer_text":"explanation", "answer_image": imageUrl, "question_text": question_text, "question_image": question_image},
-    }
+        question_id: "option_id",
+        question_id: "option_id",
+        question_id: "option_id",
+        question_id: "option_id",
+        question_id: "option_id",
+    },
     UPDATES
-    questions: [question_id, question_id...],
+
     results: {
         "type": "normal_distribution,
         "percentile": percentile,

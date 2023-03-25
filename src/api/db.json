@@ -1,9 +1,102 @@
 {
-    "posts": [
-      { "id": 1, "title": "json-server", "author": "typicode" }
-    ],
-    "comments": [
-      { "id": 1, "body": "some comment", "postId": 1 }
-    ],
-    "profile": { "name": "typicode" }
-  }
+  "posts": [
+    {
+      "id": 1,
+      "title": "json-server",
+      "author": "typicode"
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "body": "some comment",
+      "postId": 1
+    }
+  ],
+  "profile": {
+    "name": "typicode"
+  },
+  "tests": [
+    {
+      "response_code": 0,
+      "id": 1,
+      "test_id": 1,
+      "test_session_id": 1,
+      "config": {
+        "category": "iq",
+        "label": "IQ Test",
+        "scoring": {
+          "type": "normal_distribution",
+          "mean": 100,
+          "variance": 15
+        },
+        "instructions": "Please complete the test, no time limit, evaluation is provided at the end",
+        "instructions_image": "https://picsum.photos/id/870/300/300?grayscale&blur=2"
+      },
+      "questions": [
+        {
+          "question_id": 1,
+          "label": "Numerical",
+          "type": "multiple",
+          "difficulty": "hard",
+          "question_text": "Who recorded the 1975 album &#039;Captain Fantastic and the Brown Dirt Cowboy&#039;?",
+          "question_image": "https://picsum.photos/200",
+          "answer_id": 1,
+          "answer_text": "explanation",
+          "answer_image": "https://picsum.photos/200",
+          "score": 2,
+          "options": [
+            {
+              "option_id": 1,
+              "option_text": "John Denver",
+              "option_image": "https://picsum.photos/200"
+            },
+            {
+              "option_id": 2,
+              "option_text": "Billy Joel",
+              "option_image": "https://picsum.photos/200"
+            },
+            {
+              "option_id": 3,
+              "option_text": "Joe Cocker",
+              "option_image": "https://picsum.photos/200"
+            }
+          ]
+        },
+        {
+          "question_id": 2,
+          "label": "Numerical",
+          "type": "multiple",
+          "difficulty": "hard",
+          "question_text": "Who recorded the 1975 album &#039;Captain Fantastic and the Brown Dirt Cowboy&#039;?",
+          "question_image": "https://picsum.photos/200",
+          "answer_id": 1,
+          "answer_text": "explanation",
+          "answer_image": "https://picsum.photos/200",
+          "score": 2,
+          "options": [
+            {
+              "option_id": 1,
+              "option_text": "John Denver",
+              "option_image": "https://picsum.photos/200"
+            },
+            {
+              "option_id": 2,
+              "option_text": "Billy Joel",
+              "option_image": "https://picsum.photos/200"
+            },
+            {
+              "option_id": 3,
+              "option_text": "Joe Cocker",
+              "option_image": "https://picsum.photos/200"
+            }
+          ]
+        }
+      ],
+      "answers": {
+        "question_id_1": 1,
+        "question_id_2": 3
+      }
+    }
+  ]
+}

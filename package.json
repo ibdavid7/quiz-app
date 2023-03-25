@@ -8,6 +8,7 @@
   },
   "homepage": "https://safdarjamal.github.io/quiz-app/",
   "dependencies": {
+    "@reduxjs/toolkit": "^1.9.3",
     "@testing-library/jest-dom": "^5.12.0",
     "@testing-library/react": "^11.2.6",
     "@testing-library/user-event": "^12.8.3",
@@ -16,6 +17,7 @@
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-redux": "^8.0.5",
     "react-scripts": "^4.0.3",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^2.0.3",
@@ -30,7 +32,7 @@
     "deploy": "gh-pages -d build",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public",
-    "server": "json-server --watch './src/api/db.json'"
+    "server": "json-server -p 3001 --watch ./src/api/db.json"
   },
   "eslintConfig": {
     "extends": [
