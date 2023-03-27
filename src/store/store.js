@@ -1,5 +1,5 @@
 import {configureStore} from "@reduxjs/toolkit";
-import {testsSlice, useGetTestQuery, useSubmitResponseMutation} from "./testSlice";
+import {testsSlice, useGetTestQuery, useSubmitResponseMutation, useStartTestMutation} from "./testsSlice";
 import {setupListeners} from '@reduxjs/toolkit/query'
 
 const store = configureStore({
@@ -15,4 +15,4 @@ setupListeners(store.dispatch);
 
 const selectAllAnswers = (state, id) => state.tests.find(test => test.id === id)
 
-export {store, useGetTestQuery, useSubmitResponseMutation, selectAllAnswers};
+export {store, useGetTestQuery, useSubmitResponseMutation, useStartTestMutation, selectAllAnswers};

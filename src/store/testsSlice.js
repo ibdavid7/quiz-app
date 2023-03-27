@@ -6,13 +6,23 @@ export const testsSlice = createApi({
     reducerPath: 'tests',
     // All of our requests will have URLs starting with '/fakeApi'
     baseQuery: fetchBaseQuery({
-        baseUrl: process.env.REACT_APP_JSON_SERVER_API
+        baseUrl: process.env.REACT_APP_AWS_DEV_API
     }),
     // The "endpoints" represent operations and requests for this server
     endpoints: builder => ({
         // The `getPosts` endpoint is a "query" operation that returns data
         getTest: builder.query({
             query: testId => `/tests/${testId}`,
+            providesTags: (result, error, testId) => [{ type: 'Tests', testId }],
+        }),
+        startTest: builder.mutation({
+            query: (body) => {
+                return {
+                    url: `/tests/${body.testId}`,
+                    method: 'POST',
+                    body,
+                }
+            },
             providesTags: (result, error, testId) => [{ type: 'Tests', testId }],
         }),
         submitResponse: builder.mutation({
@@ -30,4 +40,4 @@ export const testsSlice = createApi({
 
 
 // Export the auto-generated hook for the `getPosts` query endpoint
-export const {useGetTestQuery, useSubmitResponseMutation} = testsSlice;
+export const {useGetTestQuery, useSubmitResponseMutation, useStartTestMutation} = testsSlice;

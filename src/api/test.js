@@ -1,12 +1,13 @@
 import React from 'react';
-import {useGetTestQuery, useSubmitResponseMutation} from "../store/testSlice";
+import {useGetTestQuery, useStartTestMutation, useSubmitResponseMutation} from "../store";
 import {selectAllAnswers, store} from "../store/store";
 import {useSelector} from "react-redux";
 
 
 const Test = () => {
 
-    const {data, isFetching, isSuccess} = useGetTestQuery(1);
+    // const {data, isFetching, isSuccess} = useGetTestQuery(1);
+    const [startTest, resultStartTest] = useStartTestMutation();
     const [updateTest, result] = useSubmitResponseMutation()
     // const ans = useSelector((state) => selectAllAnswers(state, 1))
     console.log(store.getState())
@@ -38,6 +39,7 @@ const Test = () => {
                 return (<div>{q.question_text}</div>)
             })}
             <button onClick={handleOnClickSubmitResponse} >Patch</button>
+            <button onClick={() => startTest({testId: 1, userId: "userId5"})} >Patch</button>
         </div>
     );
 };
