@@ -1,18 +1,19 @@
-import {configureStore} from "@reduxjs/toolkit";
-import {testsSlice, useGetTestQuery, useSubmitResponseMutation, useStartTestMutation} from "./testsSlice";
-import {setupListeners} from '@reduxjs/toolkit/query'
+import { configureStore } from "@reduxjs/toolkit";
+import { useGetTestsQuery, useGetTestQuery, useCreateSessionMutation, useGetQuestionsQuery, useSubmitAnswerMutation } from "./testsSlice";
+import { setupListeners } from '@reduxjs/toolkit/query';
+import { apiSlice } from "./apiSlice";
 
 const store = configureStore({
     reducer: {
-        // users: usersReducer,
-        [testsSlice.reducerPath]: testsSlice.reducer,
+        [apiSlice.reducerPath]: apiSlice.reducer,
     },
     middleware: getDefaultMiddleware =>
-        getDefaultMiddleware().concat(testsSlice.middleware)
+        getDefaultMiddleware()
+        .concat(apiSlice.middleware)
 })
 
 setupListeners(store.dispatch);
 
 const selectAllAnswers = (state, id) => state.tests.find(test => test.id === id)
 
-export {store, useGetTestQuery, useSubmitResponseMutation, useStartTestMutation, selectAllAnswers};
+export { store, useGetTestsQuery, useGetTestQuery, useCreateSessionMutation, useGetQuestionsQuery, useSubmitAnswerMutation, selectAllAnswers };
