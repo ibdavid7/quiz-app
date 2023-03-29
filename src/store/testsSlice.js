@@ -16,12 +16,14 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
                 return {
                     url: '/tests',
                     method: 'GET',
-            }
+                }
             },
-            providesTags: (result = [], error, arg) => [
-                { type: 'Test', id: 'LIST' },
-                ...result.map(({ id }) => ({ type: 'Test', id }))
-            ],
+            providesTags: (result = [], error, arg) => {
+                return ([
+                    { type: 'Test', id: 'LIST' },
+                    ...result.ids.map(({ id }) => ({ type: 'Test', id }))
+                ]);
+            },
             transformResponse: responseData => {
                 return testsAdapter.setAll(initialState, responseData)
             },

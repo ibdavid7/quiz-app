@@ -1,34 +1,35 @@
-// myTestApiFunction
+// // myTestApiFunction
 
-import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
+// import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
+// import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 
-const DEFAULT_REGION = 'us-east-1';
+// const DEFAULT_REGION = 'us-east-1';
 
-// Create an Amazon DynamoDB service client object.
-const ddbClient = new DynamoDBClient({ region: DEFAULT_REGION });
+// // Create an Amazon DynamoDB service client object.
+// const ddbClient = new DynamoDBClient({ region: DEFAULT_REGION });
 
-const marshallOptions = {
-    // Whether to automatically convert empty strings, blobs, and sets to `null`.
-    convertEmptyValues: false, // false, by default.
-    // Whether to remove undefined values while marshalling.
-    removeUndefinedValues: true, // false, by default.
-    // Whether to convert typeof object to map attribute.
-    convertClassInstanceToMap: false, // false, by default.
-};
+// const marshallOptions = {
+//     // Whether to automatically convert empty strings, blobs, and sets to `null`.
+//     convertEmptyValues: false, // false, by default.
+//     // Whether to remove undefined values while marshalling.
+//     removeUndefinedValues: true, // false, by default.
+//     // Whether to convert typeof object to map attribute.
+//     convertClassInstanceToMap: false, // false, by default.
+// };
 
-const unmarshallOptions = {
-    // Whether to return numbers as a string instead of converting them to native JavaScript numbers.
-    wrapNumbers: false, // false, by default.
-};
+// const unmarshallOptions = {
+//     // Whether to return numbers as a string instead of converting them to native JavaScript numbers.
+//     wrapNumbers: false, // false, by default.
+// };
 
-const translateConfig = { marshallOptions, unmarshallOptions };
+// const translateConfig = { marshallOptions, unmarshallOptions };
 
-// Create the DynamoDB document client.
-const ddbDocClient = DynamoDBDocumentClient.from(ddbClient, translateConfig);
+// // Create the DynamoDB document client.
+// const ddbDocClient = DynamoDBDocumentClient.from(ddbClient, translateConfig);
 
-const TEST_TABLE = 'Tests';
-const TEST_SESSIONS_TABLE = 'TestSessions';
+import { ddbDocClient, TEST_TABLE, TEST_SESSIONS_TABLE, getItems } from "./util.mjs";
+
+
 const [STARTED, COMPLETED, CANCELLED] = ['Started', 'Completed', 'Cancelled'];
 
 
@@ -49,23 +50,22 @@ const getTest = async (tableName, id) => {
     return Item;
 };
 
-const getTests = async (tableName, category) => {
+// const getTests = async (tableName, category) => {
 
-    const { Items } = await ddbDocClient.send(
-        new ScanCommand({
-            TableName: tableName,
-            FilterExpression: "config.category = :topic",
-            ExpressionAttributeValues: {
-                ":topic": category,
-            },
-            ProjectionExpression: "id, config",
-        })
-    );
+//     const { Items } = await ddbDocClient.send(
+//         new ScanCommand({
+//             TableName: tableName,
+//             FilterExpression: "config.category = :topic",
+//             ExpressionAttributeValues: {
+//                 ":topic": category,
+//             },
+//             ProjectionExpression: "id, config",
+//         })
+//     );
 
-    return Items;
+//     return Items;
 
-};
-
+// };
 
 const addTestSession = async (tableName, test, userId, uuid) => {
 
@@ -118,6 +118,16 @@ export const handler = async (event, context, callback) => {
     // const testId = event.pathParameters.testId;
     // console.log(testId, userId);
     const uuid = context.awsRequestId;
+    const category = 'iq';
+
+    const params = {
+        TableName: TEST_TABLE,
+        FilterExpression: "config.category = :topic",
+        ExpressionAttributeValues: {
+            ":topic": category,
+        },
+        ProjectionExpression: "id, config",
+    }
 
     try {
         // const test = await getTest(TEST_TABLE, testId);
@@ -129,10 +139,13 @@ export const handler = async (event, context, callback) => {
 
         // const session = await getTest(TEST_SESSIONS_TABLE, uuid);
 
-        const res = await getTests(TEST_TABLE, 'iq');
+        const res = await getItems(params);
 
         const response = {
             statusCode: 200,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+            },
             body: JSON.stringify(res),
         };
 
