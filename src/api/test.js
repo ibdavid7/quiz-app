@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { store, useGetTestQuery, useGetTestsQuery } from "../store/store";
+import { useGetSessionQuery, useSubmitAnswerMutation } from '../store/testsSlice';
 
 
 const Test = () => {
@@ -19,6 +20,11 @@ const Test = () => {
         error
     } = useGetTestsQuery();
 
+    const [sessionId, setSessionId] = useState();
+    const { data: session, refetch: sessionRefetch } = useGetSessionQuery('9f020ddb-d0bb-4856-902a-7e49287999f2');
+
+    const [submitAnswer] = useSubmitAnswerMutation();
+
     const [testId, setTestId] = useState(1);
 
     const { data: test, isLoading: isTestLoading, isSuccess: isTestSuccess, refetch: refetchTest } = useGetTestQuery(testId);
@@ -27,6 +33,7 @@ const Test = () => {
     const handleOnClickSubmitResponse = () => {
 
         setTestId((prev) => prev + 1);
+
         // updateTest({
         //     id: 1,
         //     answers: {
@@ -45,6 +52,14 @@ const Test = () => {
 
     }
 
+    const handleOnClickSubmitAnswer = () => {
+        submitAnswer({
+            sessionId: '9f020ddb-d0bb-4856-902a-7e49287999f2',
+            answerId: '1',
+            optionId: '2',
+        })
+    }
+
     // console.log(tests)
     console.log(isTestSuccess)
 
@@ -59,7 +74,11 @@ const Test = () => {
 
             {isTestSuccess && (<div>{JSON.stringify(test)}</div>)}
             <button onClick={handleOnClickSubmitResponse} >Get Tests</button>
+            <div>{JSON.stringify(session)}</div>
             {/* <button onClick={() => startTest({ testId: 1, userId: "userId5" })} >Patch</button> */}
+            <button onClick={sessionRefetch} >Session Refetch</button>
+            <div></div>
+            <button onClick={handleOnClickSubmitAnswer} >Submit Answer</button>
         </div>
     );
 };

@@ -2,9 +2,11 @@ import { ddbDocClient, TEST_TABLE, TEST_SESSIONS_TABLE, getItems, getItem, putIt
 
 const [STARTED, COMPLETED, CANCELLED] = ['Started', 'Completed', 'Cancelled'];
 
+// TODO refactor as query instead of scan with userID as secondary index
+
 export const handler = async (event, context, callback) => {
 
-    const { testId, userId } = JSON.parse(event.body);
+    const { userId } = JSON.parse(event.body);
 
     const uuid = context.awsRequestId;
 
@@ -24,32 +26,23 @@ export const handler = async (event, context, callback) => {
 
         const test = await getItem(params_get);
 
-        const obj = test.questions.reduce((acc, curr) => {
-            acc[curr.question_id] = { answer: "" };
-            return acc;
-        }, {});
-
-        const params_put = {
+        const params = {
             TableName: TEST_SESSIONS_TABLE,
-            Item: {
-                ...test,
-                id: uuid,
-                testId,
-                userId,
-                answers: obj,
-                status: STARTED,
-                start: Date.now(),
+            FilterExpression: "userId = :userId",
+            ExpressionAttributeValues: {
+                ":topic": userId,
             },
-        };
+            ProjectionExpression: "id, config, userId, testId",
+        }
 
-        const putSession = await addTestSession(params_put);
+        const res = await getItems(params);
 
         const response = {
             statusCode: 200,
             headers: {
                 "Access-Control-Allow-Origin": "*",
             },
-            body: JSON.stringify({ sessionId: uuid }),
+            body: JSON.stringify(res),
         };
         return response;
 

@@ -83,11 +83,11 @@ Object in DynamoDB
     "timestamp_complete": complete,
     "questions": ...[copy from test object]
     "answers": [
-        question_id: { "option_id": option_id },
-        question_id: { "option_id": option_id },
-        question_id: { "option_id": option_id },
-        question_id: { "option_id": option_id },
-        question_id: { "option_id": option_id },
+        question_id: { "answer": option_id },
+        question_id: { "answer": option_id },
+        question_id: { "answer": option_id },
+        question_id: { "answer": option_id },
+        question_id: { "answer": option_id },
     ]
 }
 

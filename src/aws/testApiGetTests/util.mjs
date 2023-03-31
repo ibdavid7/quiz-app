@@ -1,5 +1,5 @@
 import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand, QueryCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 
 const DEFAULT_REGION = 'us-east-1';
 
@@ -26,10 +26,8 @@ const translateConfig = { marshallOptions, unmarshallOptions };
 export const ddbDocClient = DynamoDBDocumentClient.from(ddbClient, translateConfig);
 
 
-
 export const TEST_TABLE = 'Tests';
 export const TEST_SESSIONS_TABLE = 'TestSessions';
-
 
 export const getItems = async (params) => {
 
@@ -48,3 +46,64 @@ export const getItem = async (params) => {
 
     return Item;
 };
+
+
+export const putItem = async (params) => {
+
+    try {
+        const data = await ddbDocClient.send(new PutCommand(params));
+        // console.log("Success - item added or updated", data);
+        return data;
+    } catch (err) {
+        console.log("Error", err.stack);
+    }
+}
+
+export const queryTable = async (params) => {
+
+    try {
+        const data = await ddbDocClient.send(new QueryCommand(params));
+        // console.log("Success - item added or updated", data);
+        return data;
+    } catch (err) {
+        console.log("Error", err.stack);
+    }
+}
+
+export const updateItem = async (params) => {
+
+    try {
+        const data = await ddbDocClient.send(new UpdateCommand(params));
+        return data;
+    } catch (err) {
+        console.log("Error", err.stack);
+    }
+}
+
+export const sanitizeSession = (session) => {
+    const { questions } = session;
+    const updatedQuestions = questions.map(({ answer_id, answer_image, answer_text, ...rest }) => {
+        return {
+            ...rest,
+        }
+    })
+
+    return {
+        ...session,
+        questions: updatedQuestions,
+    }
+
+}
+
+
+export const sanitizeSessionQuestions = (questions) => {
+    // const { questions } = session;
+    const updatedQuestions = questions.map(({ answer_id, answer_image, answer_text, ...rest }) => {
+        return {
+            ...rest,
+        }
+    })
+
+    return updatedQuestions;
+
+}

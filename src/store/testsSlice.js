@@ -1,9 +1,16 @@
 import { createEntityAdapter, createSelector } from '@reduxjs/toolkit';
 import { createApi, fetchBaseQuery, injectEndpoints } from '@reduxjs/toolkit/query/react';
+import { schema, normalize } from 'normalizr';
 import { apiSlice } from './apiSlice';
 
 const testsAdapter = createEntityAdapter()
-const initialState = testsAdapter.getInitialState()
+const testsInitialState = testsAdapter.getInitialState()
+
+// const questionsAdapter = createEntityAdapter();
+// const questionsInitialState = questionsAdapter.getInitialState();
+
+// const answersAdapter = createEntityAdapter();
+// const answersInitialState = answersAdapter.getInitialState();
 
 // Define our single API slice object
 
@@ -25,7 +32,7 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
                 ]);
             },
             transformResponse: responseData => {
-                return testsAdapter.setAll(initialState, responseData)
+                return testsAdapter.setAll(testsInitialState, responseData)
             },
 
         }),
@@ -68,7 +75,7 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
             ],
         }),
 
-        getSessions: builder.mutation({
+        getSessions: builder.query({
             query: (body) => {
                 return {
                     url: `/sessions`,
@@ -84,16 +91,23 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
 
         // will require userID in the body
         getSession: builder.query({
-            query: (body) => {
+            query: (sessionId) => {
                 return {
-                    url: `/sessions/${body.sessionId}`,
+                    url: `/sessions/${sessionId}`,
                     method: 'GET',
-                    body,
                 }
             },
             providesTags: (result, error, { sessionId }) => [
                 { type: 'Session', id: sessionId }
             ],
+            transformResponse: responseData => {
+                const data = { questions: responseData.questions };
+                const questionSchema = new schema.Entity('questions', {}, { idAttribute: 'question_id' });
+                const mySchema = { questions: [questionSchema] };
+                const normalizedData = normalize(data, mySchema);
+
+                return { ...responseData, ...normalizedData };
+            },
         }),
 
         getQuestions: builder.query({
@@ -132,9 +146,16 @@ const selectTestsData = createSelector(
     testsResult => testsResult.data
 )
 
-export const { selectAll: selectAllTests, selectById: selectTestById } =
-    testsAdapter.getSelectors(state => selectTestsData(state) ?? initialState)
+// export const selectSessionResult = extendedApiSlice.endpoints.getSession.select()
 
+
+// const selectQuestionsData = createSelector(
+//     selectSessionResult,
+//     sessionResult => testsResult.data
+// );
+
+export const { selectAll: selectAllTests, selectById: selectTestById } =
+    testsAdapter.getSelectors(state => selectTestsData(state) ?? testsInitialState)
 
 // export const testsSlice = createApi({
 //     // The cache reducer expects to be added at `state.api` (already default - this is optional)
@@ -175,4 +196,6 @@ export const { selectAll: selectAllTests, selectById: selectTestById } =
 
 
 // Export the auto-generated hook for the `getPosts` query endpoint
-export const { useGetTestsQuery, useGetTestQuery, useCreateSessionMutation, useGetQuestionsQuery, useSubmitAnswerMutation } = extendedApiSlice;
+export const { useGetTestsQuery, useGetTestQuery, useCreateSessionMutation,
+    useGetQuestionsQuery, useSubmitAnswerMutation, useGetSessionQuery
+} = extendedApiSlice;
