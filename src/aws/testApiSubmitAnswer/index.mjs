@@ -1,4 +1,7 @@
-import { ddbDocClient, TEST_TABLE, TEST_SESSIONS_TABLE, getItems, getItem, sanitizeSessionQuestions, sanitizeSession, queryTable, updateItem } from "./utils.mjs";
+import { ddbDocClient, TEST_TABLE, TEST_SESSIONS_TABLE, getItems, getItem, sanitizeSessionQuestions, sanitizeSession, queryTable, updateItem, putItem } from "./utils.mjs";
+
+
+const [ANSWER, ANSWERS] = ['answer', 'answers'];
 
 export const handler = async (event, context, callback) => {
 
@@ -13,11 +16,11 @@ export const handler = async (event, context, callback) => {
     Key: {
       id: path_parameter,
     },
-    UpdateExpression: 'SET #map.#nested_map = :new_value',
+    UpdateExpression: 'SET #map.#nested_map.#attribute = :new_value',
     ExpressionAttributeNames: {
-      '#map': 'answers',
+      '#map': ANSWERS,
       '#nested_map': questionId,
-      // '#attribute': 'answer'
+      '#attribute': ANSWER,
     },
     ExpressionAttributeValues: {
       ':new_value': optionId,
@@ -47,7 +50,3 @@ export const handler = async (event, context, callback) => {
   }
 
 };
-
-
-
-

@@ -61,7 +61,7 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
                 { type: 'Test', id: 'LIST' }
             ],
         }),
-
+        // TODO - allow for unregistered users to start sessions and get previews, but also cache and remember answers - maybe init locally
         createSession: builder.mutation({
             query: (body) => {
                 return {
@@ -74,7 +74,7 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
                 { type: 'Session', id: 'LIST' }
             ],
         }),
-
+        // TODO - get user sessions
         getSessions: builder.query({
             query: (body) => {
                 return {
@@ -89,7 +89,7 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
             ],
         }),
 
-        // will require userID in the body
+        // TODO will require userID in the body
         getSession: builder.query({
             query: (sessionId) => {
                 return {
@@ -109,7 +109,7 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
                 return { ...responseData, ...normalizedData };
             },
         }),
-
+        // TODO - likely for API only
         getQuestions: builder.query({
             query: (body) => {
                 return {
@@ -133,7 +133,19 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
                 }
             },
             // TODO implement optimistic updates and offline service worker logic
+            async onQueryStarted({ sessionId, questionId, optionId }, { dispatch, queryFulfilled }) {
+                const patchResult = dispatch(
+                    apiSlice.util.updateQueryData('getSession', sessionId, (draft) => {
+                        draft.answers[questionId]['answer'] = optionId;
+                    })
+                )
+                queryFulfilled.catch(patchResult.undo)
+            },
+
         }),
+
+        // TODO invalidates getSession, action: complete, build authentication
+        // completeSession:
 
     }),
 })

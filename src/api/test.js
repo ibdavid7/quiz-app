@@ -21,9 +21,9 @@ const Test = () => {
     } = useGetTestsQuery();
 
     const [sessionId, setSessionId] = useState();
-    const { data: session, refetch: sessionRefetch } = useGetSessionQuery('9f020ddb-d0bb-4856-902a-7e49287999f2');
+    const { data: session, refetch: sessionRefetch } = useGetSessionQuery('9f2b15a4-630f-4f3e-b880-1e462f7f2853');
 
-    const [submitAnswer] = useSubmitAnswerMutation();
+    const [submitAnswer, { data: submitAnswerResponse, isSuccess: submitAnswerIsSuccess }] = useSubmitAnswerMutation();
 
     const [testId, setTestId] = useState(1);
 
@@ -54,14 +54,15 @@ const Test = () => {
 
     const handleOnClickSubmitAnswer = () => {
         submitAnswer({
-            sessionId: '9f020ddb-d0bb-4856-902a-7e49287999f2',
-            answerId: '1',
-            optionId: '2',
+            sessionId: '9f2b15a4-630f-4f3e-b880-1e462f7f2853',
+            questionId: '1a',
+            optionId: 'BBBBBBB',
         })
+
     }
 
     // console.log(tests)
-    console.log(isTestSuccess)
+    // console.log(isTestSuccess)
 
     return (
         <div>
@@ -79,6 +80,7 @@ const Test = () => {
             <button onClick={sessionRefetch} >Session Refetch</button>
             <div></div>
             <button onClick={handleOnClickSubmitAnswer} >Submit Answer</button>
+            <div>{submitAnswerIsSuccess && JSON.stringify(submitAnswerResponse)}</div>
         </div>
     );
 };
