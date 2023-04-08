@@ -8,6 +8,7 @@ import Result from '../Result';
 
 import { shuffle } from '../../utils';
 import Test from "../../api/test";
+import Listing from '../Listing';
 
 // import { ThemeProvider  } from '@aws-amplify/ui-react';
 
@@ -78,6 +79,7 @@ const App = () => {
   return (
     <Layout>
       <Test />
+      <Listing/>
       {loading && <Loader />}
       {!loading && !isQuizStarted && !isQuizCompleted && (
         <Main startQuiz={startQuiz} />
