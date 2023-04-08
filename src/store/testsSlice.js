@@ -3,8 +3,12 @@ import { createApi, fetchBaseQuery, injectEndpoints } from '@reduxjs/toolkit/que
 import { schema, normalize } from 'normalizr';
 import { apiSlice } from './apiSlice';
 
-const testsAdapter = createEntityAdapter()
-const testsInitialState = testsAdapter.getInitialState()
+const testsAdapter = createEntityAdapter();
+const testsInitialState = testsAdapter.getInitialState();
+
+
+const sessionsAdapter = createEntityAdapter();
+const sessionsInitialState = sessionsAdapter.getInitialState();
 
 // const questionsAdapter = createEntityAdapter();
 // const questionsInitialState = questionsAdapter.getInitialState();
@@ -68,6 +72,7 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
                     url: `/sessions`,
                     method: 'POST',
                     body,
+                    // validateStatus: (response, result) => response.status === 200 && !result.isError, // Our tricky API always returns a 200, but sets an `isError` property when there is an error.
                 }
             },
             invalidatesTags: (result, error, arg) => [
@@ -76,17 +81,20 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
         }),
         // TODO - get user sessions
         getSessions: builder.query({
-            query: (body) => {
+            query: () => {
                 return {
                     url: `/sessions`,
                     method: 'GET',
-                    body,
+                    // validateStatus: (response, result) => response.status === 200 && !result.isError, // Our tricky API always returns a 200, but sets an `isError` property when there is an error.
                 }
             },
             providesTags: (result = [], error, arg) => [
                 { type: 'Session', id: 'LIST' },
-                ...result.map(({ id }) => ({ type: 'Session', id }))
+                ...result.ids.map(({ id }) => ({ type: 'Session', id }))
             ],
+            transformResponse: responseData => {
+                return sessionsAdapter.setAll(sessionsInitialState, responseData)
+            },
         }),
 
         // TODO will require userID in the body
@@ -151,6 +159,7 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
 })
 
 
+// Test Adaptor and memoized selector
 export const selectTestsResult = extendedApiSlice.endpoints.getTests.select()
 
 const selectTestsData = createSelector(
@@ -158,16 +167,20 @@ const selectTestsData = createSelector(
     testsResult => testsResult.data
 )
 
-// export const selectSessionResult = extendedApiSlice.endpoints.getSession.select()
-
-
-// const selectQuestionsData = createSelector(
-//     selectSessionResult,
-//     sessionResult => testsResult.data
-// );
-
 export const { selectAll: selectAllTests, selectById: selectTestById } =
     testsAdapter.getSelectors(state => selectTestsData(state) ?? testsInitialState)
+
+
+// Sessions Adaptor and memoized selector
+export const selectSessionsResult = extendedApiSlice.endpoints.getSessions.select()
+
+const selectSessionsData = createSelector(
+    selectSessionsResult,
+    sessionsResult => sessionsResult.data
+)
+
+export const { selectAll: selectAllSessions, selectById: selectSessionById } =
+    sessionsAdapter.getSelectors(state => selectSessionsData(state) ?? sessionsInitialState)
 
 // export const testsSlice = createApi({
 //     // The cache reducer expects to be added at `state.api` (already default - this is optional)
@@ -209,5 +222,6 @@ export const { selectAll: selectAllTests, selectById: selectTestById } =
 
 // Export the auto-generated hook for the `getPosts` query endpoint
 export const { useGetTestsQuery, useGetTestQuery, useCreateSessionMutation,
-    useGetQuestionsQuery, useSubmitAnswerMutation, useGetSessionQuery
+    useGetQuestionsQuery, useSubmitAnswerMutation, useGetSessionQuery,
+    useGetSessionsQuery,
 } = extendedApiSlice;

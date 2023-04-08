@@ -9,6 +9,9 @@ import Result from '../Result';
 import { shuffle } from '../../utils';
 import Test from "../../api/test";
 
+// import { ThemeProvider  } from '@aws-amplify/ui-react';
+
+
 
 const App = () => {
   const [loading, setLoading] = useState(false);
@@ -74,7 +77,7 @@ const App = () => {
 
   return (
     <Layout>
-      <Test/>
+      <Test />
       {loading && <Loader />}
       {!loading && !isQuizStarted && !isQuizCompleted && (
         <Main startQuiz={startQuiz} />
@@ -85,6 +88,8 @@ const App = () => {
       {!loading && isQuizCompleted && (
         <Result {...resultData} replayQuiz={replayQuiz} resetQuiz={resetQuiz} />
       )}
+      {/* <AmplifyAuthenticator usernameAlias="email" /> */}
+
     </Layout>
   );
 };

@@ -4,7 +4,11 @@ const [STARTED, COMPLETED, CANCELLED] = ['Started', 'Completed', 'Cancelled'];
 
 export const handler = async (event, context, callback) => {
 
-    const { testId, userId } = JSON.parse(event.body);
+    // const { testId } = JSON.parse(event.body);
+    const testId = "2b";
+
+    const userId = event.requestContext.authorizer.claims.sub;
+    // console.log('userId claims: ', event.requestContext.authorizer);
 
     const uuid = context.awsRequestId;
 
@@ -42,7 +46,7 @@ export const handler = async (event, context, callback) => {
             },
         };
 
-        const putSession = await addTestSession(params_put);
+        const putSession = await putItem(params_put);
 
         const response = {
             statusCode: 200,

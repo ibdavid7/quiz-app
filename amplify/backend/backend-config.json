@@ -1,0 +1,45 @@
+{
+  "auth": {
+    "quizappe257565f": {
+      "customAuth": false,
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "Cognito",
+      "serviceType": "imported"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_auth_quizappe257565f_nativeClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "quizappe257565f"
+        }
+      ]
+    },
+    "AMPLIFY_auth_quizappe257565f_userPoolId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "quizappe257565f"
+        }
+      ]
+    },
+    "AMPLIFY_auth_quizappe257565f_userPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "quizappe257565f"
+        }
+      ]
+    },
+    "AMPLIFY_auth_quizappe257565f_webClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "quizappe257565f"
+        }
+      ]
+    }
+  }
+}

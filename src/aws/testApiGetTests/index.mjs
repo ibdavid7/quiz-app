@@ -27,7 +27,7 @@
 // // Create the DynamoDB document client.
 // const ddbDocClient = DynamoDBDocumentClient.from(ddbClient, translateConfig);
 
-import { ddbDocClient, TEST_TABLE, TEST_SESSIONS_TABLE, getItems } from "./util.mjs";
+import { ddbDocClient, TEST_TABLE, TEST_SESSIONS_TABLE, getItems } from "./utils.mjs";
 
 
 const [STARTED, COMPLETED, CANCELLED] = ['Started', 'Completed', 'Cancelled'];

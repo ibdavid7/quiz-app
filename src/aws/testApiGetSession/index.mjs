@@ -4,7 +4,7 @@ export const handler = async (event, context, callback) => {
 
     const uuid = context.awsRequestId;
     const path_parameter = event.pathParameters['sessionId'];
-    const userId = 'userId2';
+    const userId = event.requestContext.authorizer.claims.sub;
 
     const params = {
         TableName: TEST_SESSIONS_TABLE,
