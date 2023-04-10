@@ -26,7 +26,7 @@ const Test = () => {
     } = useGetTestsQuery();
 
     const [sessionId, setSessionId] = useState();
-    const { data: session, refetch: sessionRefetch } = useGetSessionQuery('fb69b4a9-47e7-4e74-bf51-8c9bd9d08cad');
+    const { data: session, refetch: sessionRefetch } = useGetSessionQuery('ebcb0d31-f711-4873-a48f-9a9b8b80b3ad');
 
     const [submitAnswer, { data: submitAnswerResponse, isSuccess: submitAnswerIsSuccess }] = useSubmitAnswerMutation();
 
@@ -70,7 +70,7 @@ const Test = () => {
 
     const handleOnClickCreateSession = () => {
         createSession({
-            testId: 1,
+            testId: 'gg69b4a9-47e7-4e74-bf51-8c9bd9d08nef',
         });
     }
 

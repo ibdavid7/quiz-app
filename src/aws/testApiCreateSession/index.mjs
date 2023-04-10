@@ -4,8 +4,7 @@ const [STARTED, COMPLETED, CANCELLED] = ['Started', 'Completed', 'Cancelled'];
 
 export const handler = async (event, context, callback) => {
 
-    // const { testId } = JSON.parse(event.body);
-    const testId = "2b";
+    const { testId } = JSON.parse(event.body);
 
     const userId = event.requestContext.authorizer.claims.sub;
     // console.log('userId claims: ', event.requestContext.authorizer);

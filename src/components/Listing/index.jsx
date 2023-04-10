@@ -37,6 +37,7 @@ const Listing = () => (
                         <List>
                             <List.Item>
                                 <List.Content>
+                                    <span style={{color: 'orange', 'font-weight': 'bold', 'font-size':'1.2rem'}} >{(Math.round(4.65 * 100) / 100).toFixed(1)}</span>
                                     <Rating disabled icon='star' defaultRating={4.6} maxRating={5} />
                                     <span>(306)</span>
                                 </List.Content>
@@ -49,12 +50,19 @@ const Listing = () => (
                         </List>
                     </Item.Content>
                     <Item.Extra>
+
+                        <Button primary floated='right'>
+                            Buy Test
+                            <Icon name='right chevron' />
+                        </Button>
+
                         <Label.Group>
                             <Label tag color='red'>Hot & New</Label>
                             <Label >Updated Mar-2023</Label>
                             <Label >IQ Test</Label>
                             <Label icon='globe'>English</Label>
                         </Label.Group>
+
                     </Item.Extra>
                 </Item.Content>
             </Item>

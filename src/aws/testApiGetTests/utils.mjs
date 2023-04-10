@@ -1,7 +1,11 @@
 import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand, QueryCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-const DEFAULT_REGION = 'us-east-1';
+export const DEFAULT_REGION = 'us-east-1';
+export const [STARTED, COMPLETED, CANCELLED] = ['Started', 'Completed', 'Cancelled'];
+
 
 // Create an Amazon DynamoDB service client object.
 const ddbClient = new DynamoDBClient({ region: DEFAULT_REGION });
@@ -105,5 +109,96 @@ export const sanitizeSessionQuestions = (questions) => {
     })
 
     return updatedQuestions;
+
+}
+
+export const extractBucketNameAndObjectKey = (objectUrl) => {
+    const s3UrlParts = objectUrl.split('/');
+    const bucket = s3UrlParts[2].split('.')[0];
+    const key = s3UrlParts.slice(3).join('/');
+
+    return {
+        bucket,
+        key,
+    }
+}
+
+
+const s3Client = new S3Client({ region: DEFAULT_REGION });
+
+export const generatePresignedUrl = async (objectUrl, expiresInSeconds) => {
+    // https://quizlet-app.s3.amazonaws.com/tests/gg69b4a9-47e7-4e74-bf51-8c9bd9d08nef/instructions_image.png
+
+    // quizlet-app
+    //tests/gg69b4a9-47e7-4e74-bf51-8c9bd9d08nef/instructions_image.png
+    if (!objectUrl) {
+        return null;
+    }
+
+    const { bucket, key } = extractBucketNameAndObjectKey(objectUrl);
+    // const bucket = 'quizlet-app';
+    // const key = 'tests/gg69b4a9-47e7-4e74-bf51-8c9bd9d08nef/instructions_image.png'
+
+    const command = new GetObjectCommand({ Bucket: bucket, Key: key });
+
+    const url = await getSignedUrl(s3Client, command, { expiresIn: expiresInSeconds });
+
+    // console.log('s3ClientName: ', s3Client);
+
+    return url;
+}
+
+// console.log('utils ran')
+
+export const insertPresignedUrls = async (session, answersIncluded = false, expiresInSeconds = 3600) => {
+    // 1. instruction image
+    const { config: { instructions_image, ...restConfig }, questions, ...restSession } = session;
+    const updated_instructions_image = await generatePresignedUrl(instructions_image, expiresInSeconds);
+
+    // 2. questions image and optionally 3. answers image and options
+    const updatedQuestions = await Promise.all(questions.map(async ({ answer_image, question_image, options, ...restQuestion }) => {
+
+        answer_image = await generatePresignedUrl(answer_image, expiresInSeconds);
+        question_image = await generatePresignedUrl(question_image, expiresInSeconds);
+
+        options = await Promise.all(options.map(async ({ option_image, ...restOption }) => {
+            option_image = await generatePresignedUrl(option_image, expiresInSeconds);
+            return {
+                ...restOption,
+                option_image,
+            }
+        }))
+
+
+        if (answersIncluded) {
+            return {
+                ...restQuestion,
+                answer_image,
+                question_image,
+                options
+            }
+        } else {
+            return {
+                ...restQuestion,
+
+                question_image,
+                options
+            }
+        }
+
+    }))
+
+    const result = {
+        ...restSession,
+        config: {
+            ...restConfig,
+            instructions_image: updated_instructions_image,
+        },
+        questions: updatedQuestions,
+    };
+
+    // console.log(result);
+
+    return result;
 
 }
