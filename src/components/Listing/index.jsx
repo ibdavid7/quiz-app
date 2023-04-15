@@ -1,13 +1,42 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Button, Container, Icon, Image, Item, Label, List, Rating } from 'semantic-ui-react'
+import Card from '../Card'
+import PurchaseModal from '../PurchaseModal'
 
 const paragraph = <Image src='https://react.semantic-ui.com/images/wireframe/short-paragraph.png' />
 
-const Listing = () => (
-    <Container>
 
-        <Item.Group divided>
-            <Item>
+const Listing = ({ tests: { ids, entities } }) => {
+
+    const [isOpenPurchaseModal, setIsOpenPurchaseModal] = useState(false);
+    const [modalContent, setModalContent] = useState({});
+
+
+
+    return (
+        <Container>
+            {/* Purchase Model to execute transaction, managed by isOpenState */}
+            <PurchaseModal
+                open={isOpenPurchaseModal}
+                setOpen={setIsOpenPurchaseModal}
+                test={modalContent}
+                setContent={setModalContent}
+            />
+
+            <Item.Group divided>
+                {ids.map((testId) => {
+                    return (
+                        <Card
+                            key={testId}
+                            test={entities[testId]}
+                            modal={{
+                                setOpen: setIsOpenPurchaseModal,
+                                setContent: setModalContent
+                            }}
+                        />
+                    )
+                })}
+                {/* <Item>
                 <Item.Image size='medium' src='https://react.semantic-ui.com/images/wireframe/image.png' />
 
                 <Item.Content>
@@ -37,7 +66,7 @@ const Listing = () => (
                         <List>
                             <List.Item>
                                 <List.Content>
-                                    <span style={{color: 'orange', 'font-weight': 'bold', 'font-size':'1.2rem'}} >{(Math.round(4.65 * 100) / 100).toFixed(1)}</span>
+                                    <span style={{ color: 'orange', 'font-weight': 'bold', 'font-size': '1.2rem' }} >{(Math.round(4.65 * 100) / 100).toFixed(1)}</span>
                                     <Rating disabled icon='star' defaultRating={4.6} maxRating={5} />
                                     <span>(306)</span>
                                 </List.Content>
@@ -102,10 +131,12 @@ const Listing = () => (
                         </Button>
                     </Item.Extra>
                 </Item.Content>
-            </Item>
-        </Item.Group>
-    </Container>
+            </Item> */}
 
-)
+            </Item.Group>
+        </Container>
+
+    )
+}
 
 export default Listing

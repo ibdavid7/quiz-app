@@ -10,8 +10,10 @@ import { shuffle } from '../../utils';
 import Test from "../../api/test";
 import Listing from '../Listing';
 
-// import { ThemeProvider  } from '@aws-amplify/ui-react';
+import { useGetTestsQuery } from '../../store/store';
 
+
+// import { ThemeProvider  } from '@aws-amplify/ui-react';
 
 
 const App = () => {
@@ -21,6 +23,15 @@ const App = () => {
   const [isQuizStarted, setIsQuizStarted] = useState(false);
   const [isQuizCompleted, setIsQuizCompleted] = useState(false);
   const [resultData, setResultData] = useState(null);
+
+  // get Tests Data from RTK Query
+  const {
+    data: tests = [],
+    isLoading: isTestsLoading,
+    isSuccess: isTestsSuccess,
+    isError: isTestsError,
+    error: testsError
+  } = useGetTestsQuery();
 
   const startQuiz = (data, countdownTime) => {
     setLoading(true);
@@ -79,7 +90,11 @@ const App = () => {
   return (
     <Layout>
       <Test />
-      <Listing/>
+
+      {/* Display Tests Data */}
+      {isTestsLoading && <Loader />}
+      {isTestsSuccess && <Listing tests={tests} />}
+
       {loading && <Loader />}
       {!loading && !isQuizStarted && !isQuizCompleted && (
         <Main startQuiz={startQuiz} />
