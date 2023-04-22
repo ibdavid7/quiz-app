@@ -89,7 +89,9 @@ const App = () => {
 
   return (
     <Layout>
-      <Test />
+
+      {/* Test only, remove */}
+      {/* <Test /> */}
 
       {/* Display Tests Data */}
       {isTestsLoading && <Loader />}
