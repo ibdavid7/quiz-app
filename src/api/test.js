@@ -30,7 +30,7 @@ const Test = () => {
 
     const [submitAnswer, { data: submitAnswerResponse, isSuccess: submitAnswerIsSuccess }] = useSubmitAnswerMutation();
 
-    const [createSession, { data: createSessionResponse, isSuccess: createSessionIsSuccess }] = useCreateSessionMutation();
+    const [createSession, { data: createSessionResponse, isSuccess: createSessionIsSuccess, isError: createSessionIsError, error: createSessionError }] = useCreateSessionMutation();
 
     const [testId, setTestId] = useState(1);
 
@@ -95,6 +95,9 @@ const Test = () => {
             <button onClick={handleOnClickSubmitAnswer} >Submit Answer</button>
             <div>{submitAnswerIsSuccess && JSON.stringify(submitAnswerResponse)}</div>
             <button onClick={handleOnClickCreateSession} >Create Session</button>
+            <div>created session:</div>
+            {createSessionIsSuccess && <h3>{JSON.stringify(createSessionResponse)}</h3>}
+            {createSessionIsError && <h3>{JSON.stringify(createSessionError)}</h3>}
 
             <div>My Sessions:</div>
             <div>{sessions.map((session) => {

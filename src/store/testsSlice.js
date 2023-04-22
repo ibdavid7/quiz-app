@@ -52,7 +52,7 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
                 { type: 'Test', id: testId }
             ],
         }),
-
+        // TODO - implement front and back end for createTest mutation
         createTest: builder.mutation({
             query: (body) => {
                 return {
@@ -79,6 +79,23 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
                 { type: 'Session', id: 'LIST' }
             ],
         }),
+        // TODO - allow purchases
+        purchaseTest: builder.mutation({
+            query: (body) => {
+                return {
+                    url: '/purchases',
+                    method: 'POST',
+                    body,
+                    // validateStatus: (response, result) => response.status === 200 && !result.isError, // Our tricky API always returns a 200, but sets an `isError` property when there is an error.
+                }
+            },
+            invalidatesTags: (result, error, { id }) => [
+                { type: 'Test', id: id },
+                { type: 'Test', id: 'LIST' },
+            ],
+        }),
+
+
         // TODO - get user sessions
         getSessions: builder.query({
             query: () => {
@@ -223,5 +240,5 @@ export const { selectAll: selectAllSessions, selectById: selectSessionById } =
 // Export the auto-generated hook for the `getPosts` query endpoint
 export const { useGetTestsQuery, useGetTestQuery, useCreateSessionMutation,
     useGetQuestionsQuery, useSubmitAnswerMutation, useGetSessionQuery,
-    useGetSessionsQuery,
+    useGetSessionsQuery, usePurchaseTestMutation,
 } = extendedApiSlice;

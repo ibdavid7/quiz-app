@@ -5,10 +5,10 @@ import { Button, Container, Icon, Image, Item, Label, List, Rating } from 'seman
 const Card = ({ test, modal }) => {
 
     const { isPurchased } = test;
-    const { setOpen, setContent } = modal;
+    const { mountModal, setContent } = modal;
 
     const handlePurchase = () => {
-        setOpen(true);
+        mountModal(true);
         setContent(test);
     }
 

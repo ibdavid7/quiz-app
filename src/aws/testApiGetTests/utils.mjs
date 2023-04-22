@@ -4,7 +4,7 @@ import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export const DEFAULT_REGION = 'us-east-1';
-export const [STARTED, COMPLETED, CANCELLED] = ['Started', 'Completed', 'Cancelled'];
+export const [STARTED, COMPLETED, CANCELLED, PURCHASES_GSI] = ['Started', 'Completed', 'Cancelled', 'userId-testId-index'];
 
 
 // Create an Amazon DynamoDB service client object.
@@ -32,6 +32,7 @@ export const ddbDocClient = DynamoDBDocumentClient.from(ddbClient, translateConf
 
 export const TEST_TABLE = 'Tests';
 export const TEST_SESSIONS_TABLE = 'TestSessions';
+export const TEST_PURCHASES_TABLE = 'TestPurchases';
 
 export const getItems = async (params) => {
 
