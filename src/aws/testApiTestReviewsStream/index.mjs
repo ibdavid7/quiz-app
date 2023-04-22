@@ -5,20 +5,19 @@ const [ANSWER, ANSWERS] = ['answer', 'answers'];
 
 export const handler = async (event, context, callback) => {
 
-    const [INSERT, REMOVE] = ['INSERT', 'REMOVE'];
+    const [INSERT, REMOVE, MODIFY] = ['INSERT', 'REMOVE', 'MODIFY'];
 
     // const uuid = context.awsRequestId;
 
     const promises = event.Records.map(async (record) => {
 
-        console.log(record);
-        console.log(record.dynamodb);
+        // console.log(record);
+        // console.log(record.dynamodb);
         // console.log(record.dynamodb.NewImage);
+        // console.log(record.dynamodb.OldImage);
 
         const { eventName } = record;
-        // console.log(testId);
-        // console.log(typeof Number(rating));
-        console.log(eventName);
+        // console.log(eventName);
 
 
         let params, testId, rating;
@@ -45,13 +44,28 @@ export const handler = async (event, context, callback) => {
 
                 testId = record.dynamodb.OldImage.testId.S;
                 rating = record.dynamodb.OldImage.rating.N;
-
+                // console.log(testId, rating);
                 params = {
                     TableName: TEST_TABLE,
                     Key: { id: testId },
                     UpdateExpression: "SET stats.ratings = stats.ratings + :increment, stats.totalScore = stats.totalScore + :rating",
                     ExpressionAttributeValues: { ":increment": -1, ":rating": -Number(rating) }
                 };
+                break;
+
+            case MODIFY:
+
+                testId = record.dynamodb.OldImage.testId.S;
+                const oldRating = record.dynamodb.OldImage.rating.N;
+                const newRating = record.dynamodb.NewImage.rating.N;
+                rating = Number(newRating) - Number(oldRating);
+                params = {
+                    TableName: TEST_TABLE,
+                    Key: { id: testId },
+                    UpdateExpression: "SET stats.totalScore = stats.totalScore + :rating",
+                    ExpressionAttributeValues: { ":rating": rating }
+                };
+                break;
 
             default:
                 return;
