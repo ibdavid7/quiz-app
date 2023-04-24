@@ -88,29 +88,29 @@ const App = () => {
 
 
   return (
-    <Layout>
+    <>
+    {/* <Layout> */}
+        {/* Test only, remove */}
+        {/* <Test /> */}
 
-      {/* Test only, remove */}
-      {/* <Test /> */}
+        {/* Display Tests Data */}
+        {isTestsLoading && <Loader />}
+        {isTestsSuccess && <Listing tests={tests} />}
 
-      {/* Display Tests Data */}
-      {isTestsLoading && <Loader />}
-      {isTestsSuccess && <Listing tests={tests} />}
-
-      {loading && <Loader />}
-      {!loading && !isQuizStarted && !isQuizCompleted && (
-        <Main startQuiz={startQuiz} />
-      )}
-      {!loading && isQuizStarted && (
-        <Quiz data={data} countdownTime={countdownTime} endQuiz={endQuiz} />
-      )}
-      {!loading && isQuizCompleted && (
-        <Result {...resultData} replayQuiz={replayQuiz} resetQuiz={resetQuiz} />
-      )}
-      {/* <AmplifyAuthenticator usernameAlias="email" /> */}
-
-    </Layout>
-  );
+        {loading && <Loader />}
+        {!loading && !isQuizStarted && !isQuizCompleted && (
+          <Main startQuiz={startQuiz} />
+        )}
+        {!loading && isQuizStarted && (
+          <Quiz data={data} countdownTime={countdownTime} endQuiz={endQuiz} />
+        )}
+        {!loading && isQuizCompleted && (
+          <Result {...resultData} replayQuiz={replayQuiz} resetQuiz={resetQuiz} />
+        )}
+        {/* <AmplifyAuthenticator usernameAlias="email" /> */}
+        {/* </Layout> */}
+      </>
+      );
 };
 
-export default App;
+      export default App;
