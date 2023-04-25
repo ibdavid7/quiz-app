@@ -2,6 +2,7 @@ import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand, QueryCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { CognitoIdentityProvider } from '@aws-sdk/client-cognito-identity-provider';
 
 export const DEFAULT_REGION = 'us-east-1';
 export const [STARTED, COMPLETED, CANCELLED, PURCHASES_GSI] = ['Started', 'Completed', 'Cancelled', 'userId-testId-index'];
@@ -203,3 +204,5 @@ export const insertPresignedUrls = async (session, answersIncluded = false, expi
     return result;
 
 }
+
+

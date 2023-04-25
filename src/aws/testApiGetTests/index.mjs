@@ -1,114 +1,9 @@
-// // myTestApiFunction
-
-// import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
-// import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
-
-// const DEFAULT_REGION = 'us-east-1';
-
-// // Create an Amazon DynamoDB service client object.
-// const ddbClient = new DynamoDBClient({ region: DEFAULT_REGION });
-
-// const marshallOptions = {
-//     // Whether to automatically convert empty strings, blobs, and sets to `null`.
-//     convertEmptyValues: false, // false, by default.
-//     // Whether to remove undefined values while marshalling.
-//     removeUndefinedValues: true, // false, by default.
-//     // Whether to convert typeof object to map attribute.
-//     convertClassInstanceToMap: false, // false, by default.
-// };
-
-// const unmarshallOptions = {
-//     // Whether to return numbers as a string instead of converting them to native JavaScript numbers.
-//     wrapNumbers: false, // false, by default.
-// };
-
-// const translateConfig = { marshallOptions, unmarshallOptions };
-
-// // Create the DynamoDB document client.
-// const ddbDocClient = DynamoDBDocumentClient.from(ddbClient, translateConfig);
-
-import { ddbDocClient, TEST_TABLE, TEST_SESSIONS_TABLE, getItems } from "./utils.mjs";
+import { TEST_TABLE, TEST_SESSIONS_TABLE, TEST_PURCHASES_TABLE, getItems, queryTable, PURCHASES_GSI } from "./utils.mjs";
+import { CognitoIdentityProviderClient, GetUserCommand } from "@aws-sdk/client-cognito-identity-provider";
+import { CognitoJwtVerifier } from "aws-jwt-verify";
 
 
 const [STARTED, COMPLETED, CANCELLED] = ['Started', 'Completed', 'Cancelled'];
-
-
-const getTest = async (tableName, id) => {
-    const { Item } = await ddbDocClient.send(
-        new GetCommand({
-            TableName: tableName,
-            Key: {
-                id,
-            },
-            // By default, reads are eventually consistent. "ConsistentRead: true" represents
-            // a strongly consistent read. This guarantees that the most up-to-date data is returned. It
-            // can also result in higher latency and a potential for server errors.
-            ConsistentRead: false,
-        })
-    );
-
-    return Item;
-};
-
-// const getTests = async (tableName, category) => {
-
-//     const { Items } = await ddbDocClient.send(
-//         new ScanCommand({
-//             TableName: tableName,
-//             FilterExpression: "config.category = :topic",
-//             ExpressionAttributeValues: {
-//                 ":topic": category,
-//             },
-//             ProjectionExpression: "id, config",
-//         })
-//     );
-
-//     return Items;
-
-// };
-
-const addTestSession = async (tableName, test, userId, uuid) => {
-
-    // Set the parameters.
-
-    const { id, ...rest } = test;
-
-    const params = {
-        TableName: tableName,
-        Item: {
-            id: uuid,
-            testId: id,
-            userId,
-            answers: {},
-            status: STARTED,
-            start: Date.now(),
-            ...rest,
-        },
-    };
-
-    try {
-        const data = await ddbDocClient.send(new PutCommand(params));
-        // console.log("Success - item added or updated", data);
-        return data;
-    } catch (err) {
-        console.log("Error", err.stack);
-    }
-}
-
-const sanitizeAnswers = (session) => {
-    const { questions } = session;
-    const updatedQuestions = questions.map(({ answer_id, answer_image, answer_text, ...rest }) => {
-        return {
-            ...rest,
-        }
-    })
-
-    return {
-        ...session,
-        questions: updatedQuestions,
-    }
-
-}
 
 
 export const handler = async (event, context, callback) => {
@@ -117,7 +12,13 @@ export const handler = async (event, context, callback) => {
     // const { testId, userId } = JSON.parse(event.body);
     // const testId = event.pathParameters.testId;
     // console.log(testId, userId);
+
+    const authorizerHeader = event.headers.Authorization;
+    // console.log('userId claims: ', authorizerHeader);
+
     const uuid = context.awsRequestId;
+
+    // TODO allow for different test categories in the getTest API
     const category = 'iq';
 
     const params = {
@@ -139,7 +40,70 @@ export const handler = async (event, context, callback) => {
 
         // const session = await getTest(TEST_SESSIONS_TABLE, uuid);
 
-        const res = await getItems(params);
+        // if user is authorised, get the list of tests already purchased and build a lookup map
+
+        let res;
+
+        if (authorizerHeader) {
+            // const idToken = authorizerHeader;
+            // const decodedIdToken = decodeJwt({ IdToken: idToken });
+
+            // Verifier that expects valid access tokens:
+            const verifier = CognitoJwtVerifier.create({
+                userPoolId: "us-east-1_94LETHrU8",
+                tokenUse: "id",
+                clientId: "113366fbvvjibnkbgoedsj0kgs",
+            });
+
+
+            const { sub: userId } = await verifier.verify(
+                // the JWT as string
+                authorizerHeader
+            );
+
+            console.log('sub: ', userId);
+
+
+            // check whether user has purchased the test
+            const params_query_purchase = {
+                TableName: TEST_PURCHASES_TABLE,
+                IndexName: PURCHASES_GSI,
+                KeyConditionExpression: 'userId = :value_userId',
+                ExpressionAttributeValues: {
+                    ':value_userId': userId,
+                },
+                ProjectionExpression: "userId, testId",
+                // By default, reads are eventually consistent. "ConsistentRead: true" represents
+                // a strongly consistent read. This guarantees that the most up-to-date data is returned. It
+                // can also result in higher latency and a potential for server errors.
+                ConsistentRead: false,
+            }
+
+            const { Items } = await queryTable(params_query_purchase);
+            // console.log('purchases: ', Items);
+
+            const testPurchaseMap = Items.reduce((obj, item) => Object.assign(obj, { [item.testId]: true }), {});
+
+            // console.log(testPurchaseMap);
+
+            res = await getItems(params);
+            console.log(res);
+
+            res = res.map(item => {
+                return {
+                    ...item,
+                    isPurchased: !!testPurchaseMap[item.id],
+                }
+            });
+
+
+        } else {
+            // user not logged in
+
+            // TODO rewrite for query rather than scan and limit no. of items returned
+            res = await getItems(params);
+        }
+
 
         const response = {
             statusCode: 200,
@@ -155,6 +119,9 @@ export const handler = async (event, context, callback) => {
         console.log(err);
         return {
             statusCode: 500,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+            },
             body: JSON.stringify({ message: `Error retrieving item: ${err}` })
         };
     }
