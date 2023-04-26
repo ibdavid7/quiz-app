@@ -7,7 +7,7 @@ import Quiz from '../Quiz';
 import Result from '../Result';
 
 import { shuffle } from '../../utils';
-import Test from "../../api/test";
+import Test from '../../api/test';
 import Listing from '../Listing';
 
 import { useGetTestsQuery } from '../../store/store';
@@ -89,28 +89,28 @@ const App = () => {
 
   return (
     <>
-    {/* <Layout> */}
-        {/* Test only, remove */}
-        {/* <Test /> */}
+      {/* <Layout> */}
+      {/* Test only, remove */}
+      <Test />
 
-        {/* Display Tests Data */}
-        {isTestsLoading && <Loader />}
-        {isTestsSuccess && <Listing tests={tests} />}
+      {/* Display Tests Data */}
+      {isTestsLoading && <Loader />}
+      {isTestsSuccess && <Listing tests={tests} />}
 
-        {loading && <Loader />}
-        {!loading && !isQuizStarted && !isQuizCompleted && (
-          <Main startQuiz={startQuiz} />
-        )}
-        {!loading && isQuizStarted && (
-          <Quiz data={data} countdownTime={countdownTime} endQuiz={endQuiz} />
-        )}
-        {!loading && isQuizCompleted && (
-          <Result {...resultData} replayQuiz={replayQuiz} resetQuiz={resetQuiz} />
-        )}
-        {/* <AmplifyAuthenticator usernameAlias="email" /> */}
-        {/* </Layout> */}
-      </>
-      );
+      {loading && <Loader />}
+      {!loading && !isQuizStarted && !isQuizCompleted && (
+        <Main startQuiz={startQuiz} />
+      )}
+      {!loading && isQuizStarted && (
+        <Quiz data={data} countdownTime={countdownTime} endQuiz={endQuiz} />
+      )}
+      {!loading && isQuizCompleted && (
+        <Result {...resultData} replayQuiz={replayQuiz} resetQuiz={resetQuiz} />
+      )}
+      {/* <AmplifyAuthenticator usernameAlias="email" /> */}
+      {/* </Layout> */}
+    </>
+  );
 };
 
-      export default App;
+export default App;

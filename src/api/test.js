@@ -30,7 +30,7 @@ const Test = () => {
 
     const [submitAnswer, { data: submitAnswerResponse, isSuccess: submitAnswerIsSuccess }] = useSubmitAnswerMutation();
 
-    const [createSession, { data: createSessionResponse, isSuccess: createSessionIsSuccess, isError: createSessionIsError, error: createSessionError }] = useCreateSessionMutation();
+    const [createSession, { data: createSessionResponse, isSuccess: createSessionIsSuccess, isError: createSessionIsError, error: createSessionError, isLoading: createSessionIsLoading }] = useCreateSessionMutation();
 
     const [testId, setTestId] = useState(1);
 

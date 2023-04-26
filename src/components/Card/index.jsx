@@ -1,15 +1,32 @@
 import React from 'react'
-import { Button, Container, Icon, Image, Item, Label, List, Rating } from 'semantic-ui-react'
+import { Button, Container, Icon, Image, Item, Label, List, Rating, Loader } from 'semantic-ui-react';
+import { store, useGetTestQuery, useGetTestsQuery, useCreateSessionMutation } from "../../store/store";
+import { redirect, useNavigate } from "react-router-dom";
+
 
 
 const Card = ({ test, modal }) => {
 
     const { isPurchased } = test;
     const { mountModal, setContent } = modal;
+    const navigate = useNavigate();
+
+    const [createSession, { data: createSessionResponse, isSuccess: createSessionIsSuccess, isError: createSessionIsError, error: createSessionError, isLoading: createSessionIsLoading }] = useCreateSessionMutation();
 
     const handlePurchase = () => {
         mountModal(true);
         setContent(test);
+    }
+
+    const handleTakeTest = () => {
+        createSession({
+            testId: test.id,
+        }).unwrap()
+            .then(session => {
+                // console.log(session)
+                navigate(`/sessions/${session.sessionId}`);
+            }).catch(rejected => console.log(rejected));
+
     }
 
     return (
@@ -65,11 +82,17 @@ const Card = ({ test, modal }) => {
                         ? <Button
                             color='green'
                             floated='right'
-                            onClick={() => { }}
+                            onClick={handleTakeTest}
                         >
+                            {createSessionIsLoading
+                                ? <>
+                                    <Loader active inline='left' size='tiny' inverted /> Loading
+                                </>
+                                : <>
+                                    Take Test
+                                    <Icon name='right chevron' />
+                                </>}
                             <>
-                                Take Test
-                                <Icon name='right chevron' />
                             </>
                         </Button>
                         : <Button

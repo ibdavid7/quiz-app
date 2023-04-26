@@ -14,11 +14,12 @@ import {
 } from "react-router-dom";
 import Root from './routes/Root';
 import ErrorPage from './components/ErrorPage';
-import Listing from './components/Listing';
+import Listing from './components/Card';
+import Session, { loader as sessionLoader } from './components/Session';
 
 const router = createBrowserRouter([
     {
-        path: "/",
+        path: '/',
         element: <Root />,
         errorElement: <ErrorPage />,
         children: [
@@ -28,9 +29,14 @@ const router = createBrowserRouter([
                 errorElement: <ErrorPage />,
             },
             {
-                path: "app",
+                path: 'app',
                 element: <App />,
             },
+            {
+                path: '/sessions/:sessionId',
+                element: <Session />,
+                loader: sessionLoader,
+            }
         ],
     },
 ]);

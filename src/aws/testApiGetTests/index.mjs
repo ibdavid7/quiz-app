@@ -50,19 +50,17 @@ export const handler = async (event, context, callback) => {
 
             // Verifier that expects valid access tokens:
             const verifier = CognitoJwtVerifier.create({
-                userPoolId: "us-east-1_94LETHrU8",
+                userPoolId: process.env.AWS_USERPOOLID,
                 tokenUse: "id",
-                clientId: "113366fbvvjibnkbgoedsj0kgs",
+                clientId: process.env.AWS_CLIENTID,
             });
-
 
             const { sub: userId } = await verifier.verify(
                 // the JWT as string
                 authorizerHeader
             );
 
-            console.log('sub: ', userId);
-
+            // console.log('sub: ', userId);
 
             // check whether user has purchased the test
             const params_query_purchase = {
