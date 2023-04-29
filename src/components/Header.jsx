@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 
 const Header = () => {
     return (
-        <Container>
+        <Container >
 
-            <Menu secondary>
+            <Menu secondary >
                 <Menu.Item as={Link} to="/">
                     Home
                 </Menu.Item>
