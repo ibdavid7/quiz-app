@@ -53,7 +53,7 @@ export const handler = async (event, context, callback) => {
             const test = await getItem(params_get_test);
 
             const obj = test.questions.reduce((acc, curr) => {
-                acc[curr.question_id] = { answer: "" };
+                acc[curr.question_id] = null;
                 return acc;
             }, {});
 
@@ -66,7 +66,7 @@ export const handler = async (event, context, callback) => {
                     userId,
                     answers: obj,
                     status: STARTED,
-                    start: Date.now(),
+                    startTime: Date.now(),
                 },
             };
 

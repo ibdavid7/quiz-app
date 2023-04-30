@@ -33,7 +33,12 @@ const router = createBrowserRouter([
                 element: <App />,
             },
             {
-                path: '/sessions/:sessionId',
+                path: '/sessions/:sessionId/',
+                element: <Session />,
+                loader: sessionLoader,
+            },
+            {
+                path: '/sessions/:sessionId/:questionNumber',
                 element: <Session />,
                 loader: sessionLoader,
             }

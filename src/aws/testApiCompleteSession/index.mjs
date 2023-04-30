@@ -19,21 +19,24 @@ import { ddbDocClient, TEST_TABLE, TEST_SESSIONS_TABLE, getItems, getItem, sanit
 
 const [STARTED, COMPLETED, CANCELLED] = ['Started', 'Completed', 'Cancelled'];
 
-const [ANSWER, ANSWERS, RESULTS] = ['answer', 'answers', 'results'];
+const [ANSWERS, RESULTS] = ['answers', 'results'];
 
 export const handler = async (event, context, callback) => {
 
     // const uuid = context.awsRequestId;
     const path_parameter = event.pathParameters['sessionId'];
-    const { status } = JSON.parse(event.body);
+    const { action } = JSON.parse(event.body);
     // TODO update with authentication
-    // const userId = 'userId2';
+    const userId = event.requestContext.authorizer.claims.sub;
 
-    if (status == STARTED) {
-        // TODO: reopen the session
-    } else if (status == CANCELLED) {
-        // TOTO: set status to cancelled
-    } else if (status == COMPLETED) {
+
+    if (action == STARTED) {
+        // TODO: stop execution and return
+        return;
+    } else if (action == CANCELLED) {
+        // TODO: set status to cancelled
+        return;
+    } else if (action == COMPLETED) {
         // TODO: PERFORM COMPLETION
 
         const params_get = {
@@ -53,8 +56,7 @@ export const handler = async (event, context, callback) => {
 
             const session = await getItem(params_get);
 
-            // TODO: Authentication on userId
-
+            // EEROR HANDLING: session doesn't exist; OR user is not the owner; OR Session is already completed or cancelled
             if (!session) {
                 const response = {
                     statusCode: 400,
@@ -65,34 +67,90 @@ export const handler = async (event, context, callback) => {
                 };
                 return response;
             }
-            // TODO: test for correctness
+
+            if (session.userId !== userId) {
+                const response = {
+                    statusCode: 400,
+                    headers: {
+                        "Access-Control-Allow-Origin": "*",
+                    },
+                    body: JSON.stringify({ Error: `Bad Request: Session ID: ${sessionId} does not belong to logged in user` }),
+                };
+                return response;
+            }
+
+            if (session.status !== STARTED) {
+                const response = {
+                    statusCode: 400,
+                    headers: {
+                        "Access-Control-Allow-Origin": "*",
+                    },
+                    body: JSON.stringify({ Error: `Bad Request: Session ID: ${sessionId} is already completed or cancelled` }),
+                };
+                return response;
+            }
+
+
+            // Scoring function
             const questions = session.questions;
             const answers = session.answers;
 
-            const results = {
-                point_score_total: 0,
-                point_score_result: 0,
-                questions_total: questions.length,
-                questions_answered: 0,
-                questions_answered_correctly: 0,
+
+            // TODO: provide breakdown by question label e.g. numerical, verbal etc
+            const scoring = {
+                test: {
+                    score_available: 0,
+                    score_result: 0,
+                    questions_available: 0,
+                    questions_answered: 0,
+                    questions_correct: 0,
+                }
             };
 
-            questions.reduce((question) => {
+            // Perform scoring in 3 steps:
+            // 1. Prepare the results array by question
+            // 2. Calculate the total score using test specific methodology
+            // 3. Interpret and evaluate score against the base results ditribution function to get the percentile
+            // TODO: test for correctness
+
+            // TODO: this only works for multiple choice questions question.type=multiple; generify for direct input
+
+
+
+            const results = questions.reduce((acc, question) => {
                 const questionId = question.question_id;
                 const currectAnswerId = question.answer_id;
                 const scoreAvailable = question.score;
-                const actualAnswerId = answers.question_id[ANSWER];
+                const actualAnswerId = ANSWERS.question_id;
 
-                return {
-                    ...results,
-                    point_score_total: results.point_score_total + scoreAvailable,
-                    point_score_result: results.point_score_result + currectAnswerId === actualAnswerId ? scoreAvailable : 0,
-                    questions_answered: results.questions_answered + actualAnswerId ? 1 : 0,
-                    questions_answered_correctly: results.questions_answered_correctly + currectAnswerId === actualAnswerId ? 1 : 0,
+                const labels = ['test'];
+                if (question.label) {
+                    labels.push(question.label);
+                }
+                if (question.difficulty) {
+                    labels.push(question.difficulty);
+
                 }
 
+                const result = {}
 
-            }, results);
+                labels.forEach(label => {
+                    result = {
+                        ...result,
+                        [label]: {
+                            score_available: (acc?.[label]?.score_available ?? 0) + scoreAvailable,
+                            score_result: (acc?.[label]?.score_result ?? 0) + currectAnswerId === actualAnswerId ? scoreAvailable : 0,
+                            questions_available: (acc?.[label]?.questions_available ?? 0) + 1,
+                            questions_answered: (acc?.[label]?.questions_answered ?? 0) + actualAnswerId ? 1 : 0,
+                            questions_correct: (acc?.[label]?.questions_correct ?? 0) + currectAnswerId === actualAnswerId ? 1 : 0,
+                        }
+                    }
+                })
+
+                return result;
+
+
+            }, scoring);
 
 
             const params_update = {
@@ -100,16 +158,21 @@ export const handler = async (event, context, callback) => {
                 Key: {
                     id: path_parameter,
                 },
-                UpdateExpression: 'SET #map = :new_value',
+                UpdateExpression: 'SET #map = :new_value AND #status = :status_value AND #end = :end_value',
                 ExpressionAttributeNames: {
                     '#map': RESULTS,
+                    '#status': 'status',
+                    '#end': 'endTime',
                 },
                 ExpressionAttributeValues: {
                     ':new_value': results,
+                    ':status_value': COMPLETED,
+                    ':end_value': Date.now(),
                 }
             }
 
-            let res = await updateItem(params);
+
+            let res = await updateItem(params_update);
 
             const response = {
                 statusCode: 200,
@@ -125,7 +188,7 @@ export const handler = async (event, context, callback) => {
             console.log(err);
             return {
                 statusCode: 500,
-                body: JSON.stringify({ message: `Error retrieving item: ${err}` })
+                body: JSON.stringify({ message: `Error processing item: ${err}` })
             };
         }
 

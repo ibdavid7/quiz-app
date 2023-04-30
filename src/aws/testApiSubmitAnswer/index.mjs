@@ -9,18 +9,16 @@ export const handler = async (event, context, callback) => {
   const path_parameter = event.pathParameters['sessionId'];
   const { questionId, optionId } = JSON.parse(event.body);
   // TODO update with authentication
-  // const userId = 'userId2';
 
   const params = {
     TableName: TEST_SESSIONS_TABLE,
     Key: {
       id: path_parameter,
     },
-    UpdateExpression: 'SET #map.#nested_map.#attribute = :new_value',
+    UpdateExpression: 'SET #map.#nested_map = :new_value',
     ExpressionAttributeNames: {
       '#map': ANSWERS,
       '#nested_map': questionId,
-      '#attribute': ANSWER,
     },
     ExpressionAttributeValues: {
       ':new_value': optionId,

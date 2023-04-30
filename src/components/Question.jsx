@@ -9,12 +9,20 @@ const Question = ({ question, questionCount, questionNumber, sessionId }) => {
     const { data: session, refetch: sessionRefetch, isSuccess: sessionIsSuccess, isError: sessionIsError } = useGetSessionQuery(sessionId);
     const [submitAnswer, resultSubmitAnswer] = useSubmitAnswerMutation();
 
+    const [STARTED] = ['Started'];
+
     useEffect(() => {
-        setSelectionId(session['answers'][question.question_id]['answer'])
+        setSelectionId(session?.['answers']?.[question.question_id] || null)
     }, [session, question]);
 
 
     const handleSelectionOnClick = (optionId) => {
+
+        // only edit answer if session.status is started
+        if (session.status !== STARTED) {
+            return;
+        }
+
         setSelectionId((prevId) => {
             if (prevId === optionId) {
                 submitAnswer({ sessionId: sessionId, questionId: question.question_id, optionId: null });
@@ -44,7 +52,7 @@ const Question = ({ question, questionCount, questionNumber, sessionId }) => {
                         <Segment
                             id={optionId}
                             onClick={() => handleSelectionOnClick(optionId)}
-                            className={selectionId === optionId ? 'raised green' : 'basic'}
+                            className={selectionId === optionId ? 'raised black' : 'basic'}
                             style={{ cursor: 'pointer' }}
                         >
                             <span>{alphabet(index)}. </span>
@@ -82,7 +90,7 @@ const Question = ({ question, questionCount, questionNumber, sessionId }) => {
             <Divider horizontal>
                 <Header as='h4' >
                     <Segment.Inline>
-                        <Icon name='check circle' color='blue' />
+                        <Icon name='check circle' color='black' />
                         Question {questionNumber + 1} / {questionCount} ({Math.max(100, ((questionNumber + 1) / (questionCount) * 100).toFixed(0))}%)
                         {/* <Progress value={questionNumber + 1} total={questionCount} progress='percent' /> */}
                     </Segment.Inline>

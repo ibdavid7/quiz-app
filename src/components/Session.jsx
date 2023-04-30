@@ -8,23 +8,23 @@ import Question from './Question';
 
 
 export async function loader({ params }) {
+    // console.log(params)
     return params;
 }
 
 
 const Session = () => {
-    const { sessionId } = useLoaderData();
-    const [questionNumber, setQuestionNumber] = useState(-1);
-
-    // console.log(sessionId);
-
+    const { sessionId, questionNumber: questionNumberParams } = useLoaderData();
     const { data: session, refetch: sessionRefetch, isSuccess: sessionIsSuccess, isError: sessionIsError } = useGetSessionQuery(sessionId);
-
-    const [questionCount, setQuestionCount] = useState(session?.questions?.length || 0);
+    const [questionCount, setQuestionCount] = useState(0);
+    const [questionNumber, setQuestionNumber] = useState(-1);
 
     useEffect(() => {
         setQuestionCount(session?.questions?.length);
-    }, [session]);
+        const index = Number(questionNumberParams) && (Number(questionNumberParams) - 1) < questionCount ? Number(questionNumberParams - 1) : -1;
+        setQuestionNumber(index);
+    }, [session, questionCount]);
+
 
     const handleNextClickButton = () => {
         setQuestionNumber((prev) => Math.min(prev + 1, questionCount - 1));
@@ -54,7 +54,7 @@ const Session = () => {
                         <Icon name='cancel' />
                         Cancel
                     </Button>
-                    <Button icon labelPosition='right' color='green' onClick={handleNextClickButton}>
+                    <Button icon labelPosition='right' color='black' onClick={handleNextClickButton}>
                         Start
                         <Icon name='right arrow' />
                     </Button>
@@ -67,7 +67,7 @@ const Session = () => {
                         <Icon name='left arrow' />
                         Previous
                     </Button>
-                    <Button icon labelPosition='right' color='green' onClick={handleNextClickButton}>
+                    <Button icon labelPosition='right' color='black' onClick={handleNextClickButton}>
                         Next
                         <Icon name='right arrow' />
                     </Button>
@@ -80,7 +80,7 @@ const Session = () => {
                         <Icon name='left arrow' />
                         Previous
                     </Button>
-                    <Button icon labelPosition='right' color='green' onClick={handleCompleteClickButton}>
+                    <Button icon labelPosition='right' color='black' onClick={handleCompleteClickButton}>
                         Complete
                         <Icon name='flag checkered' />
                     </Button>

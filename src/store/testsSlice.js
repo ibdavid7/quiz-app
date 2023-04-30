@@ -161,7 +161,7 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
             async onQueryStarted({ sessionId, questionId, optionId }, { dispatch, queryFulfilled }) {
                 const patchResult = dispatch(
                     apiSlice.util.updateQueryData('getSession', sessionId, (draft) => {
-                        draft.answers[questionId]['answer'] = optionId;
+                        draft.answers[questionId] = optionId;
                     })
                 )
                 queryFulfilled.catch(patchResult.undo)
@@ -169,7 +169,7 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
 
         }),
 
-        // TODO invalidates getSession, action: complete, build authentication
+        // TODO invalidates getSession, action: complete, build authentication; patch method
         // completeSession:
 
     }),
