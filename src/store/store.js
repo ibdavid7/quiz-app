@@ -3,7 +3,7 @@ import {
     useGetTestsQuery, useGetTestQuery, useCreateSessionMutation,
     useGetQuestionsQuery, useSubmitAnswerMutation, useGetSessionsQuery,
     selectAllSessions, selectSessionById, selectAllTests, selectTestById,
-    usePurchaseTestMutation, useGetSessionQuery
+    usePurchaseTestMutation, useGetSessionQuery, useCompleteSessionMutation,
 } from "./testsSlice";
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { apiSlice } from "./apiSlice";
@@ -25,5 +25,6 @@ export {
     store, useGetTestsQuery, useGetTestQuery, useCreateSessionMutation,
     useGetQuestionsQuery, useSubmitAnswerMutation, selectAllAnswers,
     usePurchaseTestMutation, useGetSessionsQuery, selectAllSessions,
-    selectSessionById, selectAllTests, selectTestById, useGetSessionQuery
+    selectSessionById, selectAllTests, selectTestById, useGetSessionQuery,
+    useCompleteSessionMutation,
 };

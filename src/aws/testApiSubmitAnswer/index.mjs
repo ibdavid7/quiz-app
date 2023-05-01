@@ -1,13 +1,13 @@
-import { ddbDocClient, TEST_TABLE, TEST_SESSIONS_TABLE, getItems, getItem, sanitizeSessionQuestions, sanitizeSession, queryTable, updateItem, putItem } from "./utils.mjs";
+import { TEST_SESSIONS_TABLE, updateItem, } from "./utils.mjs";
 
 
-const [ANSWER, ANSWERS] = ['answer', 'answers'];
+const [ANSWERS, RESUME_QUESTION_INDEX] = ['answers', 'resume_question_index'];
 
 export const handler = async (event, context, callback) => {
 
   const uuid = context.awsRequestId;
   const path_parameter = event.pathParameters['sessionId'];
-  const { questionId, optionId } = JSON.parse(event.body);
+  const { questionId, optionId, questionIndex } = JSON.parse(event.body);
   // TODO update with authentication
 
   const params = {
@@ -15,13 +15,16 @@ export const handler = async (event, context, callback) => {
     Key: {
       id: path_parameter,
     },
-    UpdateExpression: 'SET #map.#nested_map = :new_value',
+    UpdateExpression: 'SET #map.#nested_map = :new_value, #item_attribute = :new_value2',
     ExpressionAttributeNames: {
       '#map': ANSWERS,
       '#nested_map': questionId,
+      '#item_attribute': RESUME_QUESTION_INDEX,
+
     },
     ExpressionAttributeValues: {
       ':new_value': optionId,
+      ':new_value2': questionIndex,
     }
   }
 
@@ -43,6 +46,9 @@ export const handler = async (event, context, callback) => {
     console.log(err);
     return {
       statusCode: 500,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
       body: JSON.stringify({ message: `Error retrieving item: ${err}` })
     };
   }

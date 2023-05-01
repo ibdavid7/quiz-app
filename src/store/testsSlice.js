@@ -171,7 +171,18 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
 
         // TODO invalidates getSession, action: complete, build authentication; patch method
         // completeSession:
-
+        completeSession: builder.mutation({
+            query: (body) => {
+                return {
+                    url: `sessions/${body.sessionId}`,
+                    method: 'PATCH',
+                    body,
+                }
+            },
+            invalidatesTags: (result, error, { sessionId }) => [
+                { type: 'Session', id: sessionId }
+            ],
+        }),
     }),
 })
 
@@ -240,5 +251,5 @@ export const { selectAll: selectAllSessions, selectById: selectSessionById } =
 // Export the auto-generated hook for the `getPosts` query endpoint
 export const { useGetTestsQuery, useGetTestQuery, useCreateSessionMutation,
     useGetQuestionsQuery, useSubmitAnswerMutation, useGetSessionQuery,
-    useGetSessionsQuery, usePurchaseTestMutation,
+    useGetSessionsQuery, usePurchaseTestMutation, useCompleteSessionMutation,
 } = extendedApiSlice;

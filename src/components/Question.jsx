@@ -3,7 +3,7 @@ import { Container, Header, Divider, Table, Icon, Image, Button, Progress, Grid,
 import alphabet from '../constants/alphabet';
 import { useGetQuestionsQuery, useGetSessionQuery, useSubmitAnswerMutation } from '../store/testsSlice';
 
-const Question = ({ question, questionCount, questionNumber, sessionId }) => {
+const Question = ({ question, questionCount, questionIndex, sessionId }) => {
 
     const [selectionId, setSelectionId] = useState(null);
     const { data: session, refetch: sessionRefetch, isSuccess: sessionIsSuccess, isError: sessionIsError } = useGetSessionQuery(sessionId);
@@ -25,10 +25,10 @@ const Question = ({ question, questionCount, questionNumber, sessionId }) => {
 
         setSelectionId((prevId) => {
             if (prevId === optionId) {
-                submitAnswer({ sessionId: sessionId, questionId: question.question_id, optionId: null });
+                submitAnswer({ sessionId: sessionId, questionId: question.question_id, optionId: null, questionIndex: questionIndex });
                 return null;
             } else {
-                submitAnswer({ sessionId: sessionId, questionId: question.question_id, optionId: optionId });
+                submitAnswer({ sessionId: sessionId, questionId: question.question_id, optionId: optionId, questionIndex: questionIndex });
                 return optionId;
             }
         })
@@ -91,8 +91,8 @@ const Question = ({ question, questionCount, questionNumber, sessionId }) => {
                 <Header as='h4' >
                     <Segment.Inline>
                         <Icon name='check circle' color='black' />
-                        Question {questionNumber + 1} / {questionCount} ({Math.max(100, ((questionNumber + 1) / (questionCount) * 100).toFixed(0))}%)
-                        {/* <Progress value={questionNumber + 1} total={questionCount} progress='percent' /> */}
+                        Question {questionIndex + 1} / {questionCount} ({Math.max(100, ((questionIndex + 1) / (questionCount) * 100).toFixed(0))}%)
+                        {/* <Progress value={questionIndex + 1} total={questionCount} progress='percent' /> */}
                     </Segment.Inline>
                 </Header>
             </Divider>
@@ -107,39 +107,6 @@ const Question = ({ question, questionCount, questionNumber, sessionId }) => {
                     </Grid.Column>
                     <Grid.Column width={8}>
                         {question.difficulty && <Label attached='bottom right'>{question.difficulty}</Label>}
-                        {/*<Grid stackable>
-
-                            <Grid.Row>
-                                <Grid.Column width={8} >
-                                    A.
-                                    <Image src='https://react.semantic-ui.com/images/wireframe/paragraph.png' />
-                                </Grid.Column>
-                                <Grid.Column width={8}>
-                                    B.
-                                    <Image src='https://react.semantic-ui.com/images/wireframe/paragraph.png' />
-                                </Grid.Column>
-                            </Grid.Row>
-
-                            <Grid.Row>
-                                <Grid.Column width={8}>
-                                    C.
-                                    <Image src='https://react.semantic-ui.com/images/wireframe/paragraph.png' />
-                                </Grid.Column>
-                                <Grid.Column width={8}>
-                                    D.
-                                    <Image src='https://react.semantic-ui.com/images/wireframe/paragraph.png' />
-                                </Grid.Column >
-                            </Grid.Row>
-
-                            <Grid.Row>
-                                <Grid.Column width={8}>
-                                    E.
-                                    <Image src='https://react.semantic-ui.com/images/wireframe/paragraph.png' />
-                                </Grid.Column>
-
-                            </Grid.Row>
-                        </Grid>
-                        */}
                         <Options colsPerRow={2} />
 
                     </Grid.Column>

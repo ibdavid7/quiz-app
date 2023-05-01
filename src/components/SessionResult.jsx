@@ -12,7 +12,7 @@ export async function loader({ params }) {
 }
 
 
-const Session = () => {
+const SessionResult = () => {
     // TODO Fix navigation or delete
     // const { sessionId, questionNumber: questionNumberParams } = useLoaderData();
     // console.log('questionNumberParams', questionNumberParams)
@@ -80,10 +80,6 @@ const Session = () => {
                         Start
                         <Icon name='right arrow' />
                     </Button>
-                    <Button icon labelPosition='right' color='black' onClick={handleCompleteClickButton}>
-                        Complete
-                        <Icon name='flag checkered' />
-                    </Button>
                 </Segment>
             )
         } else if (questionIndex < questionCount - 1) {
@@ -123,10 +119,10 @@ const Session = () => {
                 && (
                     <>
                         <Header as='h1' textAlign='left'>{session?.config?.label}</Header>
-
-                        {questionIndex < 0
+                        <p>{JSON.stringify(session.results)}</p>
+                        {/* {questionIndex < 0
                             ? <Instructions config={{ ...session?.config, questionCount: session?.questions?.length }} />
-                            : <Question question={session.questions[questionIndex]} questionIndex={questionIndex} questionCount={questionCount} sessionId={sessionId} />}
+                            : <Question question={session.questions[questionIndex]} questionIndex={questionIndex} questionCount={questionCount} sessionId={sessionId} />} */}
                     </>
                 )
             }
@@ -143,4 +139,4 @@ const Session = () => {
     )
 }
 
-export default Session
+export default SessionResult

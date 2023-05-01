@@ -16,6 +16,8 @@ import Root from './routes/Root';
 import ErrorPage from './components/ErrorPage';
 import Listing from './components/Card';
 import Session, { loader as sessionLoader } from './components/Session';
+import SessionResult, { loader as sessionResultLoader } from './components/SessionResult';
+
 
 const router = createBrowserRouter([
     {
@@ -36,12 +38,19 @@ const router = createBrowserRouter([
                 path: '/sessions/:sessionId/',
                 element: <Session />,
                 loader: sessionLoader,
+                children: [
+                    {
+                        path: '/sessions/:sessionId/:questionNumber',
+                        element: <Session />,
+                        loader: sessionLoader,
+                    },
+                    {
+                        path: '/sessions/:sessionId/results',
+                        element: <SessionResult />,
+                        loader: sessionResultLoader,
+                    },
+                ],
             },
-            {
-                path: '/sessions/:sessionId/:questionNumber',
-                element: <Session />,
-                loader: sessionLoader,
-            }
         ],
     },
 ]);

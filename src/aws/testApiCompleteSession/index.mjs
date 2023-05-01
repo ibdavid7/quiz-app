@@ -1,21 +1,20 @@
-const r = {
-    results: {
-        "type": "normal_distribution",
-        "point_score_total": score,
-        "point_score_result": score,
-        "questions_total": total,
-        "questions_answered": subtotal,
-        "questions_answered_correctly": subtotal,
-        "percentile": percentile,
-        "confidence_level": confidence_level,
-        "results_text": results_text,
-        "results_image": results_image,
-    }
-}
+// const r = {
+//     results: {
+//         "type": "normal_distribution",
+//         "point_score_total": score,
+//         "point_score_result": score,
+//         "questions_total": total,
+//         "questions_answered": subtotal,
+//         "questions_answered_correctly": subtotal,
+//         "percentile": percentile,
+//         "confidence_level": confidence_level,
+//         "results_text": results_text,
+//         "results_image": results_image,
+//     }
+// }
 
 
-import { toContainHTML } from "@testing-library/jest-dom/dist/matchers.js";
-import { ddbDocClient, TEST_TABLE, TEST_SESSIONS_TABLE, getItems, getItem, sanitizeSessionQuestions, sanitizeSession, queryTable, updateItem, putItem } from "./utils.mjs";
+import { TEST_SESSIONS_TABLE, getItem, updateItem } from "./utils.mjs";
 
 const [STARTED, COMPLETED, CANCELLED] = ['Started', 'Completed', 'Cancelled'];
 
@@ -23,12 +22,18 @@ const [ANSWERS, RESULTS] = ['answers', 'results'];
 
 export const handler = async (event, context, callback) => {
 
+    // console.log('event: ', event)
+    // console.log('context: ', context)
+
+    // const uuid = context.awsRequestId;')
+
     // const uuid = context.awsRequestId;
     const path_parameter = event.pathParameters['sessionId'];
     const { action } = JSON.parse(event.body);
     // TODO update with authentication
     const userId = event.requestContext.authorizer.claims.sub;
-
+    // console.log('action: ', action)
+    // console.log('userId:', userId)
 
     if (action == STARTED) {
         // TODO: stop execution and return
@@ -63,7 +68,7 @@ export const handler = async (event, context, callback) => {
                     headers: {
                         "Access-Control-Allow-Origin": "*",
                     },
-                    body: JSON.stringify({ Error: `Bad Request: Session ID: ${sessionId} not found` }),
+                    body: JSON.stringify({ Error: `Bad Request: Session ID: ${path_parameter} not found` }),
                 };
                 return response;
             }
@@ -74,7 +79,7 @@ export const handler = async (event, context, callback) => {
                     headers: {
                         "Access-Control-Allow-Origin": "*",
                     },
-                    body: JSON.stringify({ Error: `Bad Request: Session ID: ${sessionId} does not belong to logged in user` }),
+                    body: JSON.stringify({ Error: `Bad Request: Session ID: ${path_parameter} does not belong to logged in user` }),
                 };
                 return response;
             }
@@ -85,7 +90,7 @@ export const handler = async (event, context, callback) => {
                     headers: {
                         "Access-Control-Allow-Origin": "*",
                     },
-                    body: JSON.stringify({ Error: `Bad Request: Session ID: ${sessionId} is already completed or cancelled` }),
+                    body: JSON.stringify({ Error: `Bad Request: Session ID: ${path_parameter} is already completed or cancelled` }),
                 };
                 return response;
             }
@@ -94,7 +99,9 @@ export const handler = async (event, context, callback) => {
             // Scoring function
             const questions = session.questions;
             const answers = session.answers;
+            // console.log('answers: ', answers)
 
+            // TODO: provide breakdown by question label e.g. numerical, verbal etc')
 
             // TODO: provide breakdown by question label e.g. numerical, verbal etc
             const scoring = {
@@ -121,7 +128,11 @@ export const handler = async (event, context, callback) => {
                 const questionId = question.question_id;
                 const currectAnswerId = question.answer_id;
                 const scoreAvailable = question.score;
-                const actualAnswerId = ANSWERS.question_id;
+                const actualAnswerId = answers[questionId];
+                // console.log('questionId', questionId);
+                // console.log('correctAnswerId', currectAnswerId);
+                // console.log('actualAnswerId', actualAnswerId);
+                // console.log('score result:', (currectAnswerId === actualAnswerId ? scoreAvailable : 0))
 
                 const labels = ['test'];
                 if (question.label) {
@@ -132,17 +143,18 @@ export const handler = async (event, context, callback) => {
 
                 }
 
-                const result = {}
+                let result = {}
 
                 labels.forEach(label => {
                     result = {
+                        ...acc,
                         ...result,
                         [label]: {
                             score_available: (acc?.[label]?.score_available ?? 0) + scoreAvailable,
-                            score_result: (acc?.[label]?.score_result ?? 0) + currectAnswerId === actualAnswerId ? scoreAvailable : 0,
+                            score_result: (acc?.[label]?.score_result ?? 0) + (currectAnswerId === actualAnswerId ? scoreAvailable : 0),
                             questions_available: (acc?.[label]?.questions_available ?? 0) + 1,
-                            questions_answered: (acc?.[label]?.questions_answered ?? 0) + actualAnswerId ? 1 : 0,
-                            questions_correct: (acc?.[label]?.questions_correct ?? 0) + currectAnswerId === actualAnswerId ? 1 : 0,
+                            questions_answered: (acc?.[label]?.questions_answered ?? 0) + (actualAnswerId ? 1 : 0),
+                            questions_correct: (acc?.[label]?.questions_correct ?? 0) + (currectAnswerId === actualAnswerId ? 1 : 0),
                         }
                     }
                 })
@@ -158,7 +170,7 @@ export const handler = async (event, context, callback) => {
                 Key: {
                     id: path_parameter,
                 },
-                UpdateExpression: 'SET #map = :new_value AND #status = :status_value AND #end = :end_value',
+                UpdateExpression: 'SET #map = :new_value, #status = :status_value, #end = :end_value',
                 ExpressionAttributeNames: {
                     '#map': RESULTS,
                     '#status': 'status',
@@ -188,6 +200,9 @@ export const handler = async (event, context, callback) => {
             console.log(err);
             return {
                 statusCode: 500,
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                },
                 body: JSON.stringify({ message: `Error processing item: ${err}` })
             };
         }
