@@ -39,17 +39,18 @@ const router = createBrowserRouter([
                 element: <Session />,
                 loader: sessionLoader,
                 children: [
-                    {
-                        path: '/sessions/:sessionId/:questionNumber',
-                        element: <Session />,
-                        loader: sessionLoader,
-                    },
-                    {
-                        path: '/sessions/:sessionId/results',
-                        element: <SessionResult />,
-                        loader: sessionResultLoader,
-                    },
+                    // {
+                    //     path: '/sessions/:sessionId/:questionNumber',
+                    //     element: <Session />,
+                    //     loader: sessionLoader,
+                    // },
+                   
                 ],
+            },
+            {
+                path: '/sessions/:sessionId/results',
+                element: <SessionResult />,
+                loader: sessionResultLoader,
             },
         ],
     },

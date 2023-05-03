@@ -4,10 +4,11 @@ import { useLoaderData, useNavigate } from "react-router-dom";
 import Instructions from './Instructions';
 import { Icon, Button, Divider, Container, Segment, Header } from 'semantic-ui-react';
 import Question from './Question';
+import NormalDistChart from './NormalDistChart';
 
 
 export async function loader({ params }) {
-    // console.log(params)
+    console.log(params)
     return params;
 }
 
@@ -120,6 +121,7 @@ const SessionResult = () => {
                     <>
                         <Header as='h1' textAlign='left'>{session?.config?.label}</Header>
                         <p>{JSON.stringify(session.results)}</p>
+                        <p>< NormalDistChart /></p>
                         {/* {questionIndex < 0
                             ? <Instructions config={{ ...session?.config, questionCount: session?.questions?.length }} />
                             : <Question question={session.questions[questionIndex]} questionIndex={questionIndex} questionCount={questionCount} sessionId={sessionId} />} */}
