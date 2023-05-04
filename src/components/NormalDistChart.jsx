@@ -11,7 +11,6 @@ import {
     Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import { faker } from '@faker-js/faker';
 
 ChartJS.register(
     CategoryScale,
@@ -50,22 +49,26 @@ const pdf = (x) => {
     return e / m;
 };
 const bell = [];
-// const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
 const labels = [];
 const startX = mean - 3.5 * stddev;
 const endX = mean + 3.5 * stddev;
-const step = stddev / 7;
+const step = stddev / 12;
+
 let x;
 for (x = startX; x <= mean; x += step) {
     bell.push({ x, y: pdf(x) });
     labels.push(x);
 }
 
-// labels.push(mean);
-
-for (x = mean; x <= endX; x += step) {
+for (x = mean + step; x <= endX; x += step) {
     bell.push({ x, y: pdf(x) });
     labels.push(x);
+}
+
+const bellScore = [];
+const score = 129;
+for (x = startX; x <= score; x += step) {
+    bellScore.push({ x, y: pdf(x) });
 }
 
 console.log(bell.length);
@@ -80,6 +83,10 @@ export const options = {
         title: {
             display: true,
             text: 'IQ Score Distribution',
+            font: {
+                size: 16,
+                weight: 'bold',
+            },
         },
     },
     scales: {
@@ -89,26 +96,17 @@ export const options = {
                 display: true,
             },
             ticks: {
+                display: true,
                 callback: (value, index, ticks) => {
-                    console.log(value, bell[index].x);
-                    return index === 25 ? bell[index].x : '';
+                    if ((bell[index].x - 10) % 15 === 0) {
+                        return bell[index].x;
+                    }
+
                 },
             },
-            // afterBuildTicks(scale) {
-            //     scale.ticks = bell.map(p => ({ value: p.x }))
-            //         .filter((tick, index) => index % 100 === 0);
-            // },
         },
         y: {
-            display: true,
-            grid: {
-                display: false,
-            },
-            // ticks: {
-            //     callback: (value, index, ticks) => {
-            //         return value % 100 === 0 ? this.getLabelForValue(value) : '';
-            //     },
-            // },
+            display: false,
         },
     },
 };
@@ -118,14 +116,32 @@ export const data = {
     labels,
     datasets: [
         {
-            fill: true,
-            label: 'Dataset 2',
+            fill: false,
+            label: 'Bell',
             // data: labels.map(() => faker.datatype.number({ min: 0, max: 1000 })),
             data: bell,
             tension: 0.4,
             radius: 0,
-            borderColor: 'rgb(53, 162, 235)',
-            backgroundColor: 'rgba(53, 162, 235, 0.5)',
+            borderColor: 'rgba(66, 66, 66, 0.2)',
+            // backgroundColor: 'rgba(238, 238, 238, 0.5)',
+            borderWidth: 2,
+            xAxisID:'x',
+            yAxisID:'y',
+
+        },
+        {
+            fill: true,
+            label: 'Bell Score',
+            // data: labels.map(() => faker.datatype.number({ min: 0, max: 1000 })),
+            data: bellScore,
+            tension: 0.4,
+            radius: 0,
+            borderColor: 'rgba(66, 66, 66, 0.8)',
+            backgroundColor: 'rgba(224, 224, 224, 0.5)',
+            borderWidth: 2,
+            xAxisID:'x',
+            yAxisID:'y',
+
         },
     ],
 };
