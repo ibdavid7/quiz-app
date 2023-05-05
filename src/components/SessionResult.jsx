@@ -5,10 +5,12 @@ import Instructions from './Instructions';
 import { Icon, Button, Divider, Container, Segment, Header, Table, Image, Label } from 'semantic-ui-react';
 import Question from './Question';
 import NormalDistChart from './NormalDistChart';
+import ResultsSummaryTable from './ResultsSummaryTable';
+import ResultsBreakdownTable from './ResultsBreakdownTable';
 
 
 export async function loader({ params }) {
-    console.log(params)
+    // console.log(params)
     return params;
 }
 
@@ -36,8 +38,6 @@ const SessionResult = () => {
         // setQuestionIndex(index);
     }, [session]);
 
-    const square = { width: 175, height: 175 }
-
 
     const handleNextClickButton = () => {
         setQuestionIndex((prev) => Math.min(prev + 1, questionCount - 1));
@@ -52,23 +52,27 @@ const SessionResult = () => {
     }
 
     const handleCompleteClickButton = () => {
-        setQuestionIndex((prev) => prev + 1);
+        //     setQuestionIndex((prev) => prev + 1);
 
-        completeSession({
-            action: 'Completed',
-            sessionId: sessionId,
-        })
-            .unwrap()
-            .then(fulfilled => {
-                // console.log(fulfilled)
-                navigate(`/sessions/${sessionId}/results`);
-            })
-            .catch(rejected => console.error(rejected))
+        //     completeSession({
+        //         action: 'Completed',
+        //         sessionId: sessionId,
+        //     })
+        //         .unwrap()
+        //         .then(fulfilled => {
+        //             // console.log(fulfilled)
+        //             sessionRefetch();
+
+        //             setTimeout(() => {
+        //                 navigate(`/sessions/${sessionId}/results`);
+
+        //             }, 1000)
+
+        //         })
+        //         .catch(rejected => console.error(rejected))
 
     }
 
-    // const html = parse(session?.config?.instructions);
-    // console.log(session?.config?.instructions)
 
     const Navigation = () => {
 
@@ -128,103 +132,40 @@ const SessionResult = () => {
 
                         <Container fluid>
 
-                            <Divider horizontal>
-                                <Header as='h4'>
-                                    <Icon name='clipboard' />
-                                    Results
-                                </Header>
-                            </Divider>
+
+                            {session?.results?.summary && <ResultsSummaryTable summary={session?.results?.summary} />}
 
 
-
-                            <Table definition>
-                                <Table.Body>
-                                    <Table.Row>
-                                        <Table.Cell width={4}>IQ Score</Table.Cell>
-                                        <Table.Cell>{120}</Table.Cell>
-                                    </Table.Row>
-                                </Table.Body>
-                            </Table>
-
-                            <Table definition celled>
-
-                                <Table.Header>
-                                    <Table.Row>
-                                        <Table.HeaderCell></Table.HeaderCell>
-                                        <Table.HeaderCell>Questions Available</Table.HeaderCell>
-                                        <Table.HeaderCell>Questions Answered</Table.HeaderCell>
-                                        <Table.HeaderCell>Questions Correct</Table.HeaderCell>
-                                        <Table.HeaderCell>% Correct</Table.HeaderCell>
-                                        <Table.HeaderCell>Score Available</Table.HeaderCell>
-                                        <Table.HeaderCell>Score Achieved</Table.HeaderCell>
-                                        <Table.HeaderCell>Score %</Table.HeaderCell>
-                                    </Table.Row>
-                                </Table.Header>
-
-                                <Table.Body>
-
-                                    {Object.entries(session.results).map(([key, value], index) => {
-                                        return (
-                                            <Table.Row key={index}>
-                                                <Table.Cell>{key}</Table.Cell>
-                                                <Table.Cell>{value['questions_available']}</Table.Cell>
-                                                <Table.Cell>{value['questions_answered']}</Table.Cell>
-                                                <Table.Cell>{value['questions_correct']}</Table.Cell>
-                                                <Table.Cell>{`${(Number(value['questions_correct']) / Number(value['questions_answered']) * 100).toFixed(0)}%`}</Table.Cell>
-                                                <Table.Cell>{value['score_available']}</Table.Cell>
-                                                <Table.Cell>{value['score_result']}</Table.Cell>
-                                                <Table.Cell>{`${(Number(value['score_result']) / Number(value['score_available']) * 100).toFixed(0)}%`}</Table.Cell>
-                                            </Table.Row>
-                                        )
-
-                                    })}
+                            {session?.results?.difficulty && <ResultsBreakdownTable
+                                title={'Results Breakdown by Difficulty'}
+                                icon={'magnify'}
+                                rows={[...Object.entries(session?.results?.difficulty)
+                                    .sort(([k1, v1], [k2, v2]) => v2?.['score_available'] - v1?.['score_available'])
+                                ]}
+                                footer={Object.entries(session?.results?.summary).filter(([key, value]) => key == 'test')}
+                            />}
 
 
-                                </Table.Body>
-                            </Table>
+                            {session?.results?.labels && <ResultsBreakdownTable
+                                title={'Results Breakdown by Category'}
+                                icon={'magnify'}
+                                rows={[...Object.entries(session?.results?.labels)
+                                    .sort(([k1, v1], [k2, v2]) => v2?.['score_available'] - v1?.['score_available'])
+                                ]}
+                                footer={Object.entries(session?.results?.summary).filter(([key, value]) => key == 'test')}
+                            />}
 
-                            {/* <Image src={session?.config?.instructions_image} fluid /> */}
-
-
-                            {/* <Divider horizontal>
-                                <Header as='h4'>
-                                    <Icon name='clipboard' />
-                                    Results Percentile %
-                                </Header>
-                            </Divider> */}
-
-
-                            <Container
-
-                            >
-                                <Segment>
-
-
-                                    < NormalDistChart />
-                                    <Segment circular style={{ ...square, position: 'absolute', top: '20%', right: '1%', transform: 'translate(-50%, -50%)',verticalAlign: 'middle' }}>
-                                    <Header as='h2' textAlign='center' style={{verticalAlign: 'middle'}}>
-                                            120
-                                            <Header.Subheader>IQ Score</Header.Subheader>
-                                        </Header>
-                                        <Header as='h2' textAlign='center' style={{verticalAlign: 'middle'}}>
-                                            80%
-                                            <Header.Subheader>Percentile</Header.Subheader>
-                                        </Header>
-                                    </Segment>
-
-                                </Segment>
-
-                            </Container>
+                            {session?.results?.summary?.results && < NormalDistChart {...session?.results?.summary?.results} />}
 
                         </Container>
 
 
-                        <Divider horizontal>
+                        {/* <Divider horizontal>
                             <Header as='h4'>
                                 <Icon name='clipboard' />
                                 Breakdown By Question
                             </Header>
-                        </Divider>
+                        </Divider> */}
 
                         <Container>
                             <Navigation />

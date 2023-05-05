@@ -1,20 +1,5 @@
-// const r = {
-//     results: {
-//         "type": "normal_distribution",
-//         "point_score_total": score,
-//         "point_score_result": score,
-//         "questions_total": total,
-//         "questions_answered": subtotal,
-//         "questions_answered_correctly": subtotal,
-//         "percentile": percentile,
-//         "confidence_level": confidence_level,
-//         "results_text": results_text,
-//         "results_image": results_image,
-//     }
-// }
-
-
 import { TEST_SESSIONS_TABLE, getItem, updateItem } from "./utils.mjs";
+import { cdf } from './cdf.mjs';
 
 const [STARTED, COMPLETED, CANCELLED] = ['Started', 'Completed', 'Cancelled'];
 
@@ -24,10 +9,8 @@ export const handler = async (event, context, callback) => {
 
     // console.log('event: ', event)
     // console.log('context: ', context)
-
-    // const uuid = context.awsRequestId;')
-
     // const uuid = context.awsRequestId;
+
     const path_parameter = event.pathParameters['sessionId'];
     const { action } = JSON.parse(event.body);
     // TODO update with authentication
@@ -105,13 +88,21 @@ export const handler = async (event, context, callback) => {
 
             // TODO: provide breakdown by question label e.g. numerical, verbal etc
             const scoring = {
-                test: {
-                    score_available: 0,
-                    score_result: 0,
-                    questions_available: 0,
-                    questions_answered: 0,
-                    questions_correct: 0,
-                }
+                summary: {
+                    test: {
+                        score_available: 0,
+                        score_result: 0,
+                        questions_available: 0,
+                        questions_answered: 0,
+                        questions_correct: 0,
+                    },
+                    results: {
+                        score: 0,
+                        percentile: 0,
+                    }
+                },
+                labels: {},
+                difficulty: {},
             };
 
             // Perform scoring in 3 steps:
@@ -129,40 +120,68 @@ export const handler = async (event, context, callback) => {
                 const currectAnswerId = question.answer_id;
                 const scoreAvailable = question.score;
                 const actualAnswerId = answers[questionId];
-                // console.log('questionId', questionId);
-                // console.log('correctAnswerId', currectAnswerId);
-                // console.log('actualAnswerId', actualAnswerId);
-                // console.log('score result:', (currectAnswerId === actualAnswerId ? scoreAvailable : 0))
 
-                const labels = ['test'];
+                const segments = [{ summary: 'test' }];
                 if (question.label) {
-                    labels.push(question.label);
+                    segments.push({ labels: question.label });
                 }
                 if (question.difficulty) {
-                    labels.push(question.difficulty);
+                    segments.push({ difficulty: question.difficulty });
 
                 }
 
-                let result = {}
+                let result = structuredClone(acc);
 
-                labels.forEach(label => {
-                    result = {
-                        ...acc,
-                        ...result,
-                        [label]: {
-                            score_available: (acc?.[label]?.score_available ?? 0) + scoreAvailable,
-                            score_result: (acc?.[label]?.score_result ?? 0) + (currectAnswerId === actualAnswerId ? scoreAvailable : 0),
-                            questions_available: (acc?.[label]?.questions_available ?? 0) + 1,
-                            questions_answered: (acc?.[label]?.questions_answered ?? 0) + (actualAnswerId ? 1 : 0),
-                            questions_correct: (acc?.[label]?.questions_correct ?? 0) + (currectAnswerId === actualAnswerId ? 1 : 0),
+                segments.forEach((elem) => {
+
+                    Object.entries(elem).forEach(([key, value]) => {
+
+                        result[key][value] = {
+                            score_available: (result?.[key]?.[value]?.score_available ?? 0) + scoreAvailable,
+                            score_result: (result?.[key]?.[value]?.score_result ?? 0) + (currectAnswerId === actualAnswerId ? scoreAvailable : 0),
+                            questions_available: (result?.[key]?.[value]?.questions_available ?? 0) + 1,
+                            questions_answered: (result?.[key]?.[value]?.questions_answered ?? 0) + (actualAnswerId ? 1 : 0),
+                            questions_correct: (result?.[key]?.[value]?.questions_correct ?? 0) + (currectAnswerId === actualAnswerId ? 1 : 0),
                         }
-                    }
+
+                    });
+
                 })
+
+                // console.log(result);
 
                 return result;
 
 
             }, scoring);
+
+            // scoring function
+            if (results?.summary?.test?.score_result && session?.config?.scoring) {
+
+                const { type } = session?.config?.scoring;
+
+                switch (type) {
+                    case 'normal_distribution':
+                        const { mean, sd } = session?.config?.scoring;
+                        const score = results?.summary?.test?.score_result;
+                        if (sd === 0) return;
+
+                        const z = (score - mean) / sd;
+                        const [iq_mean, iq_sd] = [100, 15];
+                        const iq_score = Math.round(z < 0 ? Math.max(iq_mean + (z * iq_sd), 0) : Math.min(iq_mean + (z * iq_sd), 200));
+                        const percentile = cdf[iq_score];
+                        
+                        // assign score to results object
+                        results.summary.results = { score: iq_score, percentile };
+
+                        break;
+
+                    default:
+                        break;
+
+                }
+
+            }
 
 
             const params_update = {

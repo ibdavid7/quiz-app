@@ -49,7 +49,7 @@ const Session = () => {
     }
 
     const handleCompleteClickButton = () => {
-        setQuestionIndex((prev) => prev + 1);
+        // setQuestionIndex((prev) => prev + 1);
 
         completeSession({
             action: 'Completed',
@@ -57,10 +57,13 @@ const Session = () => {
         })
             .unwrap()
             .then(fulfilled => {
-                // console.log(fulfilled)
+
                 navigate(`/sessions/${sessionId}/results`);
+
             })
             .catch(rejected => console.error(rejected))
+
+
 
     }
 

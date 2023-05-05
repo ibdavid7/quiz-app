@@ -122,9 +122,11 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
                     method: 'GET',
                 }
             },
-            providesTags: (result, error, { sessionId }) => [
-                { type: 'Session', id: sessionId }
-            ],
+            providesTags: (result, error, args) => {
+                // console.log(args);
+                // console.log('provide tag', { type: 'Session', id: args });
+                return [{ type: 'Session', id: args }]
+            },
             transformResponse: responseData => {
                 const data = { questions: responseData.questions };
                 const questionSchema = new schema.Entity('questions', {}, { idAttribute: 'question_id' });
@@ -179,9 +181,10 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
                     body,
                 }
             },
-            invalidatesTags: (result, error, { sessionId }) => [
-                { type: 'Session', id: sessionId }
-            ],
+            invalidatesTags: (result, error, { sessionId }) => {
+                // console.log('invalidate tag', { type: 'Session', id: sessionId });
+                return [{ type: 'Session', id: sessionId }]
+            },
         }),
     }),
 })
