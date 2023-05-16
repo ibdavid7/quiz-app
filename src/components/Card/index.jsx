@@ -1,11 +1,16 @@
 import React from 'react'
 import { Button, Container, Icon, Image, Item, Label, List, Rating, Loader } from 'semantic-ui-react';
 import { store, useGetTestQuery, useGetTestsQuery, useCreateSessionMutation } from "../../store/store";
-import { redirect, useNavigate } from "react-router-dom";
+import { redirect, useNavigate, useLocation } from "react-router-dom";
 
+const defaultModal = {
+    mountModal: false,
+    setContent: null,
+}
 
+const Card = ({ test, modal = defaultModal }) => {
+    
 
-const Card = ({ test, modal }) => {
 
     const { isPurchased } = test;
     const { mountModal, setContent } = modal;

@@ -52,25 +52,6 @@ const SessionResult = () => {
     }
 
     const handleCompleteClickButton = () => {
-        //     setQuestionIndex((prev) => prev + 1);
-
-        //     completeSession({
-        //         action: 'Completed',
-        //         sessionId: sessionId,
-        //     })
-        //         .unwrap()
-        //         .then(fulfilled => {
-        //             // console.log(fulfilled)
-        //             sessionRefetch();
-
-        //             setTimeout(() => {
-        //                 navigate(`/sessions/${sessionId}/results`);
-
-        //             }, 1000)
-
-        //         })
-        //         .catch(rejected => console.error(rejected))
-
     }
 
 
@@ -120,15 +101,12 @@ const SessionResult = () => {
 
 
     return (
-        <Container style={{ marginTop: '5rem', marginBottom: '5rem' }}>
-            {/* {JSON.stringify(session)} */}
+        <>
             {sessionIsSuccess
                 && (
-                    <>
+                    <Container style={{ marginTop: '5rem', marginBottom: '5rem' }}>
                         <Header as='h1' textAlign='left'>{session?.config?.label}</Header>
-                        <p>{JSON.stringify(session.results)}</p>
 
-                        {/* ---------------------------------------- */}
 
                         <Container fluid>
 
@@ -159,30 +137,19 @@ const SessionResult = () => {
 
                         </Container>
 
-
-                        {/* <Divider horizontal>
-                            <Header as='h4'>
-                                <Icon name='clipboard' />
-                                Breakdown By Question
-                            </Header>
-                        </Divider> */}
-
                         <Container>
                             <Navigation />
                         </Container>
 
-
-                        {/* ---------------------------------------- */}
-
-                    </>
+                    </Container >
                 )
             }
+        </>
 
 
 
 
 
-        </Container >
     )
 }
 

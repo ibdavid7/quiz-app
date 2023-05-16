@@ -17,7 +17,11 @@ import ErrorPage from './components/ErrorPage';
 import Listing from './components/Card';
 import Session, { loader as sessionLoader } from './components/Session';
 import SessionResult, { loader as sessionResultLoader } from './components/SessionResult';
-
+import TestEditForm from './components/TestEditForm';
+import Card from './components/Card';
+import TestCreateNew from './components/TestCreateNew';
+import { loader as testEditLoader } from './components/TestEditForm';
+import Editable from './components/Editable';
 
 const router = createBrowserRouter([
     {
@@ -33,6 +37,24 @@ const router = createBrowserRouter([
             {
                 path: 'app',
                 element: <App />,
+            }, {
+                path: 'tests/new',
+                element: <TestCreateNew />
+            },
+            {
+                path: 'tests/:testId/edit',
+                element: <TestEditForm />,
+                loader: testEditLoader,
+                children: [
+                    {
+                        path: 'overview',
+                        element: <Editable />,
+                    },
+                    {
+                        path: 'card',
+                        element: <Card test modal />,
+                    }
+                ],
             },
             {
                 path: '/sessions/:sessionId/',
@@ -44,7 +66,7 @@ const router = createBrowserRouter([
                     //     element: <Session />,
                     //     loader: sessionLoader,
                     // },
-                   
+
                 ],
             },
             {
@@ -57,7 +79,7 @@ const router = createBrowserRouter([
 ]);
 
 
-console.log(awsconfig)
+// console.log(awsconfig)
 Amplify.configure(awsconfig);
 
 
@@ -65,7 +87,6 @@ Amplify.configure(awsconfig);
 ReactDOM.render(
     <React.StrictMode>
         <Provider store={store}>
-            {/* <App /> */}
             <RouterProvider router={router} />
         </Provider>
     </React.StrictMode>,

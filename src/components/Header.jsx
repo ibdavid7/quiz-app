@@ -1,4 +1,4 @@
-import { Menu, Input, Container } from 'semantic-ui-react';
+import { Menu, Input, Container, Button } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 
 const Header = () => {
@@ -19,6 +19,9 @@ const Header = () => {
                     <Menu.Item>
                         <Input icon='search' placeholder='Search...' />
                     </Menu.Item>
+                    <Menu.Item as={Link} to="/tests/new">
+                        Create Test
+                    </Menu.Item >
                     <Menu.Item as={Link} to="/login">
                         Login
                     </Menu.Item >

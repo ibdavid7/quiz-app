@@ -180,7 +180,7 @@ const NormalDistChart = ({ score, percentile }) => {
                     <Header.Subheader>IQ Score</Header.Subheader>
                 </Header>
                 <Header as='h2' textAlign='center' style={{ verticalAlign: 'middle' }}>
-                    {percentile}%
+                    {Number(percentile) * 100}%
                     <Header.Subheader>Percentile</Header.Subheader>
                 </Header>
             </Segment>

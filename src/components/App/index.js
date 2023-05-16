@@ -91,7 +91,7 @@ const App = () => {
     <>
       {/* <Layout> */}
       {/* Test only, remove */}
-      <Test />
+      {/* <Test /> */}
 
       {/* Display Tests Data */}
       {isTestsLoading && <Loader />}

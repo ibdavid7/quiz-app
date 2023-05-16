@@ -36,7 +36,7 @@ const ResultsSummaryTable = ({ summary }) => {
                                 Percentile %
                             </Header>
                         </Table.Cell>
-                        <Table.Cell>{percentile}</Table.Cell>
+                        <Table.Cell>{Number(percentile) * 100}%</Table.Cell>
                     </Table.Row>
                     <Table.Row>
                         <Table.Cell width={4}>
@@ -76,7 +76,7 @@ const ResultsSummaryTable = ({ summary }) => {
                                 Score %
                             </Header>
                         </Table.Cell>
-                        <Table.Cell>${(Number(score_result) / Number(score_available) * 100).toFixed(1)}%</Table.Cell>
+                        <Table.Cell>{(Number(score_result) / Number(score_available) * 100).toFixed(1)}%</Table.Cell>
                     </Table.Row>
                 </Table.Body>
             </Table>
