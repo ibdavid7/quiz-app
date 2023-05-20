@@ -4,7 +4,7 @@ import { Container, Menu, Segment } from 'semantic-ui-react';
 
 const TestEditHeader = ({ activeItem, handleItemClick }) => {
 
-    console.log('activeItem:', activeItem)
+    // console.log('activeItem:', activeItem)
 
     return (
         <Container>

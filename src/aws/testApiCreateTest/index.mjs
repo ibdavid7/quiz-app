@@ -43,6 +43,9 @@ export const handler = async (event, context, callback) => {
                         language: null,
                     },
                 },
+                product_summary: {
+                    overview: null,
+                },
                 questions: [],
                 stats: {
                     ratings: 0,

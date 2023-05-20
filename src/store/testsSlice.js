@@ -65,6 +65,20 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
                 { type: 'Test', id: 'LIST' }
             ],
         }),
+        // GetEditTest: provides full test overview for the author to edit
+        // TODO: Implemented versioning system: pre-review and post-review/approval updates
+        // to ensure that production version works while edits are being made
+        getEditTest: builder.query({
+            query: (testId) => {
+                return {
+                    url: `/tests/${testId}/edit`,
+                    method: 'GET',
+                }
+            },
+            providesTags: (result, error, testId) => [
+                { type: 'Test', id: testId }
+            ],
+        }),
         // TODO - allow for unregistered users to start sessions and get previews, but also cache and remember answers - maybe init locally
         createSession: builder.mutation({
             query: (body) => {
@@ -94,7 +108,6 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
                 { type: 'Test', id: 'LIST' },
             ],
         }),
-
 
         // TODO - get user sessions
         getSessions: builder.query({
@@ -159,7 +172,8 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
                     body,
                 }
             },
-            // TODO implement optimistic updates and offline service worker logic
+            // Implemented optimistic updates with backtrack
+            // TODO implement offline service worker logic
             async onQueryStarted({ sessionId, questionId, optionId }, { dispatch, queryFulfilled }) {
                 const patchResult = dispatch(
                     apiSlice.util.updateQueryData('getSession', sessionId, (draft) => {
@@ -255,4 +269,5 @@ export const { selectAll: selectAllSessions, selectById: selectSessionById } =
 export const { useGetTestsQuery, useGetTestQuery, useCreateSessionMutation,
     useGetQuestionsQuery, useSubmitAnswerMutation, useGetSessionQuery,
     useGetSessionsQuery, usePurchaseTestMutation, useCompleteSessionMutation,
+    useGetEditTestQuery,
 } = extendedApiSlice;

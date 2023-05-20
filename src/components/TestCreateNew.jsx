@@ -5,6 +5,7 @@ const TestCreateNew = () => {
 
     const [test, setTest] = useState({ author: null, category: null, title: null });
     const { author, category, title } = test;
+
     const handleSubmit = (e, o) => {
         console.log(e)
         console.log(o)
@@ -31,7 +32,7 @@ const TestCreateNew = () => {
                 </Form.Field>
                 <Form.Field>
                     <label>Test Category</label>
-                    <Form.Field
+                    <Form.Input
                         placeholder='Test Category'
                         name='category'
                         value={category}
@@ -40,7 +41,7 @@ const TestCreateNew = () => {
                 </Form.Field>
                 <Form.Field>
                     <label>Test Title</label>
-                    <Form.Field
+                    <Form.Input
                         placeholder='Test Title'
                         name='title'
                         value={title}

@@ -45,16 +45,16 @@ const router = createBrowserRouter([
                 path: 'tests/:testId/edit',
                 element: <TestEditForm />,
                 loader: testEditLoader,
-                children: [
-                    {
-                        path: 'overview',
-                        element: <Editable />,
-                    },
-                    {
-                        path: 'card',
-                        element: <Card test modal />,
-                    }
-                ],
+                // children: [
+                //     {
+                //         path: 'overview',
+                //         element: <Editable />,
+                //     },
+                //     {
+                //         path: 'card',
+                //         element: <Card test modal />,
+                //     }
+                // ],
             },
             {
                 path: '/sessions/:sessionId/',

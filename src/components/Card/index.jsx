@@ -3,16 +3,18 @@ import { Button, Container, Icon, Image, Item, Label, List, Rating, Loader } fro
 import { store, useGetTestQuery, useGetTestsQuery, useCreateSessionMutation } from "../../store/store";
 import { redirect, useNavigate, useLocation } from "react-router-dom";
 
+// TODO refactor into Card.jsx file
+
 const defaultModal = {
     mountModal: false,
     setContent: null,
 }
 
 const Card = ({ test, modal = defaultModal }) => {
-    
 
 
-    const { isPurchased } = test;
+
+    const isPurchased = test?.isPurchased || false;
     const { mountModal, setContent } = modal;
     const navigate = useNavigate();
 

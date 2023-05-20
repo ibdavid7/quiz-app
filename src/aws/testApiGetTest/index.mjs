@@ -14,7 +14,8 @@ export const handler = async (event, context, callback) => {
         // a strongly consistent read. This guarantees that the most up-to-date data is returned. It
         // can also result in higher latency and a potential for server errors.
         ConsistentRead: false,
-        ProjectionExpression: "id, config",
+        // IMPORTANT: list of attributes that is passed to the public getTest call
+        ProjectionExpression: "id, authorId, config, product_card, product_summary, stats",
     }
 
     try {
