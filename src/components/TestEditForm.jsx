@@ -2,7 +2,7 @@ import React, { useRef, useState, useReducer } from 'react';
 import { Container, Menu, Segment, Header, Icon, } from 'semantic-ui-react';
 import { useLoaderData, useNavigate, Outlet, useLocation } from "react-router-dom";
 import TestEditHeader from './TestEditHeader';
-import { useGetEditTestQuery, useGetTestQuery } from '../store/testsSlice';
+import { useGetFullTestQuery } from '../store/testsSlice';
 import Overview from './Overview'
 import OverviewEditor from './OverviewEditor';
 import Editable from './Editable';
@@ -25,7 +25,7 @@ const [OVERVIEW, CARD, INSTRUCTIONS, SCORING, QUESTIONS] = ['overview', 'card', 
 
 
 const reducer = (state, action) => {
-    console.log(action)
+    // console.log(action)
 
     switch (action.type) {
         case OVERVIEW: {
@@ -84,7 +84,7 @@ const TestEditForm = () => {
 
     const navigate = useNavigate();
 
-    const { data: test, isLoading: isTestLoading, isError: isTestError, error: testError, isSuccess: isTestSuccess, refetch: refetchTest } = useGetEditTestQuery(testId);
+    const { data: test, isLoading: isTestLoading, isError: isTestError, error: testError, isSuccess: isTestSuccess, refetch: refetchTest } = useGetFullTestQuery(testId);
     // console.log(isTestSuccess)
     // console.log(isTestError)
     // console.log(testError)

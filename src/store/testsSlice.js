@@ -68,7 +68,7 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
         // GetEditTest: provides full test overview for the author to edit
         // TODO: Implemented versioning system: pre-review and post-review/approval updates
         // to ensure that production version works while edits are being made
-        getEditTest: builder.query({
+        getFullTest: builder.query({
             query: (testId) => {
                 return {
                     url: `/tests/${testId}/edit`,
@@ -76,6 +76,18 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
                 }
             },
             providesTags: (result, error, testId) => [
+                { type: 'Test', id: testId }
+            ],
+        }),
+        editTest: builder.mutation({
+            query: ({ testId, ...patch }) => {
+                return {
+                    url: `/tests/${testId}/edit`,
+                    method: 'PATCH',
+                    body: patch,
+                }
+            },
+            invalidatesTags: (result, error, { testId }) => [
                 { type: 'Test', id: testId }
             ],
         }),
@@ -269,5 +281,5 @@ export const { selectAll: selectAllSessions, selectById: selectSessionById } =
 export const { useGetTestsQuery, useGetTestQuery, useCreateSessionMutation,
     useGetQuestionsQuery, useSubmitAnswerMutation, useGetSessionQuery,
     useGetSessionsQuery, usePurchaseTestMutation, useCompleteSessionMutation,
-    useGetEditTestQuery,
+    useGetFullTestQuery, useEditTestMutation
 } = extendedApiSlice;

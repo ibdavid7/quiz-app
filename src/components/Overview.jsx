@@ -1,13 +1,13 @@
 import React from 'react'
 import { Container, Placeholder, Header, Icon, Button } from 'semantic-ui-react'
 import PlaceholderComponent from './PlaceholderComponent'
-import { useGetEditTestQuery } from '../store/testsSlice'
+import { useGetFullTestQuery } from '../store/testsSlice'
 
 
 // TODO implement
 const Overview = ({ testId, mobile }) => {
     // console.log('testId:', testId)
-    const { data: test, isLoading: isTestLoading, isError: isTestError, error: testError, isSuccess: isTestSuccess, refetch: testRefetch } = useGetEditTestQuery(testId);
+    const { data: test, isLoading: isTestLoading, isError: isTestError, error: testError, isSuccess: isTestSuccess, refetch: testRefetch } = useGetFullTestQuery(testId);
 
 
     return (

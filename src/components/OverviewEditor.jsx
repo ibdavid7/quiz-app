@@ -1,46 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
-import { Button, Container, Divider, Icon, Segment, Form } from 'semantic-ui-react';
-import { useGetEditTestQuery } from '../store/testsSlice';
+import { Button, Container, Divider, Icon, Segment, Form, Loader, Header } from 'semantic-ui-react';
+import { useEditTestMutation, useGetFullTestQuery } from '../store/testsSlice';
 import PlaceholderComponent from './PlaceholderComponent';
+
 
 const OverviewEditor = ({ testId, setEditMode }) => {
 
-
-
-    // const [editorContent, setEditorContent] = useState('');
-    // const [editorState, setEditorState] = useState(EditorState.createEmpty());
-
-    // const handleEditorChange = (content, editor) => {
-    //     setEditorContent(content);
-    //     console.log(content);
-    // };
-
-    // const handleEditorStateChange = (editorState) => {
-    //     setEditorState(editorState);
-    //     console.log(editorState);
-    // };
-
-    // const handleSubmit = (e) => {
-    //     e.preventDefault();
-    //     console.log(editorContent);
-    // };
-
-    // const handleEditorChange = (content, editor) => {
-    //     setEditorContent(content);
-    //     console.log(content);
-    // };
-
-    // const handleEditorStateChange = (editorState) => {
-    //     setEditorState(editorState);
-    //     console.log(editorState);
-    // };
-
-    // const handleSubmit = (e) => {
-    //     e.preventDefault();
-
-
-    const { data: test, isLoading: isTestLoading, isError: isTestError, error: testError, isSuccess: isTestSuccess, refetch: testRefetch } = useGetEditTestQuery(testId);
+    // TODO introduce state aattribute to disable Save button if nothing has yet changed
+    const { data: test, isLoading: isTestLoading, isError: isTestError, error: testError, isSuccess: isTestSuccess, refetch: testRefetch } = useGetFullTestQuery(testId);
+    const [editTestTitles, { data: editTestDataTitles, error: editTestErrorTitles, isLoading: editTestIsLoadingTitles, isSuccess: editTestIsSuccessTitles, isError: editTestIsErrorTitles }] = useEditTestMutation();
+    const [editTestOverview, { data: editTestDataOverview, error: editTestErrorOverview, isLoading: editTestIsLoadingOverview, isSuccess: editTestIsSuccessOverview, isError: editTestIsErrorOverview }] = useEditTestMutation();
 
 
     const [titles, setTitles] = useState({ title: null, subtitle: null });
@@ -58,19 +28,25 @@ const OverviewEditor = ({ testId, setEditMode }) => {
     }, [test]);
 
     const editorRef = useRef(null);
-    const log = () => {
-        if (editorRef.current) {
-            console.log(editorRef.current.getContent());
-        }
-    };
+    // const log = () => {
+    //     if (editorRef.current) {
+    //         console.log(editorRef.current.getContent());
+    //     }
+    // };
 
-    const handleOnClickSave = () => {
+    const handleOnClickSaveOverview = () => {
+
         if (editorRef.current) {
-            console.log(editorRef.current.getContent());
-            // TODO insert API mutation call to update AWS DynamoDB
+            // console.log(editorRef.current.getContent());
+            const body = {
+                overview: editorRef.current.getContent(),
+                testId,
+                scope: 'overview'
+            }
+
+            editTestOverview(body);
         }
 
-        setEditMode(false);
 
     }
 
@@ -88,6 +64,12 @@ const OverviewEditor = ({ testId, setEditMode }) => {
 
     const handleOnFormSubmit = () => {
 
+        const body = {
+            ...titles,
+            testId,
+            scope: 'titles',
+        }
+        editTestTitles(body)
     }
 
     return (
@@ -122,14 +104,16 @@ const OverviewEditor = ({ testId, setEditMode }) => {
                                 color='green'
                                 // floated='right'
                                 onClick={handleOnFormSubmit}
+                                disabled={editTestIsLoadingTitles}
                             >
                                 <>
-                                    <Icon name='save outline left' />
+                                    {!editTestIsLoadingTitles ? <Icon name='save outline left' /> : <Loader inline active size={'mini'} />}
                                     Save Title
                                 </>
                             </Button>
 
-
+                            {editTestIsErrorTitles &&
+                                <Segment><Header as={'h3'}>{editTestErrorTitles}</Header></Segment>}
 
                         </Form>
                     </Container>
@@ -138,7 +122,7 @@ const OverviewEditor = ({ testId, setEditMode }) => {
                     <Editor
                         apiKey={process.env.REACT_APP_TINYMCE_API}
                         onInit={(evt, editor) => editorRef.current = editor}
-                        initialValue={test['product_summary']['overview'] || "<p>Insert overview content.</p>"}
+                        initialValue={test?.['product_summary']?.['overview'] || "<p>Insert overview content.</p>"}
                         init={{
                             height: 500,
                             menubar: true,
@@ -161,13 +145,18 @@ const OverviewEditor = ({ testId, setEditMode }) => {
                         <Button
                             color='green'
                             // floated='right'
-                            onClick={handleOnClickSave}
+                            onClick={handleOnClickSaveOverview}
+                            disabled={editTestIsLoadingOverview}
                         >
                             <>
-                                <Icon name='save outline left' />
+                                {!editTestIsLoadingOverview ? <Icon name='save outline left' /> : <Loader inline active size={'mini'} />}
                                 Save Text
                             </>
                         </Button>
+
+                        {editTestIsErrorOverview &&
+                            <Segment><Header as={'h3'}>{editTestErrorOverview}</Header></Segment>}
+
 
                     </Segment>
                 </Container >
