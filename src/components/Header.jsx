@@ -2,11 +2,27 @@ import { Menu, Input, Container, Button } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import LoginFormModal from './LoginFormModal';
 import { useState } from 'react';
+import { useAuthenticator } from '@aws-amplify/ui-react';
+
+const Home = () => {
+    const { user, signOut } = useAuthenticator((context) => [context.user]);
+
+    return (
+        <>
+            <h2>Welcome, {user.username}!</h2>
+            <button onClick={signOut}>Sign Out</button>
+        </>
+    );
+};
+
 
 
 const Header = () => {
 
-    const [open, setOpen] = useState(false)
+    const [open, setOpen] = useState(false);
+    const { user, signOut } = useAuthenticator((context) => [context.user]);
+    const { authStatus } = useAuthenticator(context => [context.authStatus]);
+
 
     return (
         <Container >
@@ -28,17 +44,36 @@ const Header = () => {
                     <Menu.Item as={Link} to="/tests/new">
                         Create Test
                     </Menu.Item >
-                    <Menu.Item
-                    // onClick={() => setOpen((prev) => !prev)}
-                    // as={Button}
-                    // to="/login"
-                    >
-                        <Button
-                            onClick={() => setOpen(true)}
-                        >
-                            Login
-                        </Button>
-                    </Menu.Item >
+
+                    {
+                        (authStatus === 'authenticated')
+                            ? (
+                                <Menu.Item>
+                                    <Button
+                                        basic
+                                        color={'black'}
+                                        onClick={() => signOut()}
+                                    >
+                                        Logout
+                                    </Button>
+                                </Menu.Item >
+
+                            )
+                            : (
+                                <Menu.Item>
+                                    <Button
+                                        basic
+                                        color={'blue'}
+                                        onClick={() => setOpen(true)}
+                                    >
+                                        Login
+                                    </Button>
+                                </Menu.Item >
+
+                            )
+                    }
+
+
                 </Menu.Menu>
             </Menu >
 

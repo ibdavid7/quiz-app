@@ -34,6 +34,11 @@ const TestEditHeader = ({ activeItem, handleItemClick }) => {
                     active={activeItem === 'questions'}
                     onClick={handleItemClick}
                 />
+                <Menu.Item
+                    name='image gallery'
+                    active={activeItem === 'image gallery'}
+                    onClick={handleItemClick}
+                />
                 <Menu.Menu position='right'>
                     <Menu.Item
                         name='submit for review'

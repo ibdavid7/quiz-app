@@ -13,6 +13,8 @@ import InstructionsEditor from './InstructionsEditor';
 import Scoring from './Scoring';
 import ScoringEditor from './ScoringEditor';
 import Questions from './Questions';
+import ImageGallery from './ImageGallery';
+import ImageUploader from './ImageUploader';
 
 
 
@@ -21,7 +23,7 @@ export async function loader({ params }) {
     return params;
 }
 
-const [OVERVIEW, CARD, INSTRUCTIONS, SCORING, QUESTIONS] = ['overview', 'card', 'instructions', 'scoring', 'questions'];
+const [OVERVIEW, CARD, INSTRUCTIONS, SCORING, QUESTIONS, IMAGES] = ['overview', 'card', 'instructions', 'scoring', 'questions', 'image gallery'];
 
 
 const reducer = (state, action) => {
@@ -38,32 +40,40 @@ const reducer = (state, action) => {
             };
         }
         case CARD: {
-            const DisplayComponent = (props) => <Card  {...props} test={action.payload} />
-            const EditComponent = (props) => <  CardEditor {...props} />
+            const DisplayComponent = (props) => <Card  {...props} testId={action.payload} />
+            const EditComponent = (props) => <  CardEditor {...props} testId={action.payload} />
             return {
                 DisplayComponent,
                 EditComponent
             };
         }
         case INSTRUCTIONS: {
-            const DisplayComponent = (props) => <Instructions  {...props} test={action.payload} />
-            const EditComponent = (props) => <  InstructionsEditor {...props} />
+            const DisplayComponent = (props) => <Instructions  {...props} testId={action.payload} />
+            const EditComponent = (props) => <  InstructionsEditor {...props} testId={action.payload} />
             return {
                 DisplayComponent,
                 EditComponent
             };
         }
         case SCORING: {
-            const DisplayComponent = (props) => <Scoring  {...props} test={action.payload} />
-            const EditComponent = (props) => <  ScoringEditor {...props} />
+            const DisplayComponent = (props) => <Scoring  {...props} testId={action.payload} />
+            const EditComponent = (props) => <  ScoringEditor {...props} testId={action.payload} />
             return {
                 DisplayComponent,
                 EditComponent
             };
         }
         case QUESTIONS: {
-            const DisplayComponent = (props) => <Questions  {...props} test={action.payload} />
-            const EditComponent = (props) => <Questions {...props} />
+            const DisplayComponent = (props) => <Questions  {...props} testId={action.payload} />
+            const EditComponent = (props) => <Questions {...props} testId={action.payload} />
+            return {
+                DisplayComponent,
+                EditComponent
+            };
+        }
+        case IMAGES: {
+            const DisplayComponent = (props) => <ImageGallery  {...props} testId={action.payload} />
+            const EditComponent = (props) => <ImageUploader {...props} testId={action.payload} />
             return {
                 DisplayComponent,
                 EditComponent
@@ -106,18 +116,27 @@ const TestEditForm = () => {
         switch (name) {
             case OVERVIEW:
                 editableContentDispatch(({ type: OVERVIEW, payload: testId }))
+                setActiveItem(OVERVIEW);
                 break;
             case CARD:
                 editableContentDispatch(({ type: CARD, payload: testId }))
+                setActiveItem(CARD);
                 break;
             case INSTRUCTIONS:
                 editableContentDispatch(({ type: INSTRUCTIONS, payload: testId }))
+                setActiveItem(INSTRUCTIONS);
                 break;
             case SCORING:
                 editableContentDispatch(({ type: SCORING, payload: testId }))
+                setActiveItem(SCORING);
                 break;
             case QUESTIONS:
                 editableContentDispatch(({ type: QUESTIONS, payload: testId }))
+                setActiveItem(QUESTIONS);
+                break;
+            case IMAGES:
+                editableContentDispatch(({ type: IMAGES, payload: testId }))
+                setActiveItem(IMAGES);
                 break;
             default:
                 console.log(`Error : '${name}' menu item not recognized`)

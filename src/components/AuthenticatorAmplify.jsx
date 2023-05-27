@@ -6,16 +6,21 @@ import '@aws-amplify/ui-react/styles.css';
 import awsExports from '../aws-exports';
 Amplify.configure(awsExports);
 
-const AuthenticatorAmplify = () => {
+const AuthenticatorAmplify = ({ setModal = null }) => {
     return (
         <Authenticator>
-            {({ signOut, user }) => (
-                <main>
-                    <h1>Hello {user.username}</h1>
-                    <button onClick={signOut}>Sign out</button>
-                </main>
-            )}
-        </Authenticator>
+            {({ signOut, user }) => {
+                // { console.log('user:', user) }
+                { user && setModal && setModal(false) }
+                return (
+                    < main >
+                        <h1>Hello {user.attributes.email}</h1>
+                        <button onClick={signOut}>Sign out</button>
+                    </main>
+                )
+            }
+            }
+        </Authenticator >
     );
 }
 

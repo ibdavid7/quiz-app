@@ -11,11 +11,11 @@ const LoginFormModal = ({ isOpen }) => {
             onOpen={() => setOpen(true)}
             open={open}
             size={'tiny'}
-            // trigger={<Button>Show Modal</Button>}
+        // trigger={<Button>Show Modal</Button>}
         >
             {/* <Modal.Header>Login</Modal.Header> */}
             <Modal.Content>
-                <AuthenticatorAmplify />
+                <AuthenticatorAmplify setModal={setOpen} />
                 {/* <Image size='medium' src='https://react.semantic-ui.com/images/avatar/large/rachel.png' wrapped />
                 <Modal.Description>
                     <Header>Default Profile Image</Header>

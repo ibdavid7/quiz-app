@@ -19,7 +19,7 @@ Amplify.configure({
 
 import { StorageManager } from '@aws-amplify/ui-react-storage';
 
-export const PhotoUploader = () => {
+const PhotoUploader = () => {
   return (
     <StorageManager
       acceptedFileTypes={['image/*']}
@@ -30,3 +30,4 @@ export const PhotoUploader = () => {
     />
   );
 };
+export default PhotoUploader;
