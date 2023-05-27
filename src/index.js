@@ -22,6 +22,8 @@ import Card from './components/Card';
 import TestCreateNew from './components/TestCreateNew';
 import { loader as testEditLoader } from './components/TestEditForm';
 import Editable from './components/Editable';
+import LoginFormModal from './components/LoginFormModal';
+import { Authenticator } from '@aws-amplify/ui-react';
 
 const router = createBrowserRouter([
     {
@@ -37,7 +39,12 @@ const router = createBrowserRouter([
             {
                 path: 'app',
                 element: <App />,
-            }, {
+            },
+            {
+                path: 'login',
+                element: <LoginFormModal isOpen={true} />,
+            },
+            {
                 path: 'tests/new',
                 element: <TestCreateNew />
             },
@@ -86,9 +93,11 @@ Amplify.configure(awsconfig);
 
 ReactDOM.render(
     <React.StrictMode>
-        <Provider store={store}>
-            <RouterProvider router={router} />
-        </Provider>
+        <Authenticator.Provider>
+            <Provider store={store}>
+                <RouterProvider router={router} />
+            </Provider>
+        </Authenticator.Provider>
     </React.StrictMode>,
     document.getElementById('root')
 );

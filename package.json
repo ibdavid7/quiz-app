@@ -8,27 +8,28 @@
   },
   "homepage": "https://safdarjamal.github.io/quiz-app/",
   "dependencies": {
-    "@aws-amplify/ui-react": "^4.5.1",
+    "@aws-amplify/ui-react": "^4.6.4",
+    "@aws-amplify/ui-react-storage": "^1.2.3",
     "@reduxjs/toolkit": "^1.9.3",
     "@testing-library/jest-dom": "^5.12.0",
     "@testing-library/react": "^11.2.6",
     "@testing-library/user-event": "^12.8.3",
     "@tinymce/tinymce-react": "^4.3.0",
-    "aws-amplify": "^5.0.24",
-    "chart.js": "^3.9.1",
+    "aws-amplify": "^5.2.4",
+    "chart.js": "^4.3.0",
     "he": "^1.2.0",
     "json-server": "^0.17.3",
     "normalizr": "^3.6.2",
     "prop-types": "^15.7.2",
-    "react": "^17.0.2",
-    "react-chartjs-2": "^4.3.1",
-    "react-dom": "^17.0.2",
+    "react": "^18.2.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.2.0",
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.10.0",
-    "react-scripts": "^4.0.3",
+    "react-scripts": "^5.0.1",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^2.0.3",
-    "sweetalert2": "^10.16.6"
+    "sweetalert2": "^11.7.5"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -70,14 +71,14 @@
     ]
   },
   "devDependencies": {
-    "@faker-js/faker": "^7.6.0",
-    "@storybook/addon-actions": "^6.3.8",
-    "@storybook/addon-essentials": "^6.3.8",
-    "@storybook/addon-links": "^6.3.8",
-    "@storybook/node-logger": "^6.3.8",
-    "@storybook/preset-create-react-app": "^3.2.0",
-    "@storybook/react": "^6.3.8",
-    "gh-pages": "^3.1.0",
-    "react-error-overlay": "6.0.9"
+    "@faker-js/faker": "^8.0.1",
+    "@storybook/addon-actions": "^7.0.18",
+    "@storybook/addon-essentials": "^7.0.18",
+    "@storybook/addon-links": "^7.0.18",
+    "@storybook/node-logger": "^7.0.18",
+    "@storybook/preset-create-react-app": "^7.0.18",
+    "@storybook/react": "^7.0.18",
+    "gh-pages": "^5.0.0",
+    "react-error-overlay": "6.0.11"
   }
 }
