@@ -4,6 +4,7 @@ import {
     STARTED, COMPLETED, CANCELLED, PURCHASES_GSI
 } from "./utils.mjs";
 
+const [DRAFT, INREVIEW, APPROVED, REJECTED, PUBLISHED] = ['draft', 'in-review', 'approved', 'rejected', 'published'];
 
 export const handler = async (event, context, callback) => {
 
@@ -21,6 +22,7 @@ export const handler = async (event, context, callback) => {
             Item: {
                 id: uuid,
                 authorId: userId,
+                status: DRAFT,
                 config: {
                     category: null,
                     instructions: null,

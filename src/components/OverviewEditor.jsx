@@ -3,6 +3,8 @@ import { Editor } from '@tinymce/tinymce-react';
 import { Button, Container, Divider, Icon, Segment, Form, Loader, Header } from 'semantic-ui-react';
 import { useEditTestMutation, useGetFullTestQuery } from '../store/testsSlice';
 import PlaceholderComponent from './PlaceholderComponent';
+import { Amplify, Auth, Storage } from 'aws-amplify';
+
 
 
 const OverviewEditor = ({ testId, setEditMode }) => {
@@ -28,11 +30,7 @@ const OverviewEditor = ({ testId, setEditMode }) => {
     }, [test]);
 
     const editorRef = useRef(null);
-    // const log = () => {
-    //     if (editorRef.current) {
-    //         console.log(editorRef.current.getContent());
-    //     }
-    // };
+
 
     const handleOnClickSaveOverview = () => {
 
@@ -72,6 +70,21 @@ const OverviewEditor = ({ testId, setEditMode }) => {
         editTestTitles(body)
     }
 
+    // Not used - async doesn't work
+    const myCustomCoverter = async (url, node, on_save, name) => {
+
+        if (node == 'img' && name === 'src') {
+            // console.log(url, node, on_save, name)
+            return url;
+        } else {
+            return url;
+        }
+
+        const signedUrl = url;
+        console.log(url, node, on_save, name)
+        return url;
+    }
+
     return (
         isTestSuccess
             ? (
@@ -108,7 +121,7 @@ const OverviewEditor = ({ testId, setEditMode }) => {
                             >
                                 <>
                                     {!editTestIsLoadingTitles ? <Icon name='save outline left' /> : <Loader inline active size={'mini'} />}
-                                    Save Title
+                                    Save Title Changes
                                 </>
                             </Button>
 
@@ -135,7 +148,8 @@ const OverviewEditor = ({ testId, setEditMode }) => {
                                 'bold italic forecolor | alignleft aligncenter ' +
                                 'alignright alignjustify | bullist numlist outdent indent | ' +
                                 'removeformat | help',
-                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+                            // urlconverter_callback: myCustomCoverter,
                         }}
                     />
                     {/* <button onClick={log}>Log editor content</button> */}
@@ -150,7 +164,7 @@ const OverviewEditor = ({ testId, setEditMode }) => {
                         >
                             <>
                                 {!editTestIsLoadingOverview ? <Icon name='save outline left' /> : <Loader inline active size={'mini'} />}
-                                Save Text
+                                Save Test Changes
                             </>
                         </Button>
 

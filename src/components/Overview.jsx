@@ -5,7 +5,7 @@ import { useGetFullTestQuery } from '../store/testsSlice'
 
 
 // TODO implement
-const Overview = ({ testId, mobile }) => {
+const Overview = ({ testId }) => {
     // console.log('testId:', testId)
     const { data: test, isLoading: isTestLoading, isError: isTestError, error: testError, isSuccess: isTestSuccess, refetch: testRefetch } = useGetFullTestQuery(testId);
 

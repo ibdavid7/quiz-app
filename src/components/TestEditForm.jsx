@@ -8,13 +8,13 @@ import OverviewEditor from './OverviewEditor';
 import Editable from './Editable';
 import Card from './Card';
 import CardEditor from './CardEditor'
-import Instructions from './Instructions';
 import InstructionsEditor from './InstructionsEditor';
 import Scoring from './Scoring';
 import ScoringEditor from './ScoringEditor';
 import Questions from './Questions';
 import ImageGallery from './ImageGallery';
 import ImageUploader from './ImageUploader';
+import InstructionsTestDisplay from './InstructionsTestDisplay';
 
 
 
@@ -48,7 +48,7 @@ const reducer = (state, action) => {
             };
         }
         case INSTRUCTIONS: {
-            const DisplayComponent = (props) => <Instructions  {...props} testId={action.payload} />
+            const DisplayComponent = (props) => <InstructionsTestDisplay  {...props} testId={action.payload} />
             const EditComponent = (props) => <  InstructionsEditor {...props} testId={action.payload} />
             return {
                 DisplayComponent,

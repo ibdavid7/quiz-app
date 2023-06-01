@@ -71,7 +71,7 @@ const Session = () => {
     // console.log(session?.config?.instructions)
 
     const Navigation = () => {
-
+        // instructions
         if (questionIndex < 0) {
             return (
                 <Segment basic floated='right'>
@@ -89,6 +89,7 @@ const Session = () => {
                     </Button>
                 </Segment>
             )
+            // normal question
         } else if (questionIndex < questionCount - 1) {
             return (
                 <Segment basic floated='right'>
@@ -102,6 +103,7 @@ const Session = () => {
                     </Button>
                 </Segment>
             )
+            // last question
         } else {
             return (
                 <Segment basic floated='right' >
