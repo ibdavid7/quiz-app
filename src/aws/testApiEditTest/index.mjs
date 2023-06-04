@@ -48,7 +48,7 @@ export const handler = async (event, context, callback) => {
         }
 
 
-        const [TITLES, OVERVIEW, CARD, TAGS] = ['titles', 'overview', 'card', 'tags'];
+        const [TITLES, OVERVIEW, CARD, TAGS, QUESTION_EDIT] = ['titles', 'overview', 'card', 'tags', 'questionEdit'];
 
         // Check the scope of the editRequest
 
@@ -102,6 +102,27 @@ export const handler = async (event, context, callback) => {
 
                 break;
 
+            // 4. scope = 'questionEdit'
+            case QUESTION_EDIT:
+                const { question , questionIndex} = JSON.parse(event.body);
+
+                params = {
+                    TableName: TEST_TABLE,
+                    Key: {
+                        id: path_parameter,
+                    },
+                    UpdateExpression: `SET #map[${questionIndex}] = :new_value`,
+                    ExpressionAttributeNames: {
+                        '#list': 'questions',
+                    },
+                    ExpressionAttributeValues: {
+                        ':new_value1': question,
+                    }
+                }
+
+                break;
+
+            // 5. scope = photo 'tags'
             case TAGS:
                 const { tag, identityId } = JSON.parse(event.body);
 

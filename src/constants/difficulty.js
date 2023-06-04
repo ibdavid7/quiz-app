@@ -1,8 +1,8 @@
 const DIFFICULTY = [
   {
-    key: '0',
-    text: 'Any Difficulty',
-    value: '0'
+    key: 'practice',
+    text: 'Practice',
+    value: 'practice'
   },
   {
     key: 'easy',

@@ -1,10 +1,10 @@
-const layouts = {
+export const LayoutValue = {
     mini: {
         question_col: 8,
         answers_col: 8,
         rows_per_answer_col: 2,
     },
-    mini: {
+    mini_spaced: {
         question_col: 6,
         answers_col: 10,
         rows_per_answer_col: 2,
@@ -26,4 +26,32 @@ const layouts = {
     },
 }
 
-export default layouts;
+const LAYOUTS = [
+    {
+        key: 'mini',
+        text: 'Mini Layout',
+        value: 'mini'
+      },
+      {
+        key: 'mini_spaced',
+        text: 'Mini Spaced Layout',
+        value: 'mini_spaced'
+      },
+      {
+        key: 'compact',
+        text: 'Compact Layout',
+        value: 'compact'
+      },
+      {
+        key: 'medium',
+        text: 'Medium Layout',
+        value: 'medium'
+      },
+      {
+        key: 'full',
+        text: 'Full Layout',
+        value: 'full'
+      },
+];
+
+export default LAYOUTS;

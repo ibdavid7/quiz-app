@@ -73,7 +73,7 @@ const OverviewEditor = ({ testId, setEditMode }) => {
     // Not used - async doesn't work
     const myCustomCoverter = async (url, node, on_save, name) => {
 
-        if (node == 'img' && name === 'src') {
+        if (node === 'img' && name === 'src') {
             // console.log(url, node, on_save, name)
             return url;
         } else {

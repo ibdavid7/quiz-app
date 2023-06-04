@@ -28,7 +28,9 @@ const QuestionsViewer = ({ testId, editMode }) => {
 
 
     // TODO: Add new question (index 0 or the end)
-    content = editMode ? <QuestionEditor /> : <QuestionViewer question={test?.questions?.[questionIndex]} questionCount={questionCount} questionIndex={questionIndex} />
+    content = editMode
+      ? <QuestionEditor testId={testId} question={test?.questions?.[questionIndex]} questionCount={questionCount} questionIndex={questionIndex} />
+      : <QuestionViewer question={test?.questions?.[questionIndex]} questionCount={questionCount} questionIndex={questionIndex} />
 
 
 
@@ -48,7 +50,7 @@ const QuestionsViewer = ({ testId, editMode }) => {
     // 1. No Questions or Last Question
     if (questionIndex >= questionCount) {
       return (
-        <Segment basic  textAlign='right'>
+        <Segment basic textAlign='right'>
           <Button icon labelPosition='left' onClick={handleCancelClickButton}>
             <Icon name='cancel' />
             Cancel
@@ -103,12 +105,10 @@ const QuestionsViewer = ({ testId, editMode }) => {
       </Container>
 
 
-
-
       <Container>
-      <Divider />
+        <Divider />
 
-      {content}
+        {content}
       </Container>
 
 

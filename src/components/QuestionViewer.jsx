@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Header, Divider, Table, Icon, Image, Button, Progress, Grid, Segment, Label } from 'semantic-ui-react'
-import alphabet from '../constants/alphabet';
+import {alphabet} from '../constants'
+
 import { useGetQuestionsQuery, useGetSessionQuery, useSubmitAnswerMutation } from '../store/testsSlice';
 
 // Controlled Component
@@ -63,7 +64,11 @@ const QuestionViewer = ({ question, questionCount, questionIndex }) => {
             <Table definition>
                 <Table.Body>
                     <Table.Row>
-                        <Table.Cell width={4}>Questions Label</Table.Cell>
+                        <Table.Cell width={4}>Question Id</Table.Cell>
+                        <Table.Cell>{question?.question_id}</Table.Cell>
+                    </Table.Row>
+                    <Table.Row>
+                        <Table.Cell >Questions Label</Table.Cell>
                         <Table.Cell>{question?.label}</Table.Cell>
                     </Table.Row>
                     <Table.Row>
