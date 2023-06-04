@@ -11,7 +11,7 @@ import CardEditor from './CardEditor'
 import InstructionsEditor from './InstructionsEditor';
 import Scoring from './Scoring';
 import ScoringEditor from './ScoringEditor';
-import Questions from './Questions';
+import QuestionsViewer from './QuestionsViewer';
 import ImageGallery from './ImageGallery';
 import ImageUploader from './ImageUploader';
 import InstructionsTestDisplay from './InstructionsTestDisplay';
@@ -36,7 +36,9 @@ const reducer = (state, action) => {
             const EditComponent = (props) => <  OverviewEditor {...props} testId={action.payload} />
             return {
                 DisplayComponent,
-                EditComponent
+                EditComponent,
+                scope: OVERVIEW,
+                testId:action.payload,
             };
         }
         case CARD: {
@@ -44,7 +46,9 @@ const reducer = (state, action) => {
             const EditComponent = (props) => <  CardEditor {...props} testId={action.payload} />
             return {
                 DisplayComponent,
-                EditComponent
+                EditComponent,
+                scope: CARD,
+                testId:action.payload,
             };
         }
         case INSTRUCTIONS: {
@@ -52,7 +56,9 @@ const reducer = (state, action) => {
             const EditComponent = (props) => <  InstructionsEditor {...props} testId={action.payload} />
             return {
                 DisplayComponent,
-                EditComponent
+                EditComponent,
+                scope: INSTRUCTIONS,
+                testId:action.payload,
             };
         }
         case SCORING: {
@@ -60,15 +66,17 @@ const reducer = (state, action) => {
             const EditComponent = (props) => <  ScoringEditor {...props} testId={action.payload} />
             return {
                 DisplayComponent,
-                EditComponent
+                EditComponent,
+                scope: SCORING,
+                testId:action.payload,
             };
         }
         case QUESTIONS: {
-            const DisplayComponent = (props) => <Questions  {...props} testId={action.payload} />
-            const EditComponent = (props) => <Questions {...props} testId={action.payload} />
+            const DisplayComponent = (props) => <QuestionsViewer  {...props} testId={action.payload} />
             return {
                 DisplayComponent,
-                EditComponent
+                scope: QUESTIONS,
+                testId:action.payload,
             };
         }
         case IMAGES: {
@@ -76,7 +84,9 @@ const reducer = (state, action) => {
             const EditComponent = (props) => <ImageUploader {...props} testId={action.payload} />
             return {
                 DisplayComponent,
-                EditComponent
+                EditComponent,
+                scope: IMAGES,
+                testId:action.payload,
             };
         }
     }
@@ -89,12 +99,12 @@ const TestEditForm = () => {
 
     const { testId } = useLoaderData();
     // console.log(testId)
-    const location = useLocation()
+    // const location = useLocation()
     // console.log(location)
 
     const navigate = useNavigate();
 
-    const { data: test, isLoading: isTestLoading, isError: isTestError, error: testError, isSuccess: isTestSuccess, refetch: refetchTest } = useGetFullTestQuery(testId);
+    // const { data: test, isLoading: isTestLoading, isError: isTestError, error: testError, isSuccess: isTestSuccess, refetch: refetchTest } = useGetFullTestQuery(testId);
     // console.log(isTestSuccess)
     // console.log(isTestError)
     // console.log(testError)
@@ -106,6 +116,8 @@ const TestEditForm = () => {
         // Initilizer Function, gets called with initialArg
         (initialState) => reducer(null, initialState)
     );
+
+    // console.log(editableContent?.DisplayComponent)
 
 
     // Handler function for TestEditHeader: controlled element

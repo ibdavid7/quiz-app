@@ -1,10 +1,16 @@
 import { TEST_TABLE, updateItem, getItem } from "./utils.mjs";
+import { S3Client, ListObjectsCommand, ListObjectsV2Command, PutObjectTaggingCommand } from "@aws-sdk/client-s3"
+
+const s3Client = new S3Client({ region: "us-east-1" });
+
 
 export const handler = async (event, context, callback) => {
 
     const uuid = context.awsRequestId;
     const path_parameter = event.pathParameters['testId'];
     const userId = event.requestContext.authorizer.claims.sub;
+
+    console.log('authorizer claims', event.requestContext.authorizer.claims)
 
 
     const { scope } = JSON.parse(event.body);
@@ -26,7 +32,9 @@ export const handler = async (event, context, callback) => {
             ProjectionExpression: "id, authorId",
         }
 
-        const { authorId } = await getItem(getTestParams);
+        const item = await getItem(getTestParams);
+        console.log(item)
+        const {authorId} = item;
 
         if (authorId !== userId) {
             console.log(`Error: User ${userId} not authorised to edit this test`);
@@ -40,7 +48,7 @@ export const handler = async (event, context, callback) => {
         }
 
 
-        const [TITLES, OVERVIEW, CARD] = ['titles', 'overview', 'card'];
+        const [TITLES, OVERVIEW, CARD, TAGS] = ['titles', 'overview', 'card', 'tags'];
 
         // Check the scope of the editRequest
 
@@ -93,6 +101,57 @@ export const handler = async (event, context, callback) => {
                 }
 
                 break;
+
+            case TAGS:
+                const { tag } = JSON.parse(event.body);
+
+                const bucket = "quizlet-app";
+                const prefix = `/private/us-east-1:${userId}/${path_parameter}/`;
+                // const tag = false;
+            
+                const params = {
+                    Bucket: bucket,
+                    Prefix: prefix,
+                    EncodingType: "url",
+                };
+
+                const data = await s3Client.send(new ListObjectsV2Command(params));
+
+        console.log("Success", data);
+
+
+        if (data['Contents']) {
+
+            const res = await Promise.all(data["Contents"]
+                .filter((o) => Number(o["Size"]) > 0)
+                .map(async (o) => {
+                    // console.log(o["Key"])
+                    // TODO: retain existing tags, rather than override
+                    const response = await setS3ObjectTag(bucket, o["Key"], tag);
+                    // return response;
+                })
+            );
+    
+            const response = {
+                statusCode: 200,
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                },
+                body: JSON.stringify(res),
+            };
+    
+            return response;
+        } else {
+            return {
+                statusCode: 400,
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                },
+                body: JSON.stringify({ message: `Error: No photos found to update tags for` })
+            };
+        }
+
+                        
 
             default:
                 console.log(`Error: Scope of the update request: ${scope} not recognized`);
@@ -148,3 +207,32 @@ export const handler = async (event, context, callback) => {
     }
 
 };
+
+
+const setS3ObjectTag = async (bucket, key, tag) => {
+
+    const params = {
+        Bucket: bucket,
+        Key: key,
+        Tagging: {
+            TagSet: [
+                {
+                    Key: "public",
+                    Value: tag,
+                },
+            ],
+        },
+    };
+
+    try {
+                // TODO: retain existing tags, rather than override
+        // console.log("key:", key);
+        const data = await s3Client.send(new PutObjectTaggingCommand(params));
+        // console.log("Success", data);
+
+        return data;
+    } catch (err) {
+        console.log("Error", err);
+        throw err;
+    }
+}

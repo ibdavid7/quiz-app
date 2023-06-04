@@ -7,8 +7,11 @@ const PlaceholderComponent = () => {
             <Placeholder.Header image>
                 <Placeholder.Line />
                 <Placeholder.Line />
+                <Placeholder.Line />
             </Placeholder.Header>
             <Placeholder.Paragraph>
+                <Placeholder.Line />
+                <Placeholder.Line />
                 <Placeholder.Line />
                 <Placeholder.Line />
                 <Placeholder.Line />
