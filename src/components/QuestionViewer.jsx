@@ -6,36 +6,6 @@ import { useGetQuestionsQuery, useGetSessionQuery, useSubmitAnswerMutation } fro
 // Controlled Component
 const QuestionViewer = ({ question, questionCount, questionIndex }) => {
 
-    // const [selectionId, setSelectionId] = useState(null);
-    // const { data: session, refetch: sessionRefetch, isSuccess: sessionIsSuccess, isError: sessionIsError } = useGetSessionQuery(sessionId);
-    // const [submitAnswer, resultSubmitAnswer] = useSubmitAnswerMutation();
-
-    // const [STARTED] = ['Started'];
-
-    // useEffect(() => {
-    //     setSelectionId(session?.['answers']?.[question.question_id] || null)
-    // }, [session, question]);
-
-
-    // const handleSelectionOnClick = (optionId) => {
-
-    //     // only edit answer if session.status is started
-    //     if (session.status !== STARTED) {
-    //         return;
-    //     }
-
-    //     setSelectionId((prevId) => {
-    //         if (prevId === optionId) {
-    //             submitAnswer({ sessionId: sessionId, questionId: question.question_id, optionId: null, questionIndex: questionIndex });
-    //             return null;
-    //         } else {
-    //             submitAnswer({ sessionId: sessionId, questionId: question.question_id, optionId: optionId, questionIndex: questionIndex });
-    //             return optionId;
-    //         }
-    //     })
-    // }
-
-
     const Options = ({ colsPerRow }) => {
 
         let r = 0, c = 0, l = question?.options?.length;
@@ -108,6 +78,10 @@ const QuestionViewer = ({ question, questionCount, questionIndex }) => {
                         <Table.Cell>Question Score</Table.Cell>
                         <Table.Cell>{question?.score}</Table.Cell>
                     </Table.Row>
+                    <Table.Row>
+                        <Table.Cell>Layout</Table.Cell>
+                        <Table.Cell>{question?.layout}</Table.Cell>
+                    </Table.Row>
                 </Table.Body>
             </Table>
 
@@ -116,7 +90,6 @@ const QuestionViewer = ({ question, questionCount, questionIndex }) => {
                     <Segment.Inline>
                         <Icon name='check circle' color='black' />
                         Question {questionIndex + 1} / {questionCount} ({Math.max(100, ((questionIndex + 1) / (questionCount) * 100).toFixed(0))}%)
-                        {/* <Progress value={questionIndex + 1} total={questionCount} progress='percent' /> */}
                     </Segment.Inline>
                 </Header>
             </Divider>

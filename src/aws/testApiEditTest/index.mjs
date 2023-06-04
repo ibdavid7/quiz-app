@@ -10,7 +10,7 @@ export const handler = async (event, context, callback) => {
     const path_parameter = event.pathParameters['testId'];
     const userId = event.requestContext.authorizer.claims.sub;
 
-    console.log('authorizer claims', event.requestContext.authorizer.claims)
+    // console.log('authorizer claims', event.requestContext.authorizer.claims)
 
 
     const { scope } = JSON.parse(event.body);
@@ -33,8 +33,8 @@ export const handler = async (event, context, callback) => {
         }
 
         const item = await getItem(getTestParams);
-        console.log(item)
-        const {authorId} = item;
+        // console.log(item)
+        const { authorId } = item;
 
         if (authorId !== userId) {
             console.log(`Error: User ${userId} not authorised to edit this test`);
@@ -103,55 +103,55 @@ export const handler = async (event, context, callback) => {
                 break;
 
             case TAGS:
-                const { tag } = JSON.parse(event.body);
+                const { tag, identityId } = JSON.parse(event.body);
 
                 const bucket = "quizlet-app";
-                const prefix = `/private/us-east-1:${userId}/${path_parameter}/`;
+                const prefix = `private/${identityId}/${path_parameter}/`;
                 // const tag = false;
-            
+
                 const params = {
                     Bucket: bucket,
                     Prefix: prefix,
-                    EncodingType: "url",
+                    // EncodingType: "url",
                 };
 
                 const data = await s3Client.send(new ListObjectsV2Command(params));
 
-        console.log("Success", data);
+                // console.log("Success", data);
 
 
-        if (data['Contents']) {
+                if (data['Contents']) {
 
-            const res = await Promise.all(data["Contents"]
-                .filter((o) => Number(o["Size"]) > 0)
-                .map(async (o) => {
-                    // console.log(o["Key"])
-                    // TODO: retain existing tags, rather than override
-                    const response = await setS3ObjectTag(bucket, o["Key"], tag);
-                    // return response;
-                })
-            );
-    
-            const response = {
-                statusCode: 200,
-                headers: {
-                    "Access-Control-Allow-Origin": "*",
-                },
-                body: JSON.stringify(res),
-            };
-    
-            return response;
-        } else {
-            return {
-                statusCode: 400,
-                headers: {
-                    "Access-Control-Allow-Origin": "*",
-                },
-                body: JSON.stringify({ message: `Error: No photos found to update tags for` })
-            };
-        }
+                    const res = await Promise.all(data["Contents"]
+                        .filter((o) => Number(o["Size"]) > 0)
+                        .map(async (o) => {
+                            // console.log(o["Key"])
+                            // TODO: retain existing tags, rather than override
+                            const response = await setS3ObjectTag(bucket, o["Key"], tag);
+                            // return response;
+                        })
+                    );
 
-                        
+                    const response = {
+                        statusCode: 200,
+                        headers: {
+                            "Access-Control-Allow-Origin": "*",
+                        },
+                        body: JSON.stringify(res),
+                    };
+
+                    return response;
+                } else {
+                    return {
+                        statusCode: 400,
+                        headers: {
+                            "Access-Control-Allow-Origin": "*",
+                        },
+                        body: JSON.stringify({ message: `Error: No photos found to update tags for` })
+                    };
+                }
+
+
 
             default:
                 console.log(`Error: Scope of the update request: ${scope} not recognized`);
@@ -225,7 +225,7 @@ const setS3ObjectTag = async (bucket, key, tag) => {
     };
 
     try {
-                // TODO: retain existing tags, rather than override
+        // TODO: retain existing tags, rather than override
         // console.log("key:", key);
         const data = await s3Client.send(new PutObjectTaggingCommand(params));
         // console.log("Success", data);

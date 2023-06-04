@@ -68,7 +68,7 @@ export const handler = async (event, context) => {
 
     const bucket = "quizlet-app";
     const prefix = `/private/us-east-1:${userId}/${path_parameter}/`;
-    const tag = false;
+    // const tag = false;
 
     const params = {
         Bucket: bucket,

@@ -5,13 +5,17 @@ import { useEditTestMutation } from '../store/testsSlice';
 
 import { Auth } from 'aws-amplify';
 
-Auth.currentAuthenticatedUser({
-  bypassCache: false // Optional, By default is false. If set to true, this call will send a request to Cognito to get the latest user data
-})
-  .then((user) => console.log(user))
-  .catch((err) => console.log(err));
+// Auth.currentAuthenticatedUser({
+//     bypassCache: false // Optional, By default is false. If set to true, this call will send a request to Cognito to get the latest user data
+// })
+//     .then((user) => console.log(user))
+//     .catch((err) => console.log(err));
 
 
+// const { identityId } = await Auth.currentUserCredentials();
+
+// console.log("identityId", credentials.identityId);
+// console.log(credentials)
 
 const Editable = ({ DisplayComponent, EditComponent = null, scope, testId }) => {
 
@@ -20,24 +24,55 @@ const Editable = ({ DisplayComponent, EditComponent = null, scope, testId }) => 
 
     // console.log(props)
     const [editMode, setEditMode] = useState(false);
-    const [photosPublic, setPhotosPublic] = useState(() => {
+    const [photosPublic, setPhotosPublic] = useState(async () => {
+        const { identityId } = await Auth.currentUserCredentials();
+
         const body = {
             tag: true,
             testId,
-            scope: 'tags'
+            scope: 'tags',
+            identityId,
         }
 
         editTest(body)
-        .unwrap()
-        .then((fulfilled => {
-            console.log((fulfilled));
-            return true;
-        }))
-        .catch((rejected) => {
-            console.log(rejected);
-            return false;
-        })
+            .unwrap()
+            .then((fulfilled => {
+                // console.log((fulfilled));
+                return true;
+            }))
+            .catch((rejected) => {
+                console.log(rejected);
+                return false;
+            })
     });
+
+
+    const handleOnTogglePhotoTags = async (e, data) => {
+        const { identityId } = await Auth.currentUserCredentials();
+
+        const body = {
+            tag: data.checked,
+            testId,
+            scope: 'tags',
+            identityId,
+        }
+
+        editTest(body)
+            .unwrap()
+            .then((fulfilled => {
+                // console.log((fulfilled));
+                // return true;
+                setPhotosPublic((prev) => !prev)
+            }))
+            .catch((rejected) => {
+                console.log(rejected);
+                return false;
+            })
+
+
+
+    }
+
     // const location = useLocation();
     // console.log(location)
     // const { DisplayComponent, EditComponent } = location.state;
@@ -77,8 +112,8 @@ const Editable = ({ DisplayComponent, EditComponent = null, scope, testId }) => 
                         color='green'
                         toggle
                         label={editMode ? 'Exit Edit Mode' : 'Enter Edit Mode'}
-                        onChange={(e, data) => editTest(data.checked)}
-                        checked={editMode}
+                        onChange={(e, data) => handleOnTogglePhotoTags(e, data)}
+                        checked={photosPublic}
                     />
                 </Segment>
             </Segment.Group>
