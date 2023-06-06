@@ -78,10 +78,14 @@ const reducer = (state, action) => {
 
 const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
 
+
   const { data: test, isFetching: isTestFetching, isError: isTestError, error: testError, isSuccess: isTestSuccess, refetch: testRefetch } = useGetFullTestQuery(testId);
   const [editTest, { data: editTestData, error: editTestError, isLoading: editTestIsLoading, isSuccess: editTestIsSuccess, isError: editTestIsError }] = useEditTestMutation();
 
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  console.log(state)
+
 
   useEffect(() => {
 
@@ -134,16 +138,19 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
 
   const handleOnFormSubmit = () => {
 
+
     const body = {
       question: {
         ...state,
       },
-      questionIndex, 
+      questionIndex,
       testId,
       scope: 'questionEdit',
     }
     console.log(body)
-    // editTest(body)
+    editTest(body)
+    .unwrap()
+    .catch((err) => console.log(err))
   }
 
 
@@ -214,7 +221,7 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
             <Form.Input
               placeholder='Question Id'
               name='id'
-              value={question?.question_id}
+              value={state?.question_id}
               disabled
             />
           </Form.Field>
@@ -223,7 +230,7 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
             <Form.Input
               placeholder='Enter Question Label'
               name={{ type: 'updateField', field: 'label' }}
-              value={question?.label}
+              value={state?.label}
               onChange={handleOnChange}
             />
           </Form.Field>
@@ -233,7 +240,7 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
               placeholder='Select Question Type'
               name={{ type: 'updateField', field: 'type' }}
               options={QUESTIONS_TYPE}
-              value={question?.type}
+              value={state?.type}
               onChange={handleOnChange}
             />
           </Form.Field>
@@ -243,7 +250,7 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
               placeholder='Select Question Difficulty'
               name={{ type: 'updateField', field: 'difficulty' }}
               options={DIFFICULTY}
-              value={question?.difficulty}
+              value={state?.difficulty}
               onChange={handleOnChange}
             />
           </Form.Field>
@@ -253,7 +260,7 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
               placeholder='Enter Question Point Score'
               name={{ type: 'updateField', field: 'score' }}
               type='number'
-              value={question?.score}
+              value={state?.score}
               onChange={handleOnChange}
             />
           </Form.Field>
@@ -263,7 +270,7 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
               placeholder='Select Question Layout'
               name={{ type: 'updateField', field: 'layout' }}
               options={LAYOUTS}
-              value={question?.layout}
+              value={state?.layout}
               onChange={handleOnChange}
             />
           </Form.Field>
@@ -282,7 +289,7 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
           </Button>
 
           {editTestIsError &&
-            <Segment><Header as={'h3'}>{editTestError}</Header></Segment>}
+            <Segment><Header as={'h3'}>{JSON.stringify(editTestError)}</Header></Segment>}
 
         </Form>
 

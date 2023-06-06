@@ -57,16 +57,20 @@ const Editable = ({ DisplayComponent, EditComponent = null, scope, testId }) => 
             identityId,
         }
 
+        // Optimistic update
+        setPhotosPublic((prev) => !prev);
+
         editTest(body)
             .unwrap()
             .then((fulfilled => {
                 // console.log((fulfilled));
                 // return true;
-                setPhotosPublic((prev) => !prev)
             }))
             .catch((rejected) => {
                 console.log(rejected);
-                return false;
+                // reverse optimistic update if it fails
+                setPhotosPublic((prev) => !prev)
+                // return false;
             })
 
 
@@ -111,7 +115,7 @@ const Editable = ({ DisplayComponent, EditComponent = null, scope, testId }) => 
                         align='right'
                         color='green'
                         toggle
-                        label={editMode ? 'Exit Edit Mode' : 'Enter Edit Mode'}
+                        label={editMode ? 'Remove Photos Access' : 'Grant Photos Access'}
                         onChange={(e, data) => handleOnTogglePhotoTags(e, data)}
                         checked={photosPublic}
                     />

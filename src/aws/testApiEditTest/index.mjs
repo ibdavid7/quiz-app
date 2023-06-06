@@ -102,9 +102,12 @@ export const handler = async (event, context, callback) => {
 
                 break;
 
+                // Instructions, Card, Scoring
+
             // 4. scope = 'questionEdit'
             case QUESTION_EDIT:
                 const { question , questionIndex} = JSON.parse(event.body);
+                console.log(question)
 
                 params = {
                     TableName: TEST_TABLE,
@@ -119,6 +122,7 @@ export const handler = async (event, context, callback) => {
                         ':new_value1': question,
                     }
                 }
+
 
                 break;
 
@@ -171,8 +175,6 @@ export const handler = async (event, context, callback) => {
                         body: JSON.stringify({ message: `Error: No photos found to update tags for` })
                     };
                 }
-
-
 
             default:
                 console.log(`Error: Scope of the update request: ${scope} not recognized`);

@@ -34,7 +34,7 @@ const LAYOUTS = [
       },
       {
         key: 'mini_spaced',
-        text: 'Mini Spaced Layout',
+        text: 'Mini Even-Spaced Layout',
         value: 'mini_spaced'
       },
       {
