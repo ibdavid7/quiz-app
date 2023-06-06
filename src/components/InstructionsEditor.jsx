@@ -69,7 +69,7 @@ const InstructionsEditor = ({ testId }) => {
             </Button>
 
             {editTestIsError &&
-              <Segment><Header as={'h3'}>{editTestError}</Header></Segment>}
+              <Segment><Header as={'h3'}>{JSON.stringify(editTestError)}</Header></Segment>}
 
 
           </Segment>

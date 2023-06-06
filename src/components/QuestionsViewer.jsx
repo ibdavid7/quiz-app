@@ -106,7 +106,7 @@ const QuestionsViewer = ({ testId, editMode }) => {
 
 
       <Container>
-        <Divider />
+        {/* <Divider /> */}
 
         {content}
       </Container>

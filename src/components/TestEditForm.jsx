@@ -160,7 +160,7 @@ const TestEditForm = () => {
     }
 
     return (
-        <Container style={{ marginTop: '2rem', marginBottom: '2rem' }}>
+        <Container style={{ marginTop: '2rem', marginBottom: '2rem'}}>
 
             <Header as='h2'>
                 <Icon name='settings' />

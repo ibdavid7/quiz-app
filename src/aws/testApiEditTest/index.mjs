@@ -2,6 +2,7 @@ import { TEST_TABLE, updateItem, getItem } from "./utils.mjs";
 import { S3Client, ListObjectsCommand, ListObjectsV2Command, PutObjectTaggingCommand } from "@aws-sdk/client-s3"
 
 const s3Client = new S3Client({ region: "us-east-1" });
+const [TITLES, OVERVIEW, CARD, TAGS, QUESTION_EDIT] = ['titles', 'overview', 'card', 'tags', 'questionEdit'];
 
 
 export const handler = async (event, context, callback) => {
@@ -48,7 +49,6 @@ export const handler = async (event, context, callback) => {
         }
 
 
-        const [TITLES, OVERVIEW, CARD, TAGS, QUESTION_EDIT] = ['titles', 'overview', 'card', 'tags', 'questionEdit'];
 
         // Check the scope of the editRequest
 
@@ -56,10 +56,12 @@ export const handler = async (event, context, callback) => {
         // 2. scope = 'overview'
         // 3. scope = 'card'
 
-        let params;
+        var params = 'test';
+
         switch (scope) {
             // 1. scope = 'titles'
             case TITLES:
+
                 const { title, subtitle } = JSON.parse(event.body);
 
                 params = {
@@ -81,8 +83,9 @@ export const handler = async (event, context, callback) => {
 
                 break;
 
-            // 2. scope = 'overview'
+            // // 2. scope = 'overview'
             case OVERVIEW:
+
                 const { overview } = JSON.parse(event.body);
 
                 params = {
@@ -102,19 +105,18 @@ export const handler = async (event, context, callback) => {
 
                 break;
 
-                // Instructions, Card, Scoring
+            //     // Instructions, Card, Scoring
 
-            // 4. scope = 'questionEdit'
+            // // 4. scope = 'questionEdit'
             case QUESTION_EDIT:
-                const { question , questionIndex} = JSON.parse(event.body);
-                console.log(question)
+                const { question, questionIndex } = JSON.parse(event.body);
 
                 params = {
                     TableName: TEST_TABLE,
                     Key: {
                         id: path_parameter,
                     },
-                    UpdateExpression: `SET #map[${questionIndex}] = :new_value`,
+                    UpdateExpression: `SET #list[${questionIndex}] = :new_value1`,
                     ExpressionAttributeNames: {
                         '#list': 'questions',
                     },
@@ -134,7 +136,7 @@ export const handler = async (event, context, callback) => {
                 const prefix = `private/${identityId}/${path_parameter}/`;
                 // const tag = false;
 
-                const params = {
+                params = {
                     Bucket: bucket,
                     Prefix: prefix,
                     // EncodingType: "url",
@@ -143,7 +145,6 @@ export const handler = async (event, context, callback) => {
                 const data = await s3Client.send(new ListObjectsV2Command(params));
 
                 // console.log("Success", data);
-
 
                 if (data['Contents']) {
 
@@ -176,6 +177,7 @@ export const handler = async (event, context, callback) => {
                     };
                 }
 
+
             default:
                 console.log(`Error: Scope of the update request: ${scope} not recognized`);
                 return {
@@ -186,25 +188,6 @@ export const handler = async (event, context, callback) => {
                     body: JSON.stringify({ message: `Error: Scope of the update request: ${scope} not recognized` })
                 };
         }
-
-
-        // params = {
-        //     TableName: TEST_SESSIONS_TABLE,
-        //     Key: {
-        //         id: path_parameter,
-        //     },
-        //     UpdateExpression: 'SET #map.#nested_map = :new_value, #item_attribute = :new_value2',
-        //     ExpressionAttributeNames: {
-        //         '#map': ANSWERS,
-        //         '#nested_map': questionId,
-        //         '#item_attribute': RESUME_QUESTION_INDEX,
-
-        //     },
-        //     ExpressionAttributeValues: {
-        //         ':new_value': optionId,
-        //         ':new_value2': questionIndex,
-        //     }
-        // }
 
         let res = await updateItem(params);
 

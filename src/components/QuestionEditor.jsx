@@ -1,8 +1,10 @@
-import React, { useReducer, useEffect } from 'react'
+import React, { useReducer, useEffect, useState } from 'react'
+import Swal from 'sweetalert2';
 import PlaceholderComponent from './PlaceholderComponent'
-import { Container, Form, Loader, Header, Divider, Table, Icon, Image, Button, Progress, Grid, Segment, Label } from 'semantic-ui-react'
+import { Container, Menu, Sidebar, Form, Loader, Header, Divider, Table, Icon, Image, Button, Progress, Grid, Segment, Label } from 'semantic-ui-react'
 import { alphabet, DIFFICULTY, LAYOUTS, QUESTIONS_TYPE } from '../constants'
 import { useEditTestMutation, useGetFullTestQuery } from '../store/testsSlice'
+import ImageGalleryModal from './ImageGalleryModal';
 
 
 const initialState = {
@@ -76,6 +78,7 @@ const reducer = (state, action) => {
   }
 };
 
+
 const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
 
 
@@ -83,9 +86,9 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
   const [editTest, { data: editTestData, error: editTestError, isLoading: editTestIsLoading, isSuccess: editTestIsSuccess, isError: editTestIsError }] = useEditTestMutation();
 
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [modalState, setModalState] = useState({ isOpen: false, dispatchProps: {} });
 
   console.log(state)
-
 
   useEffect(() => {
 
@@ -95,7 +98,6 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
     });
 
   }, [test]);
-
 
   const handleOnChange = (e, { name, value }) => {
     // console.log(name)
@@ -149,8 +151,18 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
     }
     console.log(body)
     editTest(body)
-    .unwrap()
-    .catch((err) => console.log(err))
+      .unwrap()
+      .then((fullfilled) => {
+        Swal.fire({
+          position: 'bottom',
+          toast: true,
+          icon: 'success',
+          title: `Your edit has been saved`,
+          showConfirmButton: false,
+          timer: 5000
+        })
+      })
+      .catch((err) => console.log(err))
   }
 
 
@@ -206,6 +218,7 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
   } else if (isTestSuccess) {
     content = (
       <Container>
+
         <Divider horizontal>
           <Header as='h4'>
             <Icon name='clipboard' />
@@ -264,6 +277,7 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
               onChange={handleOnChange}
             />
           </Form.Field>
+
           <Form.Field>
             <label>Select Question Layout</label>
             <Form.Select
@@ -293,30 +307,6 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
 
         </Form>
 
-        <Table definition>
-          <Table.Body>
-            <Table.Row>
-              <Table.Cell width={4}>Questions Label</Table.Cell>
-              <Table.Cell>{question?.label}</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>Question Type</Table.Cell>
-              <Table.Cell>{question?.type}</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>Question Difficulty</Table.Cell>
-              <Table.Cell>{question?.difficulty}</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>Question Score</Table.Cell>
-              <Table.Cell>{question?.score}</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>Question Layout</Table.Cell>
-              <Table.Cell>{question?.layout}</Table.Cell>
-            </Table.Row>
-          </Table.Body>
-        </Table>
 
         <Divider horizontal>
           <Header as='h4' >
@@ -327,21 +317,74 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
           </Header>
         </Divider>
 
-        <Header>{question?.question_text}</Header>
+        <Form>
+          <Form.Field>
+            <label>Enter Question Text</label>
+            <Form.Input
+              placeholder='Enter Question Text'
+              name={{ type: 'updateField', field: 'question_text' }}
+              value={state?.question_text}
+              onChange={handleOnChange}
+            />
+          </Form.Field>
 
-        <Container fluid>
+          <Container fluid>
 
-          <Grid stackable>
-            <Grid.Column width={8}>
-              <Image src={question?.question_image} />
-            </Grid.Column>
-            <Grid.Column width={8}>
-              {question.difficulty && <Label attached='bottom right'>{question.difficulty}</Label>}
-              <Options colsPerRow={2} />
+            <Grid stackable>
+              <Grid.Column width={8}>
+                <Image size={'medium'} src={state?.question_image} />
 
-            </Grid.Column>
-          </Grid>
-        </Container>
+                <Divider hidden />
+                <Form.Field >
+                  <Form.Input
+                    action={{
+                      color: 'blue',
+                      labelPosition: 'left',
+                      icon: 'browser',
+                      content: 'Browse',
+                      onClick: () => setModalState({
+                        isOpen: true,
+                        dispatchProps: { type: 'updateField', field: 'question_image' }
+                      }),
+                    }}
+                    label={'Image Url'}
+                    placeholder='Image Url'
+                    name={{ type: 'updateField', field: 'question_image' }}
+                    value={state?.['question_image']}
+                    onChange={handleOnChange}
+                    focus
+                  />
+                </Form.Field>
+
+
+              </Grid.Column>
+              <Grid.Column width={8}>
+                {question.difficulty && <Label attached='bottom right'>{question.difficulty}</Label>}
+                <Options colsPerRow={2} />
+
+              </Grid.Column>
+            </Grid>
+
+          </Container>
+
+
+          <Button
+            type='submit'
+            color='green'
+            // floated='right'
+            onClick={handleOnFormSubmit}
+            disabled={editTestIsLoading}
+          >
+            <>
+              {!editTestIsLoading ? <Icon name='save outline left' /> : <Loader inline active size={'mini'} />}
+              Save Question Changes
+            </>
+          </Button>
+
+          {editTestIsError &&
+            <Segment><Header as={'h3'}>{JSON.stringify(editTestError)}</Header></Segment>}
+        </Form>
+
 
 
         <Divider horizontal>
@@ -371,7 +414,18 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
 
 
   return (
-    content
+    <>
+      {modalState?.isOpen &&
+        <ImageGalleryModal
+          testId={testId}
+          modalState={modalState}
+          dispatch={dispatch}
+          setModalState={setModalState}
+        />}
+      {content}
+    </>
+
+
     // <Container>
     //   <Divider horizontal>
     //     <Header as='h4'>
@@ -451,6 +505,7 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
 
 
     // </Container>
+
   )
 }
 

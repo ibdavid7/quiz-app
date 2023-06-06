@@ -24,27 +24,29 @@ const Editable = ({ DisplayComponent, EditComponent = null, scope, testId }) => 
 
     // console.log(props)
     const [editMode, setEditMode] = useState(false);
-    const [photosPublic, setPhotosPublic] = useState(async () => {
-        const { identityId } = await Auth.currentUserCredentials();
+    const [photosPublic, setPhotosPublic] = useState(
+        //     async () => {
+        //     const { identityId } = await Auth.currentUserCredentials();
 
-        const body = {
-            tag: true,
-            testId,
-            scope: 'tags',
-            identityId,
-        }
+        //     const body = {
+        //         tag: true,
+        //         testId,
+        //         scope: 'tags',
+        //         identityId,
+        //     }
 
-        editTest(body)
-            .unwrap()
-            .then((fulfilled => {
-                // console.log((fulfilled));
-                return true;
-            }))
-            .catch((rejected) => {
-                console.log(rejected);
-                return false;
-            })
-    });
+        //     editTest(body)
+        //         .unwrap()
+        //         .then((fulfilled => {
+        //             // console.log((fulfilled));
+        //             return true;
+        //         }))
+        //         .catch((rejected) => {
+        //             console.log(rejected);
+        //             return false;
+        //         })
+        // }
+        false);
 
 
     const handleOnTogglePhotoTags = async (e, data) => {
@@ -110,6 +112,7 @@ const Editable = ({ DisplayComponent, EditComponent = null, scope, testId }) => 
                         checked={editMode}
                     />
                 </Segment>
+
                 <Segment basic>
                     <Checkbox
                         align='right'
