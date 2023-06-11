@@ -12,7 +12,7 @@ const bucket = "quizlet-app";
 
 
 // TODO: create SORT and FILTER functionality
-const ImageGalleryModal = ({ testId, dispatch, modalState, setModalState }) => {
+const ImageGalleryModal = ({ testId = '', dispatch, modalState, setModalState, setValue = null }) => {
 
     const [images, setImages] = useState([]);
     const [selectedImage, setSelectedImage] = useState('')
@@ -25,7 +25,7 @@ const ImageGalleryModal = ({ testId, dispatch, modalState, setModalState }) => {
         const fetchData = async () => {
 
             if (hasNextPage) {
-                let response = await Storage.list('', {
+                let response = await Storage.list(`${testId}/`, {
                     level: 'private',
                     pageSize: PAGE_SIZE,
                     nextToken: nextToken,
@@ -57,11 +57,31 @@ const ImageGalleryModal = ({ testId, dispatch, modalState, setModalState }) => {
             value: url,
         })
 
+        // using react hook form
+        if (setValue) {
+            setValue(modalState?.['field'], url);
+            setModalState({
+                isOpen: false,
+                dispatchProps: {},
+            })
+            return;
+        }
 
-        dispatch({
-            ...modalState.dispatchProps,
-            value: url,
-        })
+        // NOT using react hook form
+
+        if (modalState.dispatchProps.type === 'updateArray') {
+
+            const clone = structuredClone(modalState.dispatchProps);
+            clone.value['option_image'] = url;
+
+            dispatch(clone);
+        } else {
+            dispatch({
+                ...modalState.dispatchProps,
+                value: url,
+            })
+        }
+
 
         setModalState({
             isOpen: false,
@@ -89,7 +109,6 @@ const ImageGalleryModal = ({ testId, dispatch, modalState, setModalState }) => {
     const selectImage = (image) => {
 
         if (image.key === selectedImage) {
-            // unselect image
             setSelectedImage((prev) => '');
         } else {
             setSelectedImage(image.key);
@@ -111,7 +130,6 @@ const ImageGalleryModal = ({ testId, dispatch, modalState, setModalState }) => {
         // console.log(image.key)
         return (
             <Grid.Column key={image.key}>
-                {/* <ImageCard eTag={image.eTag} key={image.key} lastModified={image.lastModified}/> */}
                 <ImageCardSimple
                     image={image}
                     selectedImage={selectedImage}

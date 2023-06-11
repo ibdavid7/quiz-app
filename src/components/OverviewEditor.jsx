@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
-import { Button, Container, Divider, Icon, Segment, Form, Loader, Header } from 'semantic-ui-react';
+import { useForm, Controller } from "react-hook-form";
+import { Button, Input, Container, Divider, Icon, Segment, Form, Loader, Header } from 'semantic-ui-react';
 import { useEditTestMutation, useGetFullTestQuery } from '../store/testsSlice';
-import PlaceholderComponent from './PlaceholderComponent';
-import { Amplify, Auth, Storage } from 'aws-amplify';
 
 
 
@@ -15,19 +14,31 @@ const OverviewEditor = ({ testId, setEditMode }) => {
     const [editTestOverview, { data: editTestDataOverview, error: editTestErrorOverview, isLoading: editTestIsLoadingOverview, isSuccess: editTestIsSuccessOverview, isError: editTestIsErrorOverview }] = useEditTestMutation();
 
 
-    const [titles, setTitles] = useState({ title: null, subtitle: null });
-    const { title, subtitle } = titles;
 
+    // const [titles, setTitles] = useState({ title: null, subtitle: null });
+    // const { title, subtitle } = titles;
 
-    useEffect(() => {
-        setTitles((prev) => {
-            return {
-                ...prev,
-                title: test?.['product_summary']?.['title'],
-                subtitle: test?.['product_summary']?.['subtitle'],
-            }
-        });
-    }, [test]);
+    const { handleSubmit, control, formState: { isDirty } } = useForm({
+        values: {
+            title: test?.['product_summary']?.['title'],
+            subtitle: test?.['product_summary']?.['subtitle'],
+        },
+        resetOptions: {
+            keepDirtyValues: true, // keep dirty fields unchanged, but update defaultValues
+        },
+    })
+
+    const onError = (errors, e) => console.log(errors, e);
+
+    // useEffect(() => {
+    //     setTitles((prev) => {
+    //         return {
+    //             ...prev,
+    //             title: test?.['product_summary']?.['title'],
+    //             subtitle: test?.['product_summary']?.['subtitle'],
+    //         }
+    //     });
+    // }, [test]);
 
     const editorRef = useRef(null);
 
@@ -48,22 +59,22 @@ const OverviewEditor = ({ testId, setEditMode }) => {
 
     }
 
-    const handleOnChange = (e, { name, value }) => {
-        setTitles((prev) => {
-            // console.log(prev)
-            return {
-                ...prev,
-                [name]: value,
-            }
-        });
-        // console.log(name)
-        // console.log(value)
-    }
+    // const handleOnChange = (e, { name, value }) => {
+    //     setTitles((prev) => {
+    //         // console.log(prev)
+    //         return {
+    //             ...prev,
+    //             [name]: value,
+    //         }
+    //     });
+    //     // console.log(name)
+    //     // console.log(value)
+    // }
 
-    const handleOnFormSubmit = () => {
+    const handleOnFormSubmit = (data) => {
 
         const body = {
-            ...titles,
+            ...data,
             testId,
             scope: 'titles',
         }
@@ -71,111 +82,147 @@ const OverviewEditor = ({ testId, setEditMode }) => {
     }
 
     // Not used - async doesn't work
-    const myCustomCoverter = async (url, node, on_save, name) => {
+    // const myCustomCoverter = async (url, node, on_save, name) => {
 
-        if (node === 'img' && name === 'src') {
-            // console.log(url, node, on_save, name)
-            return url;
-        } else {
-            return url;
-        }
+    //     if (node === 'img' && name === 'src') {
+    //         // console.log(url, node, on_save, name)
+    //         return url;
+    //     } else {
+    //         return url;
+    //     }
 
-        const signedUrl = url;
-        console.log(url, node, on_save, name)
-        return url;
-    }
+    //     const signedUrl = url;
+    //     console.log(url, node, on_save, name)
+    //     return url;
+    // }
 
     return (
-        isTestSuccess
-            ? (
-                <Container >
+        <Container >
 
-                    <Container>
-                        <Form onSubmit={handleOnFormSubmit}>
+            <Container>
+                <Form
+                    onSubmit={handleSubmit(handleOnFormSubmit, onError)}
+                    loading={isTestLoading}
+                >
 
-                            <Form.Field>
-                                <label>Title</label>
-                                <Form.Input
-                                    placeholder='Enter Title Title'
-                                    name='title'
-                                    value={title}
-                                    onChange={handleOnChange}
-                                />
-                            </Form.Field>
-                            <Form.Field>
-                                <label>Subtitle</label>
-                                <Form.Input
-                                    placeholder='Enter Test Subtitle'
-                                    name='subtitle'
-                                    value={subtitle}
-                                    onChange={handleOnChange}
-                                />
-                            </Form.Field>
+                    <Form.Field>
+                        <label>Title</label>
 
-                            <Button
-                                type='submit'
-                                color='green'
-                                // floated='right'
-                                onClick={handleOnFormSubmit}
-                                disabled={editTestIsLoadingTitles}
-                            >
-                                <>
-                                    {!editTestIsLoadingTitles ? <Icon name='save outline left' /> : <Loader inline active size={'mini'} />}
-                                    Save Title Changes
-                                </>
-                            </Button>
+                        <Controller
+                            name={'title'}
+                            control={control}
+                            rules={{
+                                required: {
+                                    value: true,
+                                    message: "Missing Test Title"
+                                }
+                            }}
+                            defaultValue={""}
+                            render={({
+                                field: { onChange, onBlur, value, name, ref },
+                                fieldState: { invalid, isTouched, isDirty, error },
+                            }) => <Form.Input
+                                    value={value}
+                                    onChange={onChange} // send value to hook form
+                                    onBlur={onBlur} // notify when input is touched
+                                    inputRef={ref} // wire up the input ref
+                                    placeholder={'Please Enter Title'}
+                                    error={error ? {
+                                        content: error?.message,
+                                        pointing: 'above',
+                                    } : false}
+                                />}
+                        />
+                    </Form.Field>
 
-                            {editTestIsErrorTitles &&
-                                <Segment><Header as={'h3'}>{editTestErrorTitles}</Header></Segment>}
+                    <Form.Field>
+                        <label>Subtitle</label>
 
-                        </Form>
-                    </Container>
+                        <Controller
+                            name={'subtitle'}
+                            control={control}
+                            rules={{
+                                required: {
+                                    value: true,
+                                    message: "Missing Test Subtitle"
+                                }
+                            }}
+                            defaultValue={""}
+                            render={({
+                                field: { onChange, onBlur, value, name, ref },
+                                fieldState: { invalid, isTouched, isDirty, error },
+                            }) => <Form.Input
+                                    value={value}
+                                    onChange={onChange} // send value to hook form
+                                    onBlur={onBlur} // notify when input is touched
+                                    inputRef={ref} // wire up the input ref
+                                    placeholder={'Please Enter Title'}
+                                    error={error ? {
+                                        content: error?.message,
+                                        pointing: 'above',
+                                    } : false}
+                                />}
+                        />
+                    </Form.Field>
 
-                    <Divider />
-                    <Editor
-                        apiKey={process.env.REACT_APP_TINYMCE_API}
-                        onInit={(evt, editor) => editorRef.current = editor}
-                        initialValue={test?.['product_summary']?.['overview'] || "<p>Insert overview content.</p>"}
-                        init={{
-                            height: 500,
-                            menubar: true,
-                            plugins: [
-                                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                                'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
-                            ],
-                            toolbar: 'undo redo | blocks | ' +
-                                'bold italic forecolor | alignleft aligncenter ' +
-                                'alignright alignjustify | bullist numlist outdent indent | ' +
-                                'removeformat | help',
-                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-                            // urlconverter_callback: myCustomCoverter,
-                        }}
-                    />
-                    {/* <button onClick={log}>Log editor content</button> */}
+                    <Button
+                        type='submit'
+                        color='green'
+                        disabled={editTestIsLoadingTitles || !isDirty}
+                    >
+                        <>
+                            {!editTestIsLoadingTitles ? <Icon name={'save outline'} /> : <Loader inline active size={'mini'} />}
+                            Save Title Changes
+                        </>
+                    </Button>
 
-                    <Segment basic>
+                    {editTestIsErrorTitles &&
+                        <Segment><Header as={'h3'}>{editTestErrorTitles}</Header></Segment>}
 
-                        <Button
-                            color='green'
-                            // floated='right'
-                            onClick={handleOnClickSaveOverview}
-                            disabled={editTestIsLoadingOverview}
-                        >
-                            <>
-                                {!editTestIsLoadingOverview ? <Icon name='save outline left' /> : <Loader inline active size={'mini'} />}
-                                Save Test Changes
-                            </>
-                        </Button>
+                </Form>
+            </Container>
 
-                        {editTestIsErrorOverview &&
-                            <Segment><Header as={'h3'}>{JSON.stringify(editTestErrorOverview)}</Header></Segment>}
+            <Divider />
+            <Editor
+                apiKey={process.env.REACT_APP_TINYMCE_API}
+                onInit={(evt, editor) => editorRef.current = editor}
+                initialValue={test?.['product_summary']?.['overview'] || "<p>Insert overview content.</p>"}
+                init={{
+                    height: 500,
+                    menubar: true,
+                    plugins: [
+                        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                        'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+                    ],
+                    toolbar: 'undo redo | blocks | ' +
+                        'bold italic forecolor | alignleft aligncenter ' +
+                        'alignright alignjustify | bullist numlist outdent indent | ' +
+                        'removeformat | help',
+                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+                    // urlconverter_callback: myCustomCoverter,
+                }}
+            />
+
+            <Segment basic>
+
+                <Button
+                    color='green'
+                    onClick={handleOnClickSaveOverview}
+                    disabled={editTestIsLoadingOverview}
+                >
+                    <>
+                        {!editTestIsLoadingOverview ? <Icon name='save outline' /> : <Loader inline active size={'mini'} />}
+                        Save Test Changes
+                    </>
+                </Button>
+
+                {editTestIsErrorOverview &&
+                    <Segment><Header as={'h3'}>{JSON.stringify(editTestErrorOverview)}</Header></Segment>}
 
 
-                    </Segment>
-                </Container >
-            )
-            : (<PlaceholderComponent />)
+            </Segment>
+        </Container >
 
     );
 }

@@ -57,13 +57,13 @@ const Card = ({ testId }) => {
                                     .map((item, index) => {
                                         if (index === 0) {
                                             return (
-                                                <List.Header key={index}>{item}</List.Header>
+                                                <List.Header key={index}>{item.text}</List.Header>
                                             );
                                         } else {
                                             return (
                                                 <List.Item key={index}>
                                                     <List.Icon name='check' />
-                                                    <List.Content>{item}</List.Content>
+                                                    <List.Content>{item.text}</List.Content>
                                                 </List.Item>
                                             );
                                         }

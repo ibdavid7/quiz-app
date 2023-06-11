@@ -1,10 +1,14 @@
-import React, { useReducer, useEffect, useState } from 'react'
+import React, { useReducer, useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
+import { v4 as uuid } from 'uuid';
 import PlaceholderComponent from './PlaceholderComponent'
 import { Container, Menu, Sidebar, Form, Loader, Header, Divider, Table, Icon, Image, Button, Progress, Grid, Segment, Label } from 'semantic-ui-react'
 import { alphabet, DIFFICULTY, LAYOUTS, QUESTIONS_TYPE } from '../constants'
 import { useEditTestMutation, useGetFullTestQuery } from '../store/testsSlice'
 import ImageGalleryModal from './ImageGalleryModal';
+import { LayoutValue } from '../constants/layouts';
+import PlaceholderAddElement from './PlaceholderAddElement';
+
 
 
 const initialState = {
@@ -64,6 +68,15 @@ const reducer = (state, action) => {
         [field]: updatedArray,
       }
       break;
+    case 'appendArray':
+
+      const updatedArr = [...state[field], value];
+
+      return {
+        ...state,
+        [field]: updatedArr,
+      }
+
     case 'updateMap':
       const {
         submap,
@@ -114,12 +127,16 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
         });
         break;
       case 'updateArray':
-        const { index } = name;
+        const { index, subField } = name;
+        const clone = structuredClone(state?.['options']?.[index]);
+        clone[subField] = value;
+
+
         dispatch({
           type,
           field,
           index,
-          value,
+          value: clone,
         });
         break;
       case 'updateMap':
@@ -138,8 +155,9 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
 
   }
 
-  const handleOnFormSubmit = () => {
+  const handleOnFormSubmit = (e) => {
 
+    console.log(e)
 
     const body = {
       question: {
@@ -149,7 +167,9 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
       testId,
       scope: 'questionEdit',
     }
+
     console.log(body)
+
     editTest(body)
       .unwrap()
       .then((fullfilled) => {
@@ -165,33 +185,87 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
       .catch((err) => console.log(err))
   }
 
-
   const Options = ({ colsPerRow }) => {
 
-    let r = 0, c = 0, l = question?.options?.length;
+    let r = 0, c = 0, l = state?.options?.length + 1;
 
     const options = [];
 
     for (r = 0; r < (l + 1) / 2; r++) {
       const cols = [];
       // line.push(<Grid.Row key={r}>)
-      for (c = 0; c < 2 && (r * 2 + c) < l; c++) {
-        const index = r * 2 + c;
-        const optionId = question?.options?.[index]?.['option_id'];
-        const col = (
-          <Grid.Column width={16 / colsPerRow} key={optionId}>
-            <Segment
-              id={optionId}
-              // onClick={() => handleSelectionOnClick(optionId)}
-              className={question?.answer_id === optionId ? 'raised green' : 'basic'}
-              style={{ cursor: 'pointer' }}
-            >
-              <span>{alphabet(index)}. </span>
-              {question?.options?.[index]?.['option_text'] && question?.options?.[index]?.['option_text']}
-              {question?.options?.[index]?.['option_image'] && <Image src={question?.options?.[index]?.['option_image']} />}
-            </Segment>
-          </Grid.Column>
-        );
+      for (c = 0; c < colsPerRow && (r * 2 + c) < l; c++) {
+
+
+        let col;
+        if ((r * 2 + c) < l - 1) {
+          const index = r * 2 + c;
+          const optionId = state?.options?.[index]?.['option_id'];
+          col = (
+            <Grid.Column width={16 / colsPerRow} key={optionId}>
+              <Segment
+                id={optionId}
+                // onClick={() => handleSelectionOnClick(optionId)}
+                className={state?.answer_id === optionId ? 'raised green' : 'basic'}
+                style={{ cursor: 'pointer' }}
+              >
+                {/* <span>{alphabet(index)}. </span> */}
+                {/* {question?.options?.[index]?.['option_text'] && question?.options?.[index]?.['option_text']} */}
+                {/* {question?.options?.[index]?.['option_image'] && <Image src={question?.options?.[index]?.['option_image']} />} */}
+
+                <span>{alphabet(index)}. </span>
+
+                <Form.Field>
+                  <label>Enter Option Text</label>
+                  <Form.Input
+                    placeholder='Enter Option Text'
+                    name={{ type: 'updateArray', field: 'options', index, subField: 'option_text' }}
+                    value={state?.['options']?.[index]?.['option_text']}
+                    onChange={handleOnChange}
+                  />
+                </Form.Field>
+
+                {state?.options?.[index]?.['option_image'] && <Image size={'medium'} src={state?.options?.[index]?.['option_image']} />}
+
+
+                <Divider hidden />
+                <Form.Field >
+                  <Form.Input
+                    action={{
+                      color: 'blue',
+                      labelPosition: 'left',
+                      icon: 'browser',
+                      content: 'Browse',
+                      onClick: (e) => {
+                        e.preventDefault();
+                        setModalState({
+                          isOpen: true,
+                          dispatchProps: { type: 'updateArray', field: 'options', index, value: state?.['options']?.[index] }
+                        })
+                      },
+                    }}
+                    label={'Image Url'}
+                    placeholder='Image Url'
+                    name={{ type: 'updateArray', field: 'options', index }}
+                    value={state?.['options']?.[index]?.['option_image']}
+                    onChange={handleOnChange}
+                    focus
+                  />
+                </Form.Field>
+
+              </Segment>
+            </Grid.Column>
+          );
+        } else {
+          col = (
+            <Grid.Column width={16 / colsPerRow} key={'0'}>
+              <PlaceholderAddElement text={'Add Option'} buttonText={'Add'} handleClick={addOption} />
+            </Grid.Column>
+
+          )
+        }
+
+
 
         cols.push(col);
       }
@@ -210,12 +284,25 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
     )
   }
 
+  const addOption = () => {
+    dispatch({
+      type: 'appendArray',
+      field: 'options',
+      value: {
+        option_id: uuid(),
+        option_image: null,
+        option_text: null,
+      },
+    });
+  }
+
   let content;
   if (isTestFetching) {
     content = <PlaceholderComponent />;
   } else if (isTestError) {
     content = <Header as={'h1'}>{testError}</Header>;
   } else if (isTestSuccess) {
+    
     content = (
       <Container>
 
@@ -317,7 +404,10 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
           </Header>
         </Divider>
 
-        <Form>
+        <Form
+          onSubmit={handleOnFormSubmit}
+        >
+
           <Form.Field>
             <label>Enter Question Text</label>
             <Form.Input
@@ -331,10 +421,11 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
           <Container fluid>
 
             <Grid stackable>
-              <Grid.Column width={8}>
+              <Grid.Column width={state?.['layout'] ? LayoutValue[state?.['layout']]['question_col'] : LayoutValue['compact']['question_col']}>
                 <Image size={'medium'} src={state?.question_image} />
 
                 <Divider hidden />
+
                 <Form.Field >
                   <Form.Input
                     action={{
@@ -342,10 +433,13 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
                       labelPosition: 'left',
                       icon: 'browser',
                       content: 'Browse',
-                      onClick: () => setModalState({
-                        isOpen: true,
-                        dispatchProps: { type: 'updateField', field: 'question_image' }
-                      }),
+                      onClick: (e) => {
+                        e.preventDefault();
+                        setModalState({
+                          isOpen: true,
+                          dispatchProps: { type: 'updateField', field: 'question_image' }
+                        })
+                      },
                     }}
                     label={'Image Url'}
                     placeholder='Image Url'
@@ -358,9 +452,12 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
 
 
               </Grid.Column>
-              <Grid.Column width={8}>
+
+              <Grid.Column width={state?.['layout'] ? LayoutValue[state?.['layout']]['answers_col'] : LayoutValue['compact']['answers_col']}>
+
                 {question.difficulty && <Label attached='bottom right'>{question.difficulty}</Label>}
-                <Options colsPerRow={2} />
+
+                <Options colsPerRow={state?.['layout'] ? LayoutValue[state?.['layout']]['rows_per_answer_col'] : LayoutValue['compact']['rows_per_answer_col']} />
 
               </Grid.Column>
             </Grid>
@@ -424,87 +521,6 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
         />}
       {content}
     </>
-
-
-    // <Container>
-    //   <Divider horizontal>
-    //     <Header as='h4'>
-    //       <Icon name='clipboard' />
-    //       Question Metadata
-    //     </Header>
-    //   </Divider>
-
-
-
-    //   <Table definition>
-    //     <Table.Body>
-    //       <Table.Row>
-    //         <Table.Cell width={4}>Questions Label</Table.Cell>
-    //         <Table.Cell>{question?.label}</Table.Cell>
-    //       </Table.Row>
-    //       <Table.Row>
-    //         <Table.Cell>Question Type</Table.Cell>
-    //         <Table.Cell>{question?.type}</Table.Cell>
-    //       </Table.Row>
-    //       <Table.Row>
-    //         <Table.Cell>Question Difficulty</Table.Cell>
-    //         <Table.Cell>{question?.difficulty}</Table.Cell>
-    //       </Table.Row>
-    //       <Table.Row>
-    //         <Table.Cell>Question Score</Table.Cell>
-    //         <Table.Cell>{question?.score}</Table.Cell>
-    //       </Table.Row>
-    //       <Table.Row>
-    //         <Table.Cell>Layout</Table.Cell>
-    //         <Table.Cell>{question?.layout}</Table.Cell>
-    //       </Table.Row>
-    //     </Table.Body>
-    //   </Table>
-
-    //   <Divider horizontal>
-    //     <Header as='h4' >
-    //       <Segment.Inline>
-    //         <Icon name='check circle' color='black' />
-    //         Question {questionIndex + 1} / {questionCount} ({Math.max(100, ((questionIndex + 1) / (questionCount) * 100).toFixed(0))}%)
-    //       </Segment.Inline>
-    //     </Header>
-    //   </Divider>
-
-    //   <Header>{question?.question_text}</Header>
-
-    //   <Container fluid>
-
-    //     <Grid stackable>
-    //       <Grid.Column width={8}>
-    //         <Image src={question?.question_image} />
-    //       </Grid.Column>
-    //       <Grid.Column width={8}>
-    //         {question.difficulty && <Label attached='bottom right'>{question.difficulty}</Label>}
-    //         <Options colsPerRow={2} />
-
-    //       </Grid.Column>
-    //     </Grid>
-    //   </Container>
-
-
-    //   <Divider horizontal>
-    //     <Header as='h4'>
-    //       <Icon name='clipboard' />
-    //       Answer Content
-    //     </Header>
-    //   </Divider>
-
-
-    //   <Container
-    //     style={{ marginTop: '2rem', marginBottom: '2rem' }}
-    //     text
-    //     dangerouslySetInnerHTML={{ __html: question?.answer_text }}
-    //   >
-    //   </Container>
-    //   <Image src={question?.answer_image} fluid />
-
-
-    // </Container>
 
   )
 }
