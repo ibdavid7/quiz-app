@@ -105,6 +105,27 @@ export const handler = async (event, context, callback) => {
 
                 break;
 
+            case CARD:
+
+                const { card } = JSON.parse(event.body);
+
+                params = {
+                    TableName: TEST_TABLE,
+                    Key: {
+                        id: path_parameter,
+                    },
+                    UpdateExpression: 'SET #map = :new_value1',
+                    ExpressionAttributeNames: {
+                        '#map': 'product_card',
+                    },
+                    ExpressionAttributeValues: {
+                        ':new_value1': card,
+                    }
+                }
+
+                break;
+
+
             //     // Instructions, Card, Scoring
 
             // // 4. scope = 'questionEdit'

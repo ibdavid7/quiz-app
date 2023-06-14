@@ -6,77 +6,77 @@ import { useForm, Controller, useFieldArray } from "react-hook-form";
 import ImageGalleryModal from './ImageGalleryModal';
 
 
-const initialState = {
-};
+// const initialState = {
+// };
 
-const reducer = (state, action) => {
-  // console.log(action)
+// const reducer = (state, action) => {
+//   // console.log(action)
 
-  const {
-    type,
-    field,
-    value
-  } = action;
+//   const {
+//     type,
+//     field,
+//     value
+//   } = action;
 
-  switch (type) {
-    case "initialFetch":
+//   switch (type) {
+//     case "initialFetch":
 
-      return {
-        ...state,
-        ...action.value,
-      };
+//       return {
+//         ...state,
+//         ...action.value,
+//       };
 
-    case 'updateField':
-      // check case of setting price
-      if (field === 'price') {
-        if (isNaN(Number(value))) {
-          return state;
-        } else {
-          return {
-            ...state,
-            [field]: Math.round((+value + Number.EPSILON) * 100) / 100,
-          }
-        }
-      }
+//     case 'updateField':
+//       // check case of setting price
+//       if (field === 'price') {
+//         if (isNaN(Number(value))) {
+//           return state;
+//         } else {
+//           return {
+//             ...state,
+//             [field]: Math.round((+value + Number.EPSILON) * 100) / 100,
+//           }
+//         }
+//       }
 
-      return {
-        ...state,
-        [field]: value,
-      }
-      break;
-    case 'updateArray':
-      const {
-        index,
-      } = action;
+//       return {
+//         ...state,
+//         [field]: value,
+//       }
+//       break;
+//     case 'updateArray':
+//       const {
+//         index,
+//       } = action;
 
-      // console.log(field, value, index)
+//       // console.log(field, value, index)
 
-      const updatedArray = state[field].map((item, idx) => {
-        if (idx == index) {
-          return value;
-        } else {
-          return item;
-        }
-      })
+//       const updatedArray = state[field].map((item, idx) => {
+//         if (idx == index) {
+//           return value;
+//         } else {
+//           return item;
+//         }
+//       })
 
-      return {
-        ...state,
-        [field]: updatedArray,
-      }
-      break;
-    case 'updateMap':
-      const {
-        submap,
-      } = action;
+//       return {
+//         ...state,
+//         [field]: updatedArray,
+//       }
+//       break;
+//     case 'updateMap':
+//       const {
+//         submap,
+//       } = action;
 
-      return {
-        ...state,
-        [`${field}.${submap}`]: value,
-      }
-    default:
-      return state;
-  }
-};
+//       return {
+//         ...state,
+//         [`${field}.${submap}`]: value,
+//       }
+//     default:
+//       return state;
+//   }
+// };
 
 
 const CardEditor = ({ testId }) => {
@@ -99,22 +99,22 @@ const CardEditor = ({ testId }) => {
     // rules: { minLength: 1, maxLength: 4 },
   });
 
-  console.log(fields)
-  console.log(getValues())
+  // console.log(fields)
+  // console.log(getValues())
 
   const watchImage = watch("image")
 
 
-  const [state, dispatch] = useReducer(reducer, initialState);
+  // const [state, dispatch] = useReducer(reducer, initialState);
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    dispatch({
-      type: "initialFetch",
-      value: test?.['product_card']
-    });
+  //   dispatch({
+  //     type: "initialFetch",
+  //     value: test?.['product_card']
+  //   });
 
-  }, [test]);
+  // }, [test]);
 
 
   const handleOnChange = (e, { name, value }) => {
@@ -123,43 +123,43 @@ const CardEditor = ({ testId }) => {
 
     const { type, field } = name;
 
-    switch (type) {
-      case 'updateField':
-        dispatch({
-          type,
-          field,
-          value,
-        });
-        break;
-      case 'updateArray':
-        const { index } = name;
-        dispatch({
-          type,
-          field,
-          index,
-          value,
-        });
-        break;
-      case 'updateMap':
-        const { submap } = name;
-        dispatch({
-          type,
-          field,
-          submap,
-          value,
-        });
-        break;
-      default:
-        console.error(`Error: Task type ${type} not recognized`);
-        throw new Error(`Error: Task type ${type} not recognized`);
-    }
+    // switch (type) {
+    //   case 'updateField':
+    //     dispatch({
+    //       type,
+    //       field,
+    //       value,
+    //     });
+    //     break;
+    //   case 'updateArray':
+    //     const { index } = name;
+    //     dispatch({
+    //       type,
+    //       field,
+    //       index,
+    //       value,
+    //     });
+    //     break;
+    //   case 'updateMap':
+    //     const { submap } = name;
+    //     dispatch({
+    //       type,
+    //       field,
+    //       submap,
+    //       value,
+    //     });
+    //     break;
+    //   default:
+    //     console.error(`Error: Task type ${type} not recognized`);
+    //     throw new Error(`Error: Task type ${type} not recognized`);
+    // }
 
   }
 
-  const handleOnFormSubmit = () => {
+  const handleOnFormSubmit = (data) => {
 
     const body = {
-      ...state,
+      ...data,
       testId,
       scope: 'card',
     }
@@ -180,14 +180,14 @@ const CardEditor = ({ testId }) => {
         <ImageGalleryModal
           testId={testId}
           modalState={modalState}
-          dispatch={dispatch}
+          // dispatch={dispatch}
           setModalState={setModalState}
           setValue={(field, value) => setValue(field, value)}
         />}
 
 
       <Form
-        onSubmit={handleOnFormSubmit}
+        onSubmit={handleSubmit(handleOnFormSubmit)}
         loading={isTestLoading}
       >
 
@@ -313,11 +313,11 @@ const CardEditor = ({ testId }) => {
                     />
                   </Form.Field>
 
-                  <Item.Meta>
-                    {/* TODO: implement author class */}
-                    <Image avatar src='https://react.semantic-ui.com/images/avatar/small/rachel.png' />
-                    <span className='author' style={{ color: 'blue' }}>David Thomas | Economist</span>
-                  </Item.Meta>
+                  {/* <Item.Meta> */}
+                  {/* TODO: implement author class */}
+                  <Image avatar src='https://react.semantic-ui.com/images/avatar/small/rachel.png' />
+                  <span className='author' style={{ color: 'blue' }}>David Thomas | Economist</span>
+                  {/* </Item.Meta> */}
 
                   {/* <Item.Description >{state?.['description']}</Item.Description> */}
 
@@ -362,52 +362,116 @@ const CardEditor = ({ testId }) => {
                     />
                   </Form.Field>
 
-                  <Item.Content>
+                  {/* <Item.Content> */}
 
-                    <List>
-                      {
+                  <List>
+                    {
 
-                        fields.map((field, index) => {
+                      fields.map((field, index) => {
 
-                          if (index === 0) {
-                            return (
-                              <List.Item key={field.id}>
-                                <Form.Field>
-                                  <Input
+                        if (index === 0) {
+                          return (
+                            <List.Item key={field.id}>
+                              <Form.Field>
+
+
+                                <Controller
+                                  name={`description_bullet_points.${index}.text`}
+                                  control={control}
+                                  rules={{
+                                    required: {
+                                      value: true,
+                                      message: "Missing Description Text"
+                                    }
+                                  }}
+                                  defaultValue={""}
+                                  render={({
+                                    field: { onChange, onBlur, value, ref },
+                                    fieldState: { invalid, isTouched, isDirty, error },
+                                  }) =>
+                                    <Input
+                                      label={'text'}
+                                      value={value}
+                                      onChange={onChange} // send value to hook form
+                                      onBlur={onBlur} // notify when input is touched
+                                      inputRef={ref} // wire up the input ref
+                                      placeholder={'Enter Description Test'}
+                                      error={error ? {
+                                        content: error?.message,
+                                        pointing: 'above',
+                                      } : false}
+                                      focus
+                                    />
+                                  }
+                                />
+
+                                {/* <Input
                                     label={'Text:'}
                                     value={field.text}
                                     placeholder={'Enter Description'}
                                     key={field.id}
                                     control={control}
-                                    update={update}
+                                    onChange={(data) => setValue(`description.${index}.text`, data)}
                                     index={index}
-                                  />
-                                </Form.Field>
-                              </List.Item>
-                            )
-                          } else {
-                            return (
-                              <List.Item key={field.id}>
-                                <Form.Field>
-                                  <Input
+                                  /> */}
+                              </Form.Field>
+                            </List.Item>
+                          )
+                        } else {
+
+                          return (
+                            <List.Item key={field.id}>
+                              <Form.Field>
+
+                                <Controller
+                                  name={`description_bullet_points.${index}.text`}
+                                  control={control}
+                                  rules={{
+                                    required: {
+                                      value: true,
+                                      message: "Missing Description Text"
+                                    }
+                                  }}
+                                  defaultValue={""}
+                                  render={({
+                                    field: { onChange, onBlur, value, ref },
+                                    fieldState: { invalid, isTouched, isDirty, error },
+                                  }) =>
+                                    <Input
+                                      label={{ icon: 'check' }}
+                                      value={value}
+                                      onChange={onChange} // send value to hook form
+                                      onBlur={onBlur} // notify when input is touched
+                                      inputRef={ref} // wire up the input ref
+                                      placeholder={'Enter Description Test'}
+                                      error={error ? {
+                                        content: error?.message,
+                                        pointing: 'above',
+                                      } : false}
+                                      focus
+                                    />
+                                  }
+                                />
+
+                                {/* <Input
                                     label={{ icon: 'check' }}
                                     value={field.text}
                                     placeholder={'Enter Description'}
                                     key={field.id}
                                     control={control}
-                                    update={update}
+                                    onChange={(data) => setValue(`description.${index}.text`, data)}
                                     index={index}
-                                  />
-                                </Form.Field>
-                              </List.Item>
-                            )
-                          }
-                        })
+                                  /> */}
+                              </Form.Field>
+                            </List.Item>
+                          )
+                        }
+                      })
 
-                      }
-                    </List>
+                    }
+                  </List>
 
-                    {/* <List>
+                  {/* <List>
                       {state?.['description_bullet_points'] &&
                         state?.['description_bullet_points'].map((item, index) => {
                           if (index === 0) {
@@ -441,27 +505,61 @@ const CardEditor = ({ testId }) => {
                       }
                     </List> */}
 
-                    <List>
-                      <List.Item>
-                        <List.Content>
-                          <span
-                            style={{ color: 'orange', 'fontWeight': 'bold', 'fontSize': '1.2rem' }}
-                          >
-                            {(Math.round((Number(test?.['stats']?.['totalScore']) / Number(test?.['stats']?.['ratings'])) * 100) / 100).toFixed(1)}
-                          </span>
-                          <Rating
-                            disabled icon='star'
-                            defaultRating={Number(test?.['stats']?.['totalScore']) / Number(test?.['stats']?.['ratings'])} maxRating={5}
+                  <List>
+                    <List.Item>
+                      <List.Content>
+                        <span
+                          style={{ color: 'orange', 'fontWeight': 'bold', 'fontSize': '1.2rem' }}
+                        >
+                          {(Math.round((Number(test?.['stats']?.['totalScore']) / Number(test?.['stats']?.['ratings'])) * 100) / 100).toFixed(1)}
+                        </span>
+                        <Rating
+                          disabled icon='star'
+                          defaultRating={Number(test?.['stats']?.['totalScore']) / Number(test?.['stats']?.['ratings'])} maxRating={5}
+                        />
+                        <span>
+                          ({Number(test?.['stats']?.['ratings'])})
+                        </span>
+                      </List.Content>
+                    </List.Item>
+                    <List.Item>
+                      <List.Content>
+                        <Form.Field>
+
+
+                          <Controller
+                            name={'price'}
+                            control={control}
+                            rules={{
+                              required: {
+                                value: true,
+                                message: "Missing Price"
+                              }
+                            }}
+                            defaultValue={""}
+                            render={({
+                              field: { onChange, onBlur, value, ref },
+                              fieldState: { invalid, isTouched, isDirty, error },
+                            }) =>
+                              <Input
+                                label={'Price'}
+                                value={value}
+                                onChange={onChange} // send value to hook form
+                                onBlur={onBlur} // notify when input is touched
+                                inputRef={ref} // wire up the input ref
+                                placeholder={'Enter Price'}
+                                error={error ? {
+                                  content: error?.message,
+                                  pointing: 'above',
+                                } : false}
+                                focus
+                                type={'number'}
+                              />
+                            }
                           />
-                          <span>
-                            ({Number(test?.['stats']?.['ratings'])})
-                          </span>
-                        </List.Content>
-                      </List.Item>
-                      <List.Item>
-                        <List.Content>
-                          <Form.Field>
-                            <Form.Input
+
+
+                          {/* <Form.Input
                               label={{ icon: 'cart plus', color: 'green' }}
                               placeholder={'Enter Price'}
                               type='number'
@@ -469,41 +567,75 @@ const CardEditor = ({ testId }) => {
                               name={{ type: 'updateField', field: 'price' }}
                               value={Number(state?.['price'])}
                               onChange={handleOnChange}
-                            />
-                          </Form.Field>
+                            /> */}
+                        </Form.Field>
 
-                        </List.Content>
-                      </List.Item>
-                    </List>
-                  </Item.Content>
-                  <Item.Extra>
+                      </List.Content>
+                    </List.Item>
+                  </List>
+                  {/* </Item.Content> */}
+                  {/* <Item.Extra> */}
 
-                    <Label.Group>
-                      {
-                        state['tags'] &&
-                        Object.entries(state?.['tags'])
-                          .map(([key, val], index) => {
-                            if (key === 'sale') {
-                              return (
-                                <Label key={index} tag color='red'>{val}</Label>
-                              );
-                            } else {
-                              return (
-                                <Form.Field key={index}>
+                  {/* <Label.Group> */}
+                  <br />
+                  {
+                    // state['tags'] &&
+                    // Object.entries(state?.['tags'])
+                    Object.entries(getValues("tags"))
+
+                      .map(([key, val], index) => {
+                        if (key === 'sale') {
+                          return (
+                            <Label key={index} tag color='red'>{val}</Label>
+                          );
+                        } else {
+                          return (
+                            <Form.Field key={index}>
+
+                              <Controller
+                                name={`tags[${key}]`}
+                                control={control}
+                                rules={{
+                                  required: {
+                                    value: true,
+                                    message: "Missing Tag"
+                                  }
+                                }}
+                                defaultValue={""}
+                                render={({
+                                  field: { onChange, onBlur, value, ref },
+                                  fieldState: { invalid, isTouched, isDirty, error },
+                                }) =>
                                   <Input
+                                    label={key}
+                                    value={value}
+                                    onChange={onChange} // send value to hook form
+                                    onBlur={onBlur} // notify when input is touched
+                                    inputRef={ref} // wire up the input ref
+                                    placeholder={'Enter Price'}
+                                    error={error ? {
+                                      content: error?.message,
+                                      pointing: 'above',
+                                    } : false}
+                                    focus
+                                  />
+                                }
+                              />
+
+                              {/* <Input
                                     label={key}
                                     placeholder={'Tag'}
                                     name={{ type: 'updateMap', submap: key }}
                                     value={val}
                                     onChange={handleOnChange}
-                                  />
-                                </Form.Field>
-                              );
-                            }
-                          })
-                      }
-                    </Label.Group>
-                  </Item.Extra>
+                                  /> */}
+                            </Form.Field>
+                          );
+                        }
+                      })
+                  }
+                  {/* </Label.Group> */}
+                  {/* </Item.Extra> */}
                 </Container>
 
               </Form.Group>
@@ -516,7 +648,7 @@ const CardEditor = ({ testId }) => {
           type='submit'
           color='green'
           // floated='right'
-          onClick={handleOnFormSubmit}
+          // onClick={handleOnFormSubmit}
           disabled={editTestIsLoading}
         >
           <>

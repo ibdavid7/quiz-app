@@ -79,6 +79,7 @@ const OverviewEditor = ({ testId, setEditMode }) => {
             scope: 'titles',
         }
         editTestTitles(body)
+        // console.log(body)
     }
 
     // Not used - async doesn't work
@@ -119,7 +120,7 @@ const OverviewEditor = ({ testId, setEditMode }) => {
                             }}
                             defaultValue={""}
                             render={({
-                                field: { onChange, onBlur, value, name, ref },
+                                field: { onChange, onBlur, value, ref },
                                 fieldState: { invalid, isTouched, isDirty, error },
                             }) => <Form.Input
                                     value={value}
