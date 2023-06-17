@@ -1,27 +1,73 @@
-import React from 'react'
-import { Divider, Image, Segment, Card, Icon, Button, Container } from 'semantic-ui-react'
+import React, { useState } from 'react'
+import { Divider, Image, Segment, Card, Icon, Button, Container, Menu } from 'semantic-ui-react'
 import { Controller, useFormContext, useFieldArray } from 'react-hook-form';
 import HookFormControlledField from './HookFormControlledField';
 import { alphabet } from '../constants';
 import HookFormControlledImagePicker from './HookFormControlledImagePicker';
-
+import MenuCompact from './MenuCompact';
+import HookFormControlledTextEditor from './HookFormControlledTextEditor';
+import HookFormControlledHtmlEditor from './HookFormControlledHtmlEditor';
 
 const QuestionAnswerEditor = ({
     label,
-    // name,
+    name,
     setModalState,
 }) => {
 
     const { watch, setValue, control, getValues } = useFormContext();
-    const watchImage = watch(`${name}.option_image`)
+    const watchImage = watch(`${name}.answer_image`);
 
+    const items = [
+        { name: 'Line', icon: 'comment alternate' },
+        { name: 'TextBox', icon: 'paragraph' },
+        { name: 'HTML', icon: 'html5' },
+    ];
 
+    const [activeItem, setActiveItem] = useState('Line');
+
+    const handleOnClick = (e, { name }) => {
+        e.preventDefault();
+        setActiveItem(name)
+    }
+
+    let answerBox;
+    switch (activeItem) {
+        case items[0]['name']:
+            answerBox = (
+                <HookFormControlledField
+                    label={'Answer Explanation'}
+                    name={`${name}.answer_text`}
+                    control={control}
+                />
+            );
+            break;
+        case items[1]['name']:
+            answerBox = (
+                <HookFormControlledTextEditor
+                    label={'Answer Explanation'}
+                    name={`${name}.answer_text`}
+                    control={control}
+                />
+            );
+            break;
+        case items[2]['name']:
+            answerBox = (
+                <HookFormControlledHtmlEditor
+                    label={'Answer Explanation'}
+                    name={`${name}.answer_text`}
+                    control={control}
+                />
+            );
+            break;
+        default:
+            break;
+    }
 
     return (
 
         <Controller
             control={control}
-            // name={name}
+            name={name}
             render={({
                 field: { onChange, onBlur, value, ref },
                 fieldState: { invalid, isTouched, isDirty, error },
@@ -30,37 +76,44 @@ const QuestionAnswerEditor = ({
                 <Container>
                     <Card
                         fluid
-                        // raised
-                        // width={2}
-                        key={value.option_id}
-
-                        className={watch('answer_id') === value.option_id ? 'raised secondary green' : 'raised'}
+                        // key={value.option_id}
                         style={{ cursor: 'pointer' }}
                     >
 
                         <Card.Content>
-                            <Card.Header>{`${alphabet(index)}`}</Card.Header>
-                            <br />
+                            {/* <Card.Header>{`Answer Explanation`}</Card.Header> */}
+                            {/* <br /> */}
                             <Card.Meta>
-                                <HookFormControlledField
-                                    label={'Option ID (Not-editable)'}
-                                    name={`${name}.option_id`}
-                                    control={control}
-                                    disabled={true}
-                                />
+                                <Card.Meta>
+                                    <HookFormControlledField
+                                        label={'Option ID (Not-editable)'}
+                                        name={`${name}.answer_id`}
+                                        control={control}
+                                        disabled={true}
+                                    />
+                                </Card.Meta>
                             </Card.Meta>
+                            <br />
 
                             <Card.Description>
-                                <HookFormControlledField
-                                    label={'Enter Option Text'}
-                                    name={`${name}.option_text`}
-                                    control={control}
+
+                                <MenuCompact
+                                    onClick={handleOnClick}
+                                    activeItem={activeItem}
+                                    items={items}
                                 />
+                                <br />
+
+                                {answerBox}
+
                             </Card.Description>
 
-                        </Card.Content>
 
-                        {value.option_image &&
+                        </Card.Content>
+                        <br />
+
+
+                        {value.answer_image &&
                             <Image
                                 wrapped ui={false}
                                 size={'large'} src={watchImage}
@@ -69,13 +122,13 @@ const QuestionAnswerEditor = ({
 
                         <Card.Content extra>
                             <HookFormControlledImagePicker
-                                name={`${name}.option_image`}
+                                name={`${name}.answer_image`}
                                 setModalState={setModalState}
                                 control={control}
                             />
 
 
-                            <div className='ui two divs'>
+                            {/* <div className='ui two divs'>
 
                                 <div className='ui three buttons'>
                                     <Button
@@ -123,7 +176,7 @@ const QuestionAnswerEditor = ({
                                 </div>
 
 
-                            </div >
+                            </div > */}
                         </Card.Content>
                     </Card>
 

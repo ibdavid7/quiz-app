@@ -17,6 +17,8 @@ const QuestionOptionEditor = ({
 
     const { watch, setValue, control, getValues } = useFormContext();
     const watchImage = watch(`${name}.option_image`)
+    const watchFields = watch('options')
+    // console.log('watchFields', watchFields)
 
     const { fields, update, append, prepend, move, insert } = useFieldArray({
         control,
@@ -26,6 +28,9 @@ const QuestionOptionEditor = ({
 
     // console.log('fields check:', fields)
     // console.log('remove check:', remove)
+    // console.log('answer:', [...watch('answer.answer_id')])
+    // console.log('answer:', watch('answer.answer_id'))
+    // console.log('answer:', [...watch('answer.answer_id')].includes(value.option_id))
 
     const handleOnMove = (e, { from, to }) => {
         e.preventDefault();
@@ -56,14 +61,14 @@ const QuestionOptionEditor = ({
         e.preventDefault()
         // console.log(e)
 
-        if (value.option_id === getValues('answer_id')) {
-            setValue('answer_id', '', {
+        if (value.option_id === getValues('answer.answer_id')) {
+            setValue('answer.answer_id', '', {
                 shouldValidate: true,
                 shouldDirty: true,
                 shouldTouch: true,
             });
         } else {
-            setValue('answer_id', value.option_id, {
+            setValue('answer.answer_id', value.option_id, {
                 shouldValidate: true,
                 shouldDirty: true,
                 shouldTouch: true,
@@ -84,12 +89,11 @@ const QuestionOptionEditor = ({
                 <Container>
                     <Card
                         fluid
-                        // raised
-                        // width={2}
                         key={value.option_id}
-
-                        className={watch('answer_id') === value.option_id ? 'raised secondary green' : 'raised'}
+                        color={watch('answer.answer_id') === (value.option_id) ? 'green' : ''}
+                        // className={watch('answer.answer_id') === (value.option_id) ? 'ui raised green' : 'ui raised'}
                         style={{ cursor: 'pointer' }}
+                    // raised
                     >
 
                         <Card.Content>
@@ -152,7 +156,7 @@ const QuestionOptionEditor = ({
                                         icon={'arrow alternate circle down'}
                                         content={'Down'}
                                         onClick={(e) => handleOnMove(e, { from: index, to: index + 1 })}
-                                        disabled={index >= fields.length - 1}
+                                        disabled={index >= watchFields.length - 1}
                                     />
                                     <Button basic
                                         size='small'
@@ -166,7 +170,7 @@ const QuestionOptionEditor = ({
                                 </div>
                                 <div className='ui two buttons'>
                                     <Button
-                                        basic={watch('answer_id') !== value.option_id}
+                                        basic={watch('answer.answer_id') !== (value.option_id)}
                                         size='mini'
                                         color='green'
                                         fluid compact

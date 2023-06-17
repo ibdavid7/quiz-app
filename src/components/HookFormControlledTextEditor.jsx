@@ -36,7 +36,6 @@ const HookFormControlledTextEditor = ({
             onBlur={onBlur} // notify when input is touched
             inputRef={ref} // wire up the input ref
             placeholder={label}
-            type={type}
             error={error ? {
               content: error?.message,
               pointing: 'above',
