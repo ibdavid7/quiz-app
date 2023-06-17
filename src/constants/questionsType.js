@@ -4,6 +4,11 @@ const QUESTIONS_TYPE = [
     text: 'Multiple Choice',
     value: 'multiple'
   },
+  // {
+  //   key: 'multiple_answer',
+  //   text: 'Multiple Answer',
+  //   value: 'multiple_answer'
+  // },
 
   // {
   //   key: 'boolean',

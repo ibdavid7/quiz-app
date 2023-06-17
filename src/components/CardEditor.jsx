@@ -4,6 +4,7 @@ import { useEditTestMutation, useGetFullTestQuery } from '../store/testsSlice';
 import PlaceholderComponent from './PlaceholderComponent';
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import ImageGalleryModal from './ImageGalleryModal';
+import HookFormControlledImagePicker from './HookFormControlledImagePicker';
 
 
 // const initialState = {
@@ -194,7 +195,7 @@ const CardEditor = ({ testId }) => {
         <Grid columns={2} divided relaxed verticalAlign={'middle'}>
           <Grid.Column>
             <Grid.Row stretched >
-              <Image size={'medium'} src={watchImage} />
+              <Image size={'large'} src={watchImage} />
               <Divider hidden />
               <Form.Field >
                 {/* <Input
@@ -212,7 +213,14 @@ const CardEditor = ({ testId }) => {
                       focus
                     /> */}
 
-                <Controller
+
+                <HookFormControlledImagePicker
+                  name={'image'}
+                  setModalState={setModalState}
+                  control={control}
+                />
+
+                {/* <Controller
                   name={'image'}
                   control={control}
                   rules={{
@@ -254,7 +262,7 @@ const CardEditor = ({ testId }) => {
                       focus
                     />
                   }
-                />
+                /> */}
 
 
               </Form.Field>

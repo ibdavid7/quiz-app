@@ -1,95 +1,104 @@
-import React, { useReducer, useEffect, useState } from 'react';
+import React, { useReducer, useEffect, useState, useCallback } from 'react';
 import Swal from 'sweetalert2';
 import { v4 as uuid } from 'uuid';
 import PlaceholderComponent from './PlaceholderComponent'
-import { Container, Menu, Sidebar, Form, Loader, Header, Divider, Table, Icon, Image, Button, Progress, Grid, Segment, Label } from 'semantic-ui-react'
+import { Container, Menu, Sidebar, Form, Loader, Header, Divider, Table, Icon, Image, Button, Progress, Grid, Segment, Label, Card } from 'semantic-ui-react'
 import { alphabet, DIFFICULTY, LAYOUTS, QUESTIONS_TYPE } from '../constants'
 import { useEditTestMutation, useGetFullTestQuery } from '../store/testsSlice'
 import ImageGalleryModal from './ImageGalleryModal';
 import { LayoutValue } from '../constants/layouts';
 import PlaceholderAddElement from './PlaceholderAddElement';
+import { useForm, Controller, useFieldArray, FormProvider } from 'react-hook-form';
+import HookFormControlledField from './HookFormControlledField';
+import HookFormControlledDropdown from './HookFormControlledDropdown';
+import ButtonSave from './ButtonSave';
+import HookFormControlledImagePicker from './HookFormControlledImagePicker';
+import QuestionOptionEditor from './QuestionOptionEditor';
 
 
 
-const initialState = {
-};
 
-const reducer = (state, action) => {
-  // console.log(action)
+// const initialState = {
+// };
 
-  const {
-    type,
-    field,
-    value
-  } = action;
+// const reducer = (state, action) => {
+//   // console.log(action)
 
-  switch (type) {
-    case "initialFetch":
+//   const {
+//     type,
+//     field,
+//     value
+//   } = action;
 
-      return {
-        ...state,
-        ...action.value,
-      };
+//   switch (type) {
+//     case "initialFetch":
 
-    case 'updateField':
-      // check case of setting price
-      if (field === 'score') {
-        if (isNaN(Number(value))) {
-          return state;
-        } else {
-          return {
-            ...state,
-            [field]: Math.round((+value)),
-          }
-        }
-      }
+//       return {
+//         ...state,
+//         ...action.value,
+//       };
 
-      return {
-        ...state,
-        [field]: value,
-      }
-    case 'updateArray':
-      const {
-        index,
-      } = action;
+//     case 'updateField':
+//       // check case of setting price
+//       if (field === 'score') {
+//         if (isNaN(Number(value))) {
+//           return state;
+//         } else {
+//           return {
+//             ...state,
+//             [field]: Math.round((+value)),
+//           }
+//         }
+//       }
 
-      // console.log(field, value, index)
+//       return {
+//         ...state,
+//         [field]: value,
+//       }
+//     case 'updateArray':
+//       const {
+//         index,
+//       } = action;
 
-      const updatedArray = state[field].map((item, idx) => {
-        if (idx == index) {
-          return value;
-        } else {
-          return item;
-        }
-      })
+//       // console.log(field, value, index)
 
-      return {
-        ...state,
-        [field]: updatedArray,
-      }
-      break;
-    case 'appendArray':
+//       const updatedArray = state[field].map((item, idx) => {
+//         if (idx == index) {
+//           return value;
+//         } else {
+//           return item;
+//         }
+//       })
 
-      const updatedArr = [...state[field], value];
+//       return {
+//         ...state,
+//         [field]: updatedArray,
+//       }
+//       break;
+//     case 'appendArray':
 
-      return {
-        ...state,
-        [field]: updatedArr,
-      }
+//       const updatedArr = [...state[field], value];
 
-    case 'updateMap':
-      const {
-        submap,
-      } = action;
+//       return {
+//         ...state,
+//         [field]: updatedArr,
+//       }
 
-      return {
-        ...state,
-        [`${field}.${submap}`]: value,
-      }
-    default:
-      return state;
-  }
-};
+//     case 'updateMap':
+//       const {
+//         submap,
+//       } = action;
+
+//       return {
+//         ...state,
+//         [`${field}.${submap}`]: value,
+//       }
+//     default:
+//       return state;
+//   }
+// };
+
+
 
 
 const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
@@ -98,203 +107,249 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
   const { data: test, isFetching: isTestFetching, isError: isTestError, error: testError, isSuccess: isTestSuccess, refetch: testRefetch } = useGetFullTestQuery(testId);
   const [editTest, { data: editTestData, error: editTestError, isLoading: editTestIsLoading, isSuccess: editTestIsSuccess, isError: editTestIsError }] = useEditTestMutation();
 
-  const [state, dispatch] = useReducer(reducer, initialState);
-  const [modalState, setModalState] = useState({ isOpen: false, dispatchProps: {} });
+  const methods = useForm({
+    values: test?.['questions']?.[questionIndex],
+    resetOptions: {
+      keepDirtyValues: true, // keep dirty fields unchanged, but update defaultValues
+    },
+  })
 
-  console.log(state)
+  const { handleSubmit, reset, getValues, control, watch, setValue, formState: { isDirty, isValid, errors } } = methods;
 
+  const { fields, update, append, prepend, remove, swap, move, insert } = useFieldArray({
+    control,
+    name: 'options',
+    // rules: { minLength: 1, maxLength: 4 },
+  });
+
+  // persist auto-generated id for useFieldArray item
   useEffect(() => {
-
-    dispatch({
-      type: "initialFetch",
-      value: test?.['questions']?.[questionIndex]
-    });
-
-  }, [test]);
-
-  const handleOnChange = (e, { name, value }) => {
-    // console.log(name)
-    // console.log(value)
-
-    const { type, field } = name;
-
-    switch (type) {
-      case 'updateField':
-        dispatch({
-          type,
-          field,
-          value,
-        });
-        break;
-      case 'updateArray':
-        const { index, subField } = name;
-        const clone = structuredClone(state?.['options']?.[index]);
-        clone[subField] = value;
-
-
-        dispatch({
-          type,
-          field,
-          index,
-          value: clone,
-        });
-        break;
-      case 'updateMap':
-        const { submap } = name;
-        dispatch({
-          type,
-          field,
-          submap,
-          value,
-        });
-        break;
-      default:
-        console.error(`Error: Task type ${type} not recognized`);
-        throw new Error(`Error: Task type ${type} not recognized`);
-    }
-
-  }
-
-  const handleOnFormSubmit = (e) => {
-
-    console.log(e)
-
-    const body = {
-      question: {
-        ...state,
-      },
-      questionIndex,
-      testId,
-      scope: 'questionEdit',
-    }
-
-    console.log(body)
-
-    editTest(body)
-      .unwrap()
-      .then((fullfilled) => {
-        Swal.fire({
-          position: 'bottom',
-          toast: true,
-          icon: 'success',
-          title: `Your edit has been saved`,
-          showConfirmButton: false,
-          timer: 5000
-        })
-      })
-      .catch((err) => console.log(err))
-  }
-
-  const Options = ({ colsPerRow }) => {
-
-    let r = 0, c = 0, l = state?.options?.length + 1;
-
-    const options = [];
-
-    for (r = 0; r < (l + 1) / 2; r++) {
-      const cols = [];
-      // line.push(<Grid.Row key={r}>)
-      for (c = 0; c < colsPerRow && (r * 2 + c) < l; c++) {
-
-
-        let col;
-        if ((r * 2 + c) < l - 1) {
-          const index = r * 2 + c;
-          const optionId = state?.options?.[index]?.['option_id'];
-          col = (
-            <Grid.Column width={16 / colsPerRow} key={optionId}>
-              <Segment
-                id={optionId}
-                // onClick={() => handleSelectionOnClick(optionId)}
-                className={state?.answer_id === optionId ? 'raised green' : 'basic'}
-                style={{ cursor: 'pointer' }}
-              >
-                {/* <span>{alphabet(index)}. </span> */}
-                {/* {question?.options?.[index]?.['option_text'] && question?.options?.[index]?.['option_text']} */}
-                {/* {question?.options?.[index]?.['option_image'] && <Image src={question?.options?.[index]?.['option_image']} />} */}
-
-                <span>{alphabet(index)}. </span>
-
-                <Form.Field>
-                  <label>Enter Option Text</label>
-                  <Form.Input
-                    placeholder='Enter Option Text'
-                    name={{ type: 'updateArray', field: 'options', index, subField: 'option_text' }}
-                    value={state?.['options']?.[index]?.['option_text']}
-                    onChange={handleOnChange}
-                  />
-                </Form.Field>
-
-                {state?.options?.[index]?.['option_image'] && <Image size={'medium'} src={state?.options?.[index]?.['option_image']} />}
-
-
-                <Divider hidden />
-                <Form.Field >
-                  <Form.Input
-                    action={{
-                      color: 'blue',
-                      labelPosition: 'left',
-                      icon: 'browser',
-                      content: 'Browse',
-                      onClick: (e) => {
-                        e.preventDefault();
-                        setModalState({
-                          isOpen: true,
-                          dispatchProps: { type: 'updateArray', field: 'options', index, value: state?.['options']?.[index] }
-                        })
-                      },
-                    }}
-                    label={'Image Url'}
-                    placeholder='Image Url'
-                    name={{ type: 'updateArray', field: 'options', index }}
-                    value={state?.['options']?.[index]?.['option_image']}
-                    onChange={handleOnChange}
-                    focus
-                  />
-                </Form.Field>
-
-              </Segment>
-            </Grid.Column>
-          );
-        } else {
-          col = (
-            <Grid.Column width={16 / colsPerRow} key={'0'}>
-              <PlaceholderAddElement text={'Add Option'} buttonText={'Add'} handleClick={addOption} />
-            </Grid.Column>
-
-          )
-        }
-
-
-
-        cols.push(col);
+    fields.forEach((field, index) => {
+      if (!field.option_id) {
+        const newId = field.id;
+        setValue(`options[${index}].option_id`, newId);
       }
-
-      options.push(
-        <Grid.Row key={r}>
-          {cols}
-        </Grid.Row>
-      );
-    }
-
-    return (
-      <Grid stackable relaxed>
-        {options}
-      </Grid>
-    )
-  }
-
-  const addOption = () => {
-    dispatch({
-      type: 'appendArray',
-      field: 'options',
-      value: {
-        option_id: uuid(),
-        option_image: null,
-        option_text: null,
-      },
     });
+  }, [fields, setValue, remove]);
+
+  const watchImage = watch('question_image');
+  const watchDifficulty = watch('difficulty') || '';
+
+  console.log('formValues:', getValues())
+  console.log('options:', fields)
+
+
+  // const [state, dispatch] = useReducer(reducer, initialState);
+  const [modalState, setModalState] = useState({ isOpen: false, field: null, dispatchProps: {} });
+
+  // console.log(state)
+
+
+
+
+  // useEffect(() => {
+
+  //   dispatch({
+  //     type: "initialFetch",
+  //     value: test?.['questions']?.[questionIndex]
+  //   });
+
+  // }, [test]);
+
+  // const setModalStateMemo = useCallback((e) => {
+  //   e.preventDefault();
+  //   setModalState({
+  //     isOpen: true,
+  //     dispatchProps: { type: 'updateArray', field: 'options', index, value: state?.['options']?.[index] }
+  //   })
+  // },[state])
+
+  // const handleOnChange = (e, { name, value }) => {
+  //   // console.log(name)
+  //   // console.log(value)
+
+  //   const { type, field } = name;
+
+  //   switch (type) {
+  //     case 'updateField':
+  //       dispatch({
+  //         type,
+  //         field,
+  //         value,
+  //       });
+  //       break;
+  //     case 'updateArray':
+  //       const { index, subField } = name;
+  //       const clone = structuredClone(state?.['options']?.[index]);
+  //       clone[subField] = value;
+
+
+  //       dispatch({
+  //         type,
+  //         field,
+  //         index,
+  //         value: clone,
+  //       });
+  //       break;
+  //     case 'updateMap':
+  //       const { submap } = name;
+  //       dispatch({
+  //         type,
+  //         field,
+  //         submap,
+  //         value,
+  //       });
+  //       break;
+  //     default:
+  //       console.error(`Error: Task type ${type} not recognized`);
+  //       throw new Error(`Error: Task type ${type} not recognized`);
+  //   }
+
+  // }
+
+  const handleOnFormSubmit = (data) => {
+
+    console.log(data)
+
+    // const body = {
+    //   question: {
+    //     ...state,
+    //   },
+    //   questionIndex,
+    //   testId,
+    //   scope: 'questionEdit',
+    // }
+
+    // console.log(body)
+
+    // editTest(body)
+    //   .unwrap()
+    //   .then((fullfilled) => {
+    //     Swal.fire({
+    //       position: 'bottom',
+    //       toast: true,
+    //       icon: 'success',
+    //       title: `Your edit has been saved`,
+    //       showConfirmButton: false,
+    //       timer: 5000
+    //     })
+    //   })
+    //   .catch((err) => console.log(err))
   }
+
+  // const Options = ({ colsPerRow }) => {
+
+  //   let r = 0, c = 0, l = state?.options?.length + 1;
+
+  //   const options = [];
+
+  //   for (r = 0; r < (l + 1) / 2; r++) {
+  //     const cols = [];
+  //     // line.push(<Grid.Row key={r}>)
+  //     for (c = 0; c < colsPerRow && (r * 2 + c) < l; c++) {
+
+
+  //       let col;
+  //       if ((r * 2 + c) < l - 1) {
+  //         const index = r * 2 + c;
+  //         const optionId = state?.options?.[index]?.['option_id'];
+  //         col = (
+  //           <Grid.Column width={16 / colsPerRow} key={optionId}>
+  //             <Segment
+  //               id={optionId}
+  //               // onClick={() => handleSelectionOnClick(optionId)}
+  //               className={state?.answer_id === optionId ? 'raised green' : 'basic'}
+  //               style={{ cursor: 'pointer' }}
+  //             >
+  //               {/* <span>{alphabet(index)}. </span> */}
+  //               {/* {question?.options?.[index]?.['option_text'] && question?.options?.[index]?.['option_text']} */}
+  //               {/* {question?.options?.[index]?.['option_image'] && <Image src={question?.options?.[index]?.['option_image']} />} */}
+
+  //               <span>{alphabet(index)}. </span>
+
+  //               <Form.Field>
+  //                 <label>Enter Option Text</label>
+  //                 <Form.Input
+  //                   placeholder='Enter Option Text'
+  //                   name={{ type: 'updateArray', field: 'options', index, subField: 'option_text' }}
+  //                   value={state?.['options']?.[index]?.['option_text']}
+  //                   onChange={handleOnChange}
+  //                 />
+  //               </Form.Field>
+
+  //               {state?.options?.[index]?.['option_image'] && <Image size={'medium'} src={state?.options?.[index]?.['option_image']} />}
+
+
+  //               <Divider hidden />
+  //               <Form.Field >
+  //                 <Form.Input
+  //                   action={{
+  //                     color: 'blue',
+  //                     labelPosition: 'left',
+  //                     icon: 'browser',
+  //                     content: 'Browse',
+  //                     onClick: (e) => {
+  //                       e.preventDefault();
+  //                       setModalState({
+  //                         isOpen: true,
+  //                         dispatchProps: { type: 'updateArray', field: 'options', index, value: state?.['options']?.[index] }
+  //                       })
+  //                     },
+  //                   }}
+  //                   label={'Image Url'}
+  //                   placeholder='Image Url'
+  //                   name={{ type: 'updateArray', field: 'options', index }}
+  //                   value={state?.['options']?.[index]?.['option_image']}
+  //                   onChange={handleOnChange}
+  //                   focus
+  //                 />
+  //               </Form.Field>
+
+  //             </Segment>
+  //           </Grid.Column>
+  //         );
+  //       } else {
+  //         col = (
+  //           <Grid.Column width={16 / colsPerRow} key={'0'}>
+  //             <PlaceholderAddElement text={'Add Option'} buttonText={'Add'} handleClick={addOption} />
+  //           </Grid.Column>
+
+  //         )
+  //       }
+
+
+
+  //       cols.push(col);
+  //     }
+
+  //     options.push(
+  //       <Grid.Row key={r}>
+  //         {cols}
+  //       </Grid.Row>
+  //     );
+  //   }
+
+  //   return (
+  //     <Grid stackable relaxed>
+  //       {options}
+  //     </Grid>
+  //   )
+  // }
+
+
+  // const OptionsMemoizer = React.memo(Options)
+
+  // const addOption = () => {
+  //   dispatch({
+  //     type: 'appendArray',
+  //     field: 'options',
+  //     value: {
+  //       option_id: uuid(),
+  //       option_image: null,
+  //       option_text: null,
+  //     },
+  //   });
+  // }
 
   let content;
   if (isTestFetching) {
@@ -302,7 +357,7 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
   } else if (isTestError) {
     content = <Header as={'h1'}>{testError}</Header>;
   } else if (isTestSuccess) {
-    
+
     content = (
       <Container>
 
@@ -314,9 +369,57 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
         </Divider>
 
 
-        <Form onSubmit={handleOnFormSubmit}>
+        <Form
+          onSubmit={handleSubmit(handleOnFormSubmit)}
+          loading={isTestFetching}
+          widths={'equal'}
+        >
 
-          <Form.Field>
+          <HookFormControlledField
+            name={'question_id'}
+            control={control}
+            label={'Question Id (Not Editable)'}
+            disabled={true}
+          />
+
+          <HookFormControlledField
+            name={'label'}
+            control={control}
+            label={'Enter Question Label (e.g. numberical, verbal etc.)'}
+          />
+
+
+          <HookFormControlledDropdown
+            name={'type'}
+            options={QUESTIONS_TYPE}
+            label={'Select Question Type'}
+            control={control}
+          />
+
+
+          <HookFormControlledDropdown
+            name={'difficulty'}
+            options={DIFFICULTY}
+            label={'Select Question Difficulty'}
+            control={control}
+          />
+
+          <HookFormControlledField
+            name={'score'}
+            control={control}
+            label={'Enter Question Point Score'}
+            type={'number'}
+          />
+
+          <HookFormControlledDropdown
+            name={'layout'}
+            control={control}
+            label={'Select Question Layout'}
+            options={LAYOUTS}
+          />
+
+          {/*
+           <Form.Field>
             <label>Question Id (Not Editable)</label>
             <Form.Input
               placeholder='Question Id'
@@ -334,6 +437,7 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
               onChange={handleOnChange}
             />
           </Form.Field>
+          
           <Form.Field>
             <label>Select Question Type</label>
             <Form.Select
@@ -354,6 +458,7 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
               onChange={handleOnChange}
             />
           </Form.Field>
+
           <Form.Field>
             <label>Enter Question Point Score</label>
             <Form.Input
@@ -365,6 +470,7 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
             />
           </Form.Field>
 
+
           <Form.Field>
             <label>Select Question Layout</label>
             <Form.Select
@@ -375,12 +481,23 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
               onChange={handleOnChange}
             />
           </Form.Field>
+          */}
 
-          <Button
+          <ButtonSave
+            type={'submit'}
+            color={'green'}
+            isDisabled={editTestIsLoading || !isDirty}
+            isLoading={editTestIsLoading}
+            label={'Save Metadata Changes'}
+            isError={editTestIsError}
+            error={editTestError}
+          />
+
+          {/* <Button
             type='submit'
             color='green'
             // floated='right'
-            onClick={handleOnFormSubmit}
+            // onClick={handleOnFormSubmit}
             disabled={editTestIsLoading}
           >
             <>
@@ -390,7 +507,7 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
           </Button>
 
           {editTestIsError &&
-            <Segment><Header as={'h3'}>{JSON.stringify(editTestError)}</Header></Segment>}
+            <Segment><Header as={'h3'}>{JSON.stringify(editTestError)}</Header></Segment>} */}
 
         </Form>
 
@@ -404,11 +521,19 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
           </Header>
         </Divider>
 
-        <Form
-          onSubmit={handleOnFormSubmit}
-        >
+        <FormProvider {...methods}>
+          <Form
+            onSubmit={handleSubmit(handleOnFormSubmit)}
+            widths={'equal'}
+          >
 
-          <Form.Field>
+            <HookFormControlledField
+              name={'question_text'}
+              control={control}
+              label={'Enter Question Text'}
+            />
+
+            {/* <Form.Field>
             <label>Enter Question Text</label>
             <Form.Input
               placeholder='Enter Question Text'
@@ -416,17 +541,47 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
               value={state?.question_text}
               onChange={handleOnChange}
             />
-          </Form.Field>
+          </Form.Field> */}
 
-          <Container fluid>
+            <Container
+              fluid
+            >
 
-            <Grid stackable>
-              <Grid.Column width={state?.['layout'] ? LayoutValue[state?.['layout']]['question_col'] : LayoutValue['compact']['question_col']}>
-                <Image size={'medium'} src={state?.question_image} />
+              <Grid
+                columns={LayoutValue[watch('layout')]['grid_cols'] || 2}
+                stackable
+              >
 
-                <Divider hidden />
+                {/* <Grid.Column width={LayoutValue[watch('layout')]['question_col'] || LayoutValue['compact']['question_col']}> */}
+                <Grid.Column
+                  width={watch('layout')
+                    ? LayoutValue[watch('layout')]['question_col']
+                    : LayoutValue['compact']['question_col']}
+                >
 
-                <Form.Field >
+                  <Image size={'large'} src={watchImage} />
+
+                  <Divider hidden />
+                  <Form.Field >
+                    <HookFormControlledImagePicker
+                      name={'question_image'}
+                      setModalState={setModalState}
+                      control={control}
+                    />
+                  </Form.Field>
+                  <Divider hidden />
+
+                  <HookFormControlledField
+                    label={'Answer ID (Click on Correct Option to Set)'}
+                    name={'answer_id'}
+                    control={control}
+                    disabled={true}
+                    required={true}
+                  />
+
+
+
+                  {/* <Form.Field >
                   <Form.Input
                     action={{
                       color: 'blue',
@@ -448,39 +603,88 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
                     onChange={handleOnChange}
                     focus
                   />
-                </Form.Field>
+                </Form.Field> */}
 
 
-              </Grid.Column>
+                </Grid.Column>
 
-              <Grid.Column width={state?.['layout'] ? LayoutValue[state?.['layout']]['answers_col'] : LayoutValue['compact']['answers_col']}>
+                <Grid.Column
+                  width={watch('layout') ? LayoutValue[watch('layout')]['answers_col'] : LayoutValue['compact']['answers_col']}
+                >
 
-                {question.difficulty && <Label attached='bottom right'>{question.difficulty}</Label>}
+                  {watchDifficulty && <Label attached='bottom right'>{watchDifficulty}</Label>}
 
-                <Options colsPerRow={state?.['layout'] ? LayoutValue[state?.['layout']]['rows_per_answer_col'] : LayoutValue['compact']['rows_per_answer_col']} />
+                  <Grid
+                    columns={LayoutValue[watch('layout')]['cols_per_answer_col'] || 2}
+                    stackable
+                  >
 
-              </Grid.Column>
-            </Grid>
+                    {fields.map((option, index) => {
+                      return (
+                        <Grid.Column
+                          key={option.id}
+                          width={watch('layout') ? LayoutValue[watch('layout')]['answer_subCol'] : LayoutValue['compact']['answer_subCol']}
+                        >
+                          <QuestionOptionEditor
+                            // label={'Enter Option Text'}
+                            name={`options.${index}`}
+                            index={index}
+                            setModalState={setModalState}
+                            remove={remove}
+                            swap={move}
+                          />
+                        </Grid.Column>
+                      )
+                    })}
 
-          </Container>
+
+                    <Grid.Column
+                      width={watch('layout') ? LayoutValue[watch('layout')]['answer_subCol'] : LayoutValue['compact']['answer_subCol']}
+                    >
+                      <PlaceholderAddElement
+                        text={'Add Option'}
+                        buttonText={'Add'}
+                        onClick={() => append({
+                          option_id: '',
+                          option_image: '',
+                          option_text: '',
+                        })} />
+                    </Grid.Column>
+
+                  </Grid>
 
 
-          <Button
-            type='submit'
-            color='green'
-            // floated='right'
-            onClick={handleOnFormSubmit}
-            disabled={editTestIsLoading}
-          >
-            <>
-              {!editTestIsLoading ? <Icon name='save outline left' /> : <Loader inline active size={'mini'} />}
-              Save Question Changes
-            </>
-          </Button>
+                </Grid.Column>
+              </Grid>
 
-          {editTestIsError &&
-            <Segment><Header as={'h3'}>{JSON.stringify(editTestError)}</Header></Segment>}
-        </Form>
+            </Container>
+
+
+            <ButtonSave
+              type='submit'
+              color='green'
+              isDisabled={!isValid}
+              isLoading={editTestIsLoading}
+              label={'Save Question Changes'}
+              isError={!isValid}
+              error={errors}
+            />
+
+            {/* <Button
+              // floated='right'
+              // onClick={handleOnFormSubmit}
+              disabled={editTestIsLoading}
+            >
+              <>
+                {!editTestIsLoading ? <Icon name='save outline left' /> : <Loader inline active size={'mini'} />}
+                Save Question Changes
+              </>
+            </Button> */}
+
+            {/* {editTestIsError &&
+              <Segment><Header as={'h3'}>{JSON.stringify(editTestError)}</Header></Segment>} */}
+          </Form>
+        </FormProvider>
 
 
 
@@ -516,8 +720,12 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
         <ImageGalleryModal
           testId={testId}
           modalState={modalState}
-          dispatch={dispatch}
           setModalState={setModalState}
+          setValue={(field, value) => setValue(field, value, {
+            shouldValidate: true,
+            shouldDirty: true,
+            shouldTouch: true,
+          })}
         />}
       {content}
     </>

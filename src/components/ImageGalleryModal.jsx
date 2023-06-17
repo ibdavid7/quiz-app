@@ -12,7 +12,13 @@ const bucket = "quizlet-app";
 
 
 // TODO: create SORT and FILTER functionality
-const ImageGalleryModal = ({ testId = '', dispatch = null, modalState, setModalState, setValue = null }) => {
+const ImageGalleryModal = ({
+    testId = '',
+    dispatch = null,
+    modalState,
+    setModalState,
+    setValue = null
+}) => {
 
     const [images, setImages] = useState([]);
     const [selectedImage, setSelectedImage] = useState('')
@@ -62,7 +68,7 @@ const ImageGalleryModal = ({ testId = '', dispatch = null, modalState, setModalS
             setValue(modalState?.['field'], url);
             setModalState({
                 isOpen: false,
-                dispatchProps: {},
+                field: null,
             })
             return;
         }

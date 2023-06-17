@@ -7,73 +7,73 @@ import { scoringOptions, scoringOptionFields } from '../constants/scoringOptions
 
 
 
-const initialState = {
-};
+// const initialState = {
+// };
 
-const reducer = (state, action) => {
-  // console.log(action)
+// const reducer = (state, action) => {
+//   // console.log(action)
 
-  const {
-    type,
-    field,
-    value
-  } = action;
+//   const {
+//     type,
+//     field,
+//     value
+//   } = action;
 
-  switch (type) {
-    case "initialFetch":
+//   switch (type) {
+//     case "initialFetch":
 
-      return {
-        ...state,
-        ...action.value,
-      };
+//       return {
+//         ...state,
+//         ...action.value,
+//       };
 
-    case 'updateField':
+//     case 'updateField':
 
-      if (field === 'type') {
-        return {
-          ...state,
-          [field]: value,
-        }
-      } else {
-        return {
-          ...state,
-          [field]: Math.round(+value),
-        }
-      }
+//       if (field === 'type') {
+//         return {
+//           ...state,
+//           [field]: value,
+//         }
+//       } else {
+//         return {
+//           ...state,
+//           [field]: Math.round(+value),
+//         }
+//       }
 
-    // case 'updateArray':
-    //   const {
-    //     index,
-    //   } = action;
+//     // case 'updateArray':
+//     //   const {
+//     //     index,
+//     //   } = action;
 
-    //   // console.log(field, value, index)
+//     //   // console.log(field, value, index)
 
-    //   const updatedArray = state[field].map((item, idx) => {
-    //     if (idx == index) {
-    //       return value;
-    //     } else {
-    //       return item;
-    //     }
-    //   })
+//     //   const updatedArray = state[field].map((item, idx) => {
+//     //     if (idx == index) {
+//     //       return value;
+//     //     } else {
+//     //       return item;
+//     //     }
+//     //   })
 
-    //   return {
-    //     ...state,
-    //     [field]: updatedArray,
-    //   }
-    //   break;
-    // case 'updateMap':
-    //   const {
-    //     submap,
-    //   } = action;
+//     //   return {
+//     //     ...state,
+//     //     [field]: updatedArray,
+//     //   }
+//     //   break;
+//     // case 'updateMap':
+//     //   const {
+//     //     submap,
+//     //   } = action;
 
-    //   return {
-    //     ...state,
-    //     [`${field}.${submap}`]: value,
-    //   }
-    default:
-      return state;
-  }
-};
+//     //   return {
+//     //     ...state,
+//     //     [`${field}.${submap}`]: value,
+//     //   }
+//     default:
+//       return state;
+//   }
+// };
 
 const ScoringEditor = ({ testId }) => {
 
@@ -88,16 +88,16 @@ const ScoringEditor = ({ testId }) => {
   })
 
 
-  const [state, dispatch] = useReducer(reducer, initialState);
+  // const [state, dispatch] = useReducer(reducer, initialState);
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    dispatch({
-      type: "initialFetch",
-      value: test?.['config']?.['scoring']
-    });
+  //   dispatch({
+  //     type: "initialFetch",
+  //     value: test?.['config']?.['scoring']
+  //   });
 
-  }, [test]);
+  // }, [test]);
 
 
   // const triggerFieldValue = watch('type');
@@ -109,43 +109,43 @@ const ScoringEditor = ({ testId }) => {
   //   }
   // },[triggerFieldValue, reset]);
 
-  const handleOnChange = (e, { name, value }) => {
-    // console.log(name)
-    // console.log(value)
+  // const handleOnChange = (e, { name, value }) => {
+  //   // console.log(name)
+  //   // console.log(value)
 
-    const { type, field } = name;
+  //   const { type, field } = name;
 
-    switch (type) {
-      case 'updateField':
-        dispatch({
-          type,
-          field,
-          value,
-        });
-        break;
-      // case 'updateArray':
-      //   const { index } = name;
-      //   dispatch({
-      //     type,
-      //     field,
-      //     index,
-      //     value,
-      //   });
-      //   break;
-      // case 'updateMap':
-      //   const { submap } = name;
-      //   dispatch({
-      //     type,
-      //     field,
-      //     submap,
-      //     value,
-      //   });
-      //   break;
-      default:
-        console.error(`Error: Task type ${type} not recognized`);
-        throw new Error(`Error: Task type ${type} not recognized`);
-    }
-  }
+  //   switch (type) {
+  //     case 'updateField':
+  //       dispatch({
+  //         type,
+  //         field,
+  //         value,
+  //       });
+  //       break;
+  //     // case 'updateArray':
+  //     //   const { index } = name;
+  //     //   dispatch({
+  //     //     type,
+  //     //     field,
+  //     //     index,
+  //     //     value,
+  //     //   });
+  //     //   break;
+  //     // case 'updateMap':
+  //     //   const { submap } = name;
+  //     //   dispatch({
+  //     //     type,
+  //     //     field,
+  //     //     submap,
+  //     //     value,
+  //     //   });
+  //     //   break;
+  //     default:
+  //       console.error(`Error: Task type ${type} not recognized`);
+  //       throw new Error(`Error: Task type ${type} not recognized`);
+  //   }
+  // }
 
   const handleOnFormSubmit = (data) => {
 

@@ -7,22 +7,27 @@ import {
     Icon,
     Search,
     Segment,
+    Card
 } from 'semantic-ui-react'
 
-const PlaceholderAddElement = ({ text, buttonText, handleClick }) => {
+const PlaceholderAddElement = ({ text, buttonText, onClick }) => {
     return (
         <Segment placeholder>
             <Grid columns={1} stackable textAlign='center'>
                 <Grid.Row verticalAlign='middle'>
                     <Grid.Column>
-                        <Header icon>
+                        <Header
+                            icon
+                            onClick={onClick}
+                            style={{ cursor: 'pointer' }}
+                        >
                             <Icon color='grey' name='add circle' size={'massive'} />
                             {text}
                         </Header>
                         <Button
                             basic
                             color='grey'
-                            onClick={handleClick}
+                            onClick={onClick}
                         >
                             {buttonText}
                         </Button>
