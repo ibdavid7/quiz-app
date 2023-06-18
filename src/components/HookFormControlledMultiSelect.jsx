@@ -1,13 +1,13 @@
 import { Controller } from 'react-hook-form';
-import { Form } from 'semantic-ui-react';
+import { Form, Dropdown } from 'semantic-ui-react';
 
 
 
-const HookFormControlledField = ({
+const HookFormControlledMultiSelect = ({
     label,
     name,
     control,
-    type = 'text',
+    options,
     disabled = false,
     required = false,
 }) => {
@@ -31,13 +31,16 @@ const HookFormControlledField = ({
                     fieldState: { invalid, isTouched, isDirty, error },
                     formState,
                 }) => (
-                    <Form.Input
+                    <Dropdown
                         value={value}
-                        onChange={(e, {value}) => onChange(type === 'number' ? Number(value) : value)} // send value to hook form
+                        onChange={(e, { value }) => onChange(value)} // send value to hook form
                         onBlur={onBlur} // notify when input is touched
                         inputRef={ref} // wire up the input ref
                         placeholder={label}
-                        type={type}
+                        fluid
+                        multiple
+                        selection
+                        options={options}
                         error={error ? {
                             content: error?.message,
                             pointing: 'above',
@@ -50,4 +53,4 @@ const HookFormControlledField = ({
     );
 };
 
-export default HookFormControlledField;
+export default HookFormControlledMultiSelect;

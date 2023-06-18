@@ -27,10 +27,11 @@ export const handler = async (event, context, callback) => {
                     category: null,
                     instructions: null,
                     instructions_image: null,
-                    label: null,
                     scoring: {
                         type: null,
                     },
+                    tags: [],
+                    time_limit,
                 },
                 product_card: {
                     description: null,

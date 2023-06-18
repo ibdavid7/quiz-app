@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Icon, Button, Divider, Container, Segment, Header } from 'semantic-ui-react';
+import { Icon, Button, Divider, Container, Segment, Header, Pagination } from 'semantic-ui-react';
 import PlaceholderComponent from './PlaceholderComponent';
 import { useEditTestMutation, useGetFullTestQuery } from '../store/testsSlice';
 import QuestionViewer from './QuestionViewer';
@@ -39,60 +39,88 @@ const QuestionsViewer = ({ testId, editMode }) => {
     content = <PlaceholderComponent />;
   }
 
+  const handlePaginationChange = (e, { activePage }) => {
+    e.preventDefault();
+    setQuestionIndex(activePage - 1)
+  }
 
   const handleCancelClickButton = () => { }
-  const handleNextClickButton = () => { }
   const handleCompleteClickButton = () => { }
-  const handlePreviousClickButton = () => { }
+
+  const handleNextClickButton = () => {
+    setQuestionIndex(prev => {
+      if (prev < questionCount) {
+        return prev + 1;
+      } else {
+        return prev;
+      }
+
+    });
+  }
+  const handlePreviousClickButton = () => {
+    setQuestionIndex(prev => {
+      if (prev > 0) {
+        return prev - 1;
+      } else {
+        return prev;
+      }
+    })
+  }
 
 
   const Navigation = () => {
     // 1. No Questions or Last Question
     if (questionIndex >= questionCount) {
       return (
-        <Segment basic textAlign='right'>
-          <Button icon labelPosition='left' onClick={handleCancelClickButton}>
-            <Icon name='cancel' />
-            Cancel
-          </Button>
-          <Button icon labelPosition='right' color='black' onClick={handleNextClickButton}>
-            Start
-            <Icon name='right arrow' />
-          </Button>
-          <Button icon labelPosition='right' color='black' onClick={handleCompleteClickButton}>
-            Complete
-            <Icon name='flag checkered' />
-          </Button>
-        </Segment>
+        <Segment.Group horizontal raised={false} compact>
+          <Segment basic textAlign='left'>
+            <Pagination
+              activePage={questionIndex + 1}
+              onPageChange={handlePaginationChange}
+              totalPages={questionCount}
+            />
+          </Segment>
+
+          <Segment basic textAlign='right'>
+           
+            <Button icon labelPosition='right' color='black' onClick={handleNextClickButton}>
+              Start
+              <Icon name='right arrow' />
+            </Button>
+            <Button icon labelPosition='right' color='black' onClick={handleCompleteClickButton}>
+              Complete
+              <Icon name='flag checkered' />
+            </Button>
+          </Segment>
+        </Segment.Group>
       )
-      // 2. Existing Questions
-    } else if (questionIndex < questionCount) {
-      return (
-        <Segment basic textAlign='right'>
-          <Button icon labelPosition='left' onClick={handlePreviousClickButton}>
-            <Icon name='left arrow' />
-            Previous
-          </Button>
-          <Button icon labelPosition='right' color='black' onClick={handleNextClickButton}>
-            Next
-            <Icon name='right arrow' />
-          </Button>
-        </Segment>
-      )
-      // 3. Eliminate
+      // 2. Existing Questions: else if (questionIndex < questionCount)
     } else {
       return (
-        <Segment basic floated='right' >
-          <Button icon labelPosition='left' onClick={handlePreviousClickButton}>
-            <Icon name='left arrow' />
-            Previous
-          </Button>
-          <Button icon labelPosition='right' color='black' onClick={handleCompleteClickButton}>
-            Complete
-            <Icon name='flag checkered' />
-          </Button>
-        </Segment >
+
+        <Segment.Group horizontal raised={false} compact>
+          <Segment basic textAlign='left'>
+            <Pagination
+              activePage={questionIndex + 1}
+              onPageChange={handlePaginationChange}
+              totalPages={questionCount}
+            />
+          </Segment>
+
+          <Segment basic textAlign='right'>
+            <Button icon labelPosition='left' onClick={handlePreviousClickButton}>
+              <Icon name='left arrow' />
+              Previous
+            </Button>
+            <Button icon labelPosition='right' color='black' onClick={handleNextClickButton}>
+              Next
+              <Icon name='right arrow' />
+            </Button>
+          </Segment>
+        </Segment.Group>
+
       )
+      // 3. Eliminate
     }
   }
 

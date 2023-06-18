@@ -5,7 +5,6 @@ import HookFormControlledField from './HookFormControlledField';
 import { alphabet } from '../constants';
 import HookFormControlledImagePicker from './HookFormControlledImagePicker';
 
-
 const QuestionOptionEditor = ({
     // label,
     name,

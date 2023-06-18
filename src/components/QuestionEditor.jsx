@@ -13,6 +13,7 @@ import ButtonSave from './ButtonSave';
 import HookFormControlledImagePicker from './HookFormControlledImagePicker';
 import QuestionOptionEditor from './QuestionOptionEditor';
 import QuestionAnswerEditor from './QuestionAnswerEditor';
+import Swal from 'sweetalert2';
 
 
 const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
@@ -57,34 +58,40 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
 
   const handleOnFormSubmit = (data) => {
 
-    console.log(data)
+    const body = {
+      question: {
+        ...data,
+      },
+      questionIndex,
+      testId,
+      scope: 'questionEdit',
+    }
 
-    // const body = {
-    //   question: {
-    //     ...state,
-    //   },
-    //   questionIndex,
-    //   testId,
-    //   scope: 'questionEdit',
-    // }
+    console.log(body)
 
-    // console.log(body)
-
-    // editTest(body)
-    //   .unwrap()
-    //   .then((fullfilled) => {
-    //     Swal.fire({
-    //       position: 'bottom',
-    //       toast: true,
-    //       icon: 'success',
-    //       title: `Your edit has been saved`,
-    //       showConfirmButton: false,
-    //       timer: 5000
-    //     })
-    //   })
-    //   .catch((err) => console.log(err))
+    editTest(body)
+      .unwrap()
+      .then((fullfilled) => {
+        Swal.fire({
+          position: 'bottom',
+          toast: true,
+          icon: 'success',
+          title: `Update saved`,
+          showConfirmButton: false,
+          timer: 3000
+        })
+      })
+      .catch((err) => console.log(err))
   }
 
+  const handleOnAddOption = (e) => {
+    e.preventDefault();
+    append({
+      option_id: '',
+      option_image: '',
+      option_text: '',
+    });
+  }
 
   let content;
   if (isTestFetching) {
@@ -159,8 +166,8 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
             isDisabled={editTestIsLoading || !isDirty}
             isLoading={editTestIsLoading}
             label={'Save Metadata Changes'}
-            isError={editTestIsError}
-            error={editTestError}
+            isError={editTestIsError || !isValid}
+            error={{ ...editTestError, ...errors }}
           />
 
         </Form>
@@ -187,30 +194,18 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
               label={'Enter Question Text'}
             />
 
-            {/* <Form.Field>
-            <label>Enter Question Text</label>
-            <Form.Input
-              placeholder='Enter Question Text'
-              name={{ type: 'updateField', field: 'question_text' }}
-              value={state?.question_text}
-              onChange={handleOnChange}
-            />
-          </Form.Field> */}
 
             <Container
               fluid
             >
 
               <Grid
-                columns={LayoutValue[watch('layout')]['grid_cols'] || 2}
+                columns={LayoutValue[watch('layout')]?.['grid_cols'] ?? LayoutValue['compact']?.['grid_cols']}
                 stackable
               >
 
-                {/* <Grid.Column width={LayoutValue[watch('layout')]['question_col'] || LayoutValue['compact']['question_col']}> */}
                 <Grid.Column
-                  width={watch('layout')
-                    ? LayoutValue[watch('layout')]['question_col']
-                    : LayoutValue['compact']['question_col']}
+                  width={LayoutValue[watch('layout')]?.['question_col'] ?? LayoutValue['compact']?.['question_col']}
                 >
 
                   <Image size={'large'} src={watchImage} />
@@ -233,43 +228,16 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
                     required={true}
                   />
 
-
-
-                  {/* <Form.Field >
-                  <Form.Input
-                    action={{
-                      color: 'blue',
-                      labelPosition: 'left',
-                      icon: 'browser',
-                      content: 'Browse',
-                      onClick: (e) => {
-                        e.preventDefault();
-                        setModalState({
-                          isOpen: true,
-                          dispatchProps: { type: 'updateField', field: 'question_image' }
-                        })
-                      },
-                    }}
-                    label={'Image Url'}
-                    placeholder='Image Url'
-                    name={{ type: 'updateField', field: 'question_image' }}
-                    value={state?.['question_image']}
-                    onChange={handleOnChange}
-                    focus
-                  />
-                </Form.Field> */}
-
-
                 </Grid.Column>
 
                 <Grid.Column
-                  width={watch('layout') ? LayoutValue[watch('layout')]['answers_col'] : LayoutValue['compact']['answers_col']}
+                  width={LayoutValue[watch('layout')]?.['answers_col'] ?? LayoutValue['compact']?.['answers_col']}
                 >
 
                   {watchDifficulty && <Label attached='bottom right'>{watchDifficulty}</Label>}
 
                   <Grid
-                    columns={LayoutValue[watch('layout')]['cols_per_answer_col'] || 2}
+                    columns={LayoutValue[watch('layout')]?.['cols_per_answer_col'] ?? 2}
                     stackable
                   >
 
@@ -277,7 +245,7 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
                       return (
                         <Grid.Column
                           key={option.id}
-                          width={watch('layout') ? LayoutValue[watch('layout')]['answer_subCol'] : LayoutValue['compact']['answer_subCol']}
+                          width={LayoutValue[watch('layout')]?.['answer_subCol'] ?? LayoutValue['compact']?.['answer_subCol']}
                         >
                           <QuestionOptionEditor
                             // label={'Enter Option Text'}
@@ -299,11 +267,7 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
                       <PlaceholderAddElement
                         text={'Add Option'}
                         buttonText={'Add'}
-                        onClick={() => append({
-                          option_id: '',
-                          option_image: '',
-                          option_text: '',
-                        })} />
+                        onClick={handleOnAddOption} />
                     </Grid.Column>
 
                   </Grid>
@@ -318,26 +282,13 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
             <ButtonSave
               type='submit'
               color='green'
-              isDisabled={!isValid}
+              isDisabled={editTestIsLoading || !isDirty}
               isLoading={editTestIsLoading}
               label={'Save Question Changes'}
               isError={!isValid}
-              error={errors}
+              error={{ ...editTestError, ...errors }}
             />
 
-            {/* <Button
-              // floated='right'
-              // onClick={handleOnFormSubmit}
-              disabled={editTestIsLoading}
-            >
-              <>
-                {!editTestIsLoading ? <Icon name='save outline left' /> : <Loader inline active size={'mini'} />}
-                Save Question Changes
-              </>
-            </Button> */}
-
-            {/* {editTestIsError &&
-              <Segment><Header as={'h3'}>{JSON.stringify(editTestError)}</Header></Segment>} */}
           </Form>
         </FormProvider>
 
@@ -362,14 +313,16 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
               setModalState={setModalState}
             />
 
+            <Divider hidden />
+
             <ButtonSave
               type={'submit'}
               color={'green'}
               isDisabled={editTestIsLoading || !isDirty}
               isLoading={editTestIsLoading}
               label={'Save Answer Explanation Changes'}
-              isError={editTestIsError}
-              error={editTestError}
+              isError={editTestIsError || !isValid}
+              error={{ ...editTestError, ...errors }}
             />
           </Form>
         </FormProvider>

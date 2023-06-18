@@ -2,7 +2,9 @@ import { TEST_TABLE, updateItem, getItem } from "./utils.mjs";
 import { S3Client, ListObjectsCommand, ListObjectsV2Command, PutObjectTaggingCommand } from "@aws-sdk/client-s3"
 
 const s3Client = new S3Client({ region: "us-east-1" });
-const [TITLES, OVERVIEW, CARD, TAGS, QUESTION_EDIT] = ['titles', 'overview', 'card', 'tags', 'questionEdit'];
+
+const [TITLES, OVERVIEW, CARD, CONFIG, SCORING, TAGS, QUESTION_EDIT] =
+    ['titles', 'overview', 'card', 'config', 'scoring', 'tags', 'questionEdit'];
 
 
 export const handler = async (event, context, callback) => {
@@ -52,11 +54,8 @@ export const handler = async (event, context, callback) => {
 
         // Check the scope of the editRequest
 
-        // 1. scope = 'titles'
-        // 2. scope = 'overview'
-        // 3. scope = 'card'
 
-        var params = 'test';
+        var params;
 
         switch (scope) {
             // 1. scope = 'titles'
@@ -83,7 +82,7 @@ export const handler = async (event, context, callback) => {
 
                 break;
 
-            // // 2. scope = 'overview'
+            // 2. scope = 'overview'
             case OVERVIEW:
 
                 const { overview } = JSON.parse(event.body);
@@ -105,6 +104,7 @@ export const handler = async (event, context, callback) => {
 
                 break;
 
+            // 3. scope = 'card'
             case CARD:
 
                 const { card } = JSON.parse(event.body);
@@ -125,10 +125,51 @@ export const handler = async (event, context, callback) => {
 
                 break;
 
+            // 4. scope = 'config'
+            case CONFIG:
 
-            //     // Instructions, Card, Scoring
+                const { config } = JSON.parse(event.body);
 
-            // // 4. scope = 'questionEdit'
+                params = {
+                    TableName: TEST_TABLE,
+                    Key: {
+                        id: path_parameter,
+                    },
+                    UpdateExpression: 'SET #map = :new_value1',
+                    ExpressionAttributeNames: {
+                        '#map': CONFIG,
+                    },
+                    ExpressionAttributeValues: {
+                        ':new_value1': config,
+                    }
+                }
+
+                break;
+
+            // 5. scope = 'scoring'
+            case SCORING:
+
+                const { scoring } = JSON.parse(event.body);
+
+                params = {
+                    TableName: TEST_TABLE,
+                    Key: {
+                        id: path_parameter,
+                    },
+                    UpdateExpression: 'SET #map1.#map2 = :new_value1',
+                    ExpressionAttributeNames: {
+                        '#map1': CONFIG,
+                        '#map2': SCORING,
+
+                    },
+                    ExpressionAttributeValues: {
+                        ':new_value1': scoring,
+                    }
+                }
+
+                break;
+
+            // 6a. scope = 'questionEdit'
             case QUESTION_EDIT:
                 const { question, questionIndex } = JSON.parse(event.body);
 
@@ -149,7 +190,29 @@ export const handler = async (event, context, callback) => {
 
                 break;
 
-            // 5. scope = photo 'tags'
+            // 6b. scope = 'questionEdit'
+            // TODO
+            // case QUESTION_ADD:
+            //     const { question, questionIndex } = JSON.parse(event.body);
+
+            //     params = {
+            //         TableName: TEST_TABLE,
+            //         Key: {
+            //             id: path_parameter,
+            //         },
+            //         UpdateExpression: `SET #list[${questionIndex}] = :new_value1`,
+            //         ExpressionAttributeNames: {
+            //             '#list': 'questions',
+            //         },
+            //         ExpressionAttributeValues: {
+            //             ':new_value1': question,
+            //         }
+            //     }
+
+
+            //     break;
+
+            // 7. scope = photo 'tags'
             case TAGS:
                 const { tag, identityId } = JSON.parse(event.body);
 
