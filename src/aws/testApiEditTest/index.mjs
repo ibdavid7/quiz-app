@@ -3,8 +3,8 @@ import { S3Client, ListObjectsCommand, ListObjectsV2Command, PutObjectTaggingCom
 
 const s3Client = new S3Client({ region: "us-east-1" });
 
-const [TITLES, OVERVIEW, CARD, CONFIG, SCORING, TAGS, QUESTION_EDIT] =
-    ['titles', 'overview', 'card', 'config', 'scoring', 'tags', 'questionEdit'];
+const [TITLES, OVERVIEW, CARD, CONFIG, SCORING, TAGS, QUESTION_EDIT, QUESTION_ADD, QUESTION_DELETE, QUESTION_ORDER] =
+    ['titles', 'overview', 'card', 'config', 'scoring', 'tags', 'questionEdit', 'questionAdd', 'questionDelete', 'questionOrder'];
 
 
 export const handler = async (event, context, callback) => {
@@ -171,7 +171,7 @@ export const handler = async (event, context, callback) => {
 
             // 6a. scope = 'questionEdit'
             case QUESTION_EDIT:
-                const { question, questionIndex } = JSON.parse(event.body);
+                var { question, questionIndex } = JSON.parse(event.body);
 
                 params = {
                     TableName: TEST_TABLE,
@@ -190,27 +190,64 @@ export const handler = async (event, context, callback) => {
 
                 break;
 
-            // 6b. scope = 'questionEdit'
-            // TODO
-            // case QUESTION_ADD:
-            //     const { question, questionIndex } = JSON.parse(event.body);
+            // 6b. scope = 'questionAdd'
+            case QUESTION_ADD:
+                // var { questionIndex } = JSON.parse(event.body);
 
-            //     params = {
-            //         TableName: TEST_TABLE,
-            //         Key: {
-            //             id: path_parameter,
-            //         },
-            //         UpdateExpression: `SET #list[${questionIndex}] = :new_value1`,
-            //         ExpressionAttributeNames: {
-            //             '#list': 'questions',
-            //         },
-            //         ExpressionAttributeValues: {
-            //             ':new_value1': question,
-            //         }
-            //     }
+                const questList = [{
+                    question_id: uuid,
+                    answer: {
+                        answer_id: '',
+                        answer_image: '',
+                        answer_text: '',
+                    },
+                    difficulty: '',
+                    label: '',
+                    layout: '',
+                    options: [],
+                    question_image: '',
+                    question_text: '',
+                    score: 1,
+                    type: '',
+                }]
+
+                params = {
+                    TableName: TEST_TABLE,
+                    Key: {
+                        id: path_parameter,
+                    },
+                    UpdateExpression: `SET #list = list_append(#list, :new_value1)`,
+                    ExpressionAttributeNames: {
+                        '#list': 'questions',
+                    },
+                    ExpressionAttributeValues: {
+                        ':new_value1': questList,
+                    }
+                }
 
 
-            //     break;
+                break;
+
+            // 6c. scope = 'questionDelete'
+            case QUESTION_DELETE:
+                var { questionIndex } = JSON.parse(event.body);
+
+                params = {
+                    TableName: TEST_TABLE,
+                    Key: {
+                        id: path_parameter,
+                    },
+                    UpdateExpression: `REMOVE #list[${questionIndex}]`,
+                    ExpressionAttributeNames: {
+                        '#list': 'questions',
+                    },
+                    // ExpressionAttributeValues: {
+                    //     ':new_value1': questList,
+                    // }
+                }
+
+
+                break;
 
             // 7. scope = photo 'tags'
             case TAGS:

@@ -35,6 +35,11 @@ const TestEditHeader = ({ activeItem, handleItemClick }) => {
                     onClick={handleItemClick}
                 />
                 <Menu.Item
+                    name='questions order'
+                    active={activeItem === 'questions order'}
+                    onClick={handleItemClick}
+                />
+                <Menu.Item
                     name='image gallery'
                     active={activeItem === 'image gallery'}
                     onClick={handleItemClick}

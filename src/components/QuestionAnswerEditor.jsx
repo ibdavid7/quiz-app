@@ -12,9 +12,12 @@ const QuestionAnswerEditor = ({
     label,
     name,
     setModalState,
+    control,
+    watch
 }) => {
 
-    const { watch, setValue, control, getValues } = useFormContext();
+    // console.log('watch', watch)
+    // const { watch, setValue, control, getValues } = useFormContext();
     const watchImage = watch(`${name}.answer_image`);
 
     const items = [
@@ -86,7 +89,7 @@ const QuestionAnswerEditor = ({
                             <Card.Meta>
                                 <Card.Meta>
                                     <HookFormControlledField
-                                        label={'Option ID (Not-editable)'}
+                                        label={'Correct Answer: Option ID (Not-editable)'}
                                         name={`${name}.answer_id`}
                                         control={control}
                                         disabled={true}

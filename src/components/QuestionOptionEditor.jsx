@@ -25,11 +25,7 @@ const QuestionOptionEditor = ({
         // rules: { minLength: 1, maxLength: 4 },
     });
 
-    // console.log('fields check:', fields)
-    // console.log('remove check:', remove)
-    // console.log('answer:', [...watch('answer.answer_id')])
-    // console.log('answer:', watch('answer.answer_id'))
-    // console.log('answer:', [...watch('answer.answer_id')].includes(value.option_id))
+    console.log('fields', fields)
 
     const handleOnMove = (e, { from, to }) => {
         e.preventDefault();
@@ -89,7 +85,7 @@ const QuestionOptionEditor = ({
                     <Card
                         fluid
                         key={value.option_id}
-                        color={watch('answer.answer_id') === (value.option_id) ? 'green' : ''}
+                        color={watch('answer.answer_id') === (value.option_id) ? 'green' : 'grey'}
                         // className={watch('answer.answer_id') === (value.option_id) ? 'ui raised green' : 'ui raised'}
                         style={{ cursor: 'pointer' }}
                     // raised
@@ -155,7 +151,7 @@ const QuestionOptionEditor = ({
                                         icon={'arrow alternate circle down'}
                                         content={'Down'}
                                         onClick={(e) => handleOnMove(e, { from: index, to: index + 1 })}
-                                        disabled={index >= watchFields.length - 1}
+                                        // disabled={!watchFields.length && index >= watchFields.length - 1}
                                     />
                                     <Button basic
                                         size='small'

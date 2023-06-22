@@ -19,14 +19,13 @@ import Swal from 'sweetalert2';
 const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
 
 
-  const { data: test, isFetching: isTestFetching, isError: isTestError, error: testError, isSuccess: isTestSuccess, refetch: testRefetch } = useGetFullTestQuery(testId);
+  // const { data: test, isFetching: isTestFetching, isError: isTestError, error: testError, isSuccess: isTestSuccess, refetch: testRefetch } = useGetFullTestQuery(testId);
   const [editTest, { data: editTestData, error: editTestError, isLoading: editTestIsLoading, isSuccess: editTestIsSuccess, isError: editTestIsError }] = useEditTestMutation();
 
   const methods = useForm({
-    values: test?.['questions']?.[questionIndex],
-    resetOptions: {
-      keepDirtyValues: true, // keep dirty fields unchanged, but update defaultValues
-    },
+    // values: test?.['questions']?.[questionIndex],
+    values: structuredClone(question),
+    shouldUnregister: true,
   })
 
   const { handleSubmit, reset, getValues, control, watch, setValue, formState: { isDirty, isValid, errors } } = methods;
@@ -34,7 +33,7 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
   const { fields, update, append, prepend, remove, swap, move, insert } = useFieldArray({
     control,
     name: 'options',
-    rules: { minLength: 1 },
+    shouldUnregister: true,
   });
 
   // persist auto-generated id for useFieldArray item
@@ -94,11 +93,11 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
   }
 
   let content;
-  if (isTestFetching) {
-    content = <PlaceholderComponent />;
-  } else if (isTestError) {
-    content = <Header as={'h1'}>{testError}</Header>;
-  } else if (isTestSuccess) {
+  // if (isTestFetching) {
+  //   content = <PlaceholderComponent />;
+  // } else if (isTestError) {
+  //   content = <Header as={'h1'}>{testError}</Header>;
+  // } else if (isTestSuccess) {
 
     content = (
       <Container>
@@ -113,7 +112,7 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
 
         <Form
           onSubmit={handleSubmit(handleOnFormSubmit)}
-          loading={isTestFetching}
+          // loading={isTestFetching}
           widths={'equal'}
         >
 
@@ -254,6 +253,8 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
                             setModalState={setModalState}
                             remove={remove}
                             swap={move}
+                            control={control}
+                            watch={watch}
                           />
                         </Grid.Column>
                       )
@@ -302,39 +303,41 @@ const QuestionEditor = ({ testId, question, questionCount, questionIndex }) => {
         </Divider>
 
 
-        <FormProvider {...methods}>
-          <Form
-            onSubmit={handleSubmit(handleOnFormSubmit)}
-            widths={'equal'}
-          >
-            <QuestionAnswerEditor
-              label={'Answer'}
-              name={'answer'}
-              setModalState={setModalState}
-            />
+        {/* <FormProvider {...methods}> */}
+        <Form
+          onSubmit={handleSubmit(handleOnFormSubmit)}
+          widths={'equal'}
+        >
+          <QuestionAnswerEditor
+            label={'Answer'}
+            name={'answer'}
+            setModalState={setModalState}
+            control={control}
+            watch={watch}
+          />
 
-            <Divider hidden />
+          <Divider hidden />
 
-            <ButtonSave
-              type={'submit'}
-              color={'green'}
-              isDisabled={editTestIsLoading || !isDirty}
-              isLoading={editTestIsLoading}
-              label={'Save Answer Explanation Changes'}
-              isError={editTestIsError || !isValid}
-              error={{ ...editTestError, ...errors }}
-            />
-          </Form>
-        </FormProvider>
+          <ButtonSave
+            type={'submit'}
+            color={'green'}
+            isDisabled={editTestIsLoading || !isDirty}
+            isLoading={editTestIsLoading}
+            label={'Save Answer Explanation Changes'}
+            isError={editTestIsError || !isValid}
+            error={{ ...editTestError, ...errors }}
+          />
+        </Form>
+        {/* </FormProvider> */}
 
 
       </Container>
     );
 
-  } else {
-    //isUninitialized
-    content = <PlaceholderComponent />;
-  }
+  // } else {
+  //   //isUninitialized
+  //   content = <PlaceholderComponent />;
+  // }
 
 
   return (

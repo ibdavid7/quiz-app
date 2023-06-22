@@ -25,6 +25,7 @@ const HookFormControlledField = ({
                         message: `Missing ${name}`
                     }
                 }}
+                shouldUnregister={true}
                 defaultValue={""}
                 render={({
                     field: { onChange, onBlur, value, name, ref },
@@ -37,6 +38,7 @@ const HookFormControlledField = ({
                         onBlur={onBlur} // notify when input is touched
                         inputRef={ref} // wire up the input ref
                         placeholder={label}
+                        defaultValue={''}
                         type={type}
                         error={error ? {
                             content: error?.message,

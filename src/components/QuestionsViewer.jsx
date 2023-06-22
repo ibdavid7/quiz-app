@@ -4,7 +4,8 @@ import PlaceholderComponent from './PlaceholderComponent';
 import { useEditTestMutation, useGetFullTestQuery } from '../store/testsSlice';
 import QuestionViewer from './QuestionViewer';
 import QuestionEditor from './QuestionEditor';
-
+import Swal from 'sweetalert2';
+import PlaceholderAddElement from './PlaceholderAddElement';
 
 const QuestionsViewer = ({ testId, editMode }) => {
 
@@ -15,37 +16,10 @@ const QuestionsViewer = ({ testId, editMode }) => {
   const [questionCount, setQuestionCount] = useState(0);
 
 
-  useEffect(() => {
-    setQuestionCount(test?.questions?.length);
-  }, [test]);
-
-  let content;
-  if (isTestFetching) {
-    content = <PlaceholderComponent />;
-  } else if (isTestError) {
-    content = <Header as={'h1'}>{testError}</Header>;
-  } else if (isTestSuccess) {
-
-
-    // TODO: Add new question (index 0 or the end)
-    content = editMode
-      ? <QuestionEditor testId={testId} question={test?.questions?.[questionIndex]} questionCount={questionCount} questionIndex={questionIndex} />
-      : <QuestionViewer question={test?.questions?.[questionIndex]} questionCount={questionCount} questionIndex={questionIndex} />
-
-
-
-  } else {
-    //isUninitialized
-    content = <PlaceholderComponent />;
-  }
-
   const handlePaginationChange = (e, { activePage }) => {
     e.preventDefault();
     setQuestionIndex(activePage - 1)
   }
-
-  const handleCancelClickButton = () => { }
-  const handleCompleteClickButton = () => { }
 
   const handleNextClickButton = () => {
     setQuestionIndex(prev => {
@@ -67,9 +41,69 @@ const QuestionsViewer = ({ testId, editMode }) => {
     })
   }
 
+  const handleAddQuestion = () => {
+
+    const body = {
+      questionCount,
+      testId,
+      scope: 'questionAdd',
+    }
+
+    // console.log(body)
+
+    editTest(body)
+      .unwrap()
+      .then((fullfilled) => {
+        Swal.fire({
+          position: 'bottom',
+          toast: true,
+          icon: 'success',
+          title: `Question Added`,
+          showConfirmButton: false,
+          timer: 3000
+        })
+      })
+      .then((fullfilled) => {
+        setQuestionIndex(prev => prev + 1);
+      })
+      .catch((err) => console.log(err))
+
+  }
+
+  useEffect(() => {
+    setQuestionCount(test?.questions?.length);
+  }, [test]);
+
+  let content;
+  if (isTestFetching) {
+    content = <PlaceholderComponent />;
+  } else if (isTestError) {
+    content = <Header as={'h1'}>{testError}</Header>;
+  } else if (isTestSuccess) {
+
+
+    // TODO: Add new question (index 0 or the end)
+
+    if (questionIndex < questionCount) {
+      content = editMode
+        ? <QuestionEditor testId={testId} question={test?.questions?.[questionIndex]} questionCount={questionCount} questionIndex={questionIndex} />
+        : <QuestionViewer question={test?.questions?.[questionIndex]} questionCount={questionCount} questionIndex={questionIndex} />
+    } else {
+      // button to add new question
+      <PlaceholderAddElement
+        text={'Add Question'}
+        buttonText={'Add'}
+        onClick={handleAddQuestion} />
+    }
+
+  } else {
+    //isUninitialized
+    content = <PlaceholderComponent />;
+  }
+
 
   const Navigation = () => {
-    // 1. No Questions or Last Question
+    // 1. No Questions i.e. questionCount = 0 and questionIndex = 0
     if (questionIndex >= questionCount) {
       return (
         <Segment.Group horizontal raised={false} compact>
@@ -82,20 +116,19 @@ const QuestionsViewer = ({ testId, editMode }) => {
           </Segment>
 
           <Segment basic textAlign='right'>
-           
-            <Button icon labelPosition='right' color='black' onClick={handleNextClickButton}>
-              Start
-              <Icon name='right arrow' />
+            <Button icon labelPosition='left' onClick={handlePreviousClickButton} disabled={questionIndex === 0}>
+              <Icon name='left arrow' />
+              Previous
             </Button>
-            <Button icon labelPosition='right' color='black' onClick={handleCompleteClickButton}>
-              Complete
-              <Icon name='flag checkered' />
+            <Button icon labelPosition='right' color='black' onClick={handleAddQuestion}>
+              Add New Question
+              <Icon name='add circle' />
             </Button>
           </Segment>
         </Segment.Group>
       )
       // 2. Existing Questions: else if (questionIndex < questionCount)
-    } else {
+    } else if (questionIndex < questionCount - 1) {
       return (
 
         <Segment.Group horizontal raised={false} compact>
@@ -108,11 +141,11 @@ const QuestionsViewer = ({ testId, editMode }) => {
           </Segment>
 
           <Segment basic textAlign='right'>
-            <Button icon labelPosition='left' onClick={handlePreviousClickButton}>
+            <Button icon labelPosition='left' onClick={handlePreviousClickButton} disabled={questionIndex === 0}>
               <Icon name='left arrow' />
               Previous
             </Button>
-            <Button icon labelPosition='right' color='black' onClick={handleNextClickButton}>
+            <Button icon labelPosition='right' onClick={handleNextClickButton} disabled={questionIndex >= questionCount - 1}>
               Next
               <Icon name='right arrow' />
             </Button>
@@ -120,7 +153,31 @@ const QuestionsViewer = ({ testId, editMode }) => {
         </Segment.Group>
 
       )
-      // 3. Eliminate
+      // 3. else if (questionIndex = questionCount - 1)
+    } else {
+      return (
+        <Segment.Group horizontal raised={false} compact>
+          <Segment basic textAlign='left'>
+            <Pagination
+              activePage={questionIndex + 1}
+              onPageChange={handlePaginationChange}
+              totalPages={questionCount}
+            />
+          </Segment>
+
+          <Segment basic textAlign='right'>
+            <Button icon labelPosition='left' onClick={handlePreviousClickButton} disabled={questionIndex === 0}>
+              <Icon name='left arrow' />
+              Previous
+            </Button>
+            <Button icon labelPosition='right' color='black' onClick={handleAddQuestion}>
+              Add New Question
+              <Icon name='add circle' />
+            </Button>
+          </Segment>
+        </Segment.Group>
+      );
+
     }
   }
 

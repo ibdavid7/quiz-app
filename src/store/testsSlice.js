@@ -91,6 +91,36 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
                 { type: 'Test', id: testId }
             ],
         }),
+        // Edit Test - Reorder Questions only
+        editTestReorderQuestions: builder.mutation({
+            query: ({ testId, ...patch }) => {
+                return {
+                    url: `/tests/${testId}/edit`,
+                    method: 'PATCH',
+                    body: patch,
+                }
+            },
+            // Optimistic update of Question Order
+            async onQueryStarted({ testId, ...patch }, { dispatch, queryFulfilled }) {
+                const patchResult = dispatch(
+                    apiSlice.util.updateQueryData('getFullTest', testId, (draft) => {
+
+                        const { sourceIndex, destinationIndex } = patch;
+                        const questions = Array.from(draft.questions);
+                        const [reorderedItem] = questions.splice(sourceIndex, 1);
+                        questions.splice(destinationIndex, 0, reorderedItem);
+
+                        Object.assign(draft, { questions })
+                    })
+                )
+                try {
+                    await queryFulfilled
+                } catch {
+                    patchResult.undo()
+                    // dispatch(apiSlice.util.invalidateTags([{ type: 'Test', id: testId }]))
+                }
+            },
+        }),
         // TODO - allow for unregistered users to start sessions and get previews, but also cache and remember answers - maybe init locally
         createSession: builder.mutation({
             query: (body) => {
@@ -281,5 +311,5 @@ export const { selectAll: selectAllSessions, selectById: selectSessionById } =
 export const { useGetTestsQuery, useGetTestQuery, useCreateSessionMutation,
     useGetQuestionsQuery, useSubmitAnswerMutation, useGetSessionQuery,
     useGetSessionsQuery, usePurchaseTestMutation, useCompleteSessionMutation,
-    useGetFullTestQuery, useEditTestMutation
+    useGetFullTestQuery, useEditTestMutation, useEditTestReorderQuestionsMutation,
 } = extendedApiSlice;

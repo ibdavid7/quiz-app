@@ -15,6 +15,7 @@ import QuestionsViewer from './QuestionsViewer';
 import ImageGallery from './ImageGallery';
 import ImageUploader from './ImageUploader';
 import InstructionsTestDisplay from './InstructionsTestDisplay';
+import QuestionsDragAndDrop from './QuestionsDragAndDrop';
 
 
 
@@ -23,7 +24,8 @@ export async function loader({ params }) {
     return params;
 }
 
-const [OVERVIEW, CARD, INSTRUCTIONS, SCORING, QUESTIONS, IMAGES] = ['overview', 'card', 'instructions', 'scoring', 'questions', 'image gallery'];
+const [OVERVIEW, CARD, INSTRUCTIONS, SCORING, QUESTIONS, QUESTIONS_ORDER, IMAGES] =
+    ['overview', 'card', 'instructions', 'scoring', 'questions', 'questions order', 'image gallery'];
 
 
 const reducer = (state, action) => {
@@ -37,8 +39,8 @@ const reducer = (state, action) => {
             return {
                 DisplayComponent,
                 EditComponent,
-                scope: OVERVIEW,
-                testId:action.payload,
+                scope: action.type,
+                testId: action.payload,
             };
         }
         case CARD: {
@@ -47,8 +49,8 @@ const reducer = (state, action) => {
             return {
                 DisplayComponent,
                 EditComponent,
-                scope: CARD,
-                testId:action.payload,
+                scope: action.type,
+                testId: action.payload,
             };
         }
         case INSTRUCTIONS: {
@@ -57,8 +59,8 @@ const reducer = (state, action) => {
             return {
                 DisplayComponent,
                 EditComponent,
-                scope: INSTRUCTIONS,
-                testId:action.payload,
+                scope: action.type,
+                testId: action.payload,
             };
         }
         case SCORING: {
@@ -67,16 +69,24 @@ const reducer = (state, action) => {
             return {
                 DisplayComponent,
                 EditComponent,
-                scope: SCORING,
-                testId:action.payload,
+                scope: action.type,
+                testId: action.payload,
             };
         }
         case QUESTIONS: {
             const DisplayComponent = (props) => <QuestionsViewer  {...props} testId={action.payload} />
             return {
                 DisplayComponent,
-                scope: QUESTIONS,
-                testId:action.payload,
+                scope: action.type,
+                testId: action.payload,
+            };
+        }
+        case QUESTIONS_ORDER: {
+            const DisplayComponent = (props) => <QuestionsDragAndDrop  {...props} testId={action.payload} />
+            return {
+                DisplayComponent,
+                scope: action.type,
+                testId: action.payload,
             };
         }
         case IMAGES: {
@@ -85,8 +95,8 @@ const reducer = (state, action) => {
             return {
                 DisplayComponent,
                 EditComponent,
-                scope: IMAGES,
-                testId:action.payload,
+                scope: action.type,
+                testId: action.payload,
             };
         }
     }
@@ -146,6 +156,10 @@ const TestEditForm = () => {
                 editableContentDispatch(({ type: QUESTIONS, payload: testId }))
                 setActiveItem(QUESTIONS);
                 break;
+            case QUESTIONS_ORDER:
+                editableContentDispatch(({ type: QUESTIONS_ORDER, payload: testId }))
+                setActiveItem(QUESTIONS_ORDER);
+                break;
             case IMAGES:
                 editableContentDispatch(({ type: IMAGES, payload: testId }))
                 setActiveItem(IMAGES);
@@ -160,7 +174,7 @@ const TestEditForm = () => {
     }
 
     return (
-        <Container style={{ marginTop: '2rem', marginBottom: '2rem'}}>
+        <Container style={{ marginTop: '2rem', marginBottom: '2rem' }}>
 
             <Header as='h2'>
                 <Icon name='settings' />
