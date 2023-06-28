@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useLocation } from 'react-router-dom';
-import { Button, Segment, Icon, Container, Header, Divider, Checkbox } from 'semantic-ui-react';
+import { Button, Segment, Icon, Container, Header, Divider, Checkbox, Form } from 'semantic-ui-react';
 import { useEditTestMutation } from '../store/testsSlice';
 
 import { Auth } from 'aws-amplify';
@@ -101,10 +101,10 @@ const Editable = ({ DisplayComponent, EditComponent = null, scope, testId }) => 
 
     return (
         <Container>
-
             <Segment.Group horizontal >
                 <Segment basic>
                     <Checkbox
+                        name={'editMode'}
                         color='green'
                         toggle
                         label={editMode ? 'Exit Edit Mode' : 'Enter Edit Mode'}
@@ -115,6 +115,7 @@ const Editable = ({ DisplayComponent, EditComponent = null, scope, testId }) => 
 
                 <Segment basic>
                     <Checkbox
+                        name={'photoAccess'}
                         align='right'
                         color='green'
                         toggle
@@ -122,11 +123,9 @@ const Editable = ({ DisplayComponent, EditComponent = null, scope, testId }) => 
                         onChange={(e, data) => handleOnTogglePhotoTags(e, data)}
                         checked={photosPublic}
                     />
+
                 </Segment>
             </Segment.Group>
-
-
-
             <Segment basic>
 
                 {content}

@@ -28,6 +28,7 @@ const PlaceholderAddElement = ({ text, buttonText, onClick }) => {
                             basic
                             color='grey'
                             onClick={onClick}
+                            type='button'
                         >
                             {buttonText}
                         </Button>

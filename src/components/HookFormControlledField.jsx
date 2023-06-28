@@ -14,7 +14,7 @@ const HookFormControlledField = ({
     return (
 
         <Form.Field>
-            <label>{label}</label>
+            <label for={name}>{label}</label>
 
             <Controller
                 control={control}
@@ -33,8 +33,9 @@ const HookFormControlledField = ({
                     formState,
                 }) => (
                     <Form.Input
+                        id={name}
                         value={value}
-                        onChange={(e, {value}) => onChange(type === 'number' ? Number(value) : value)} // send value to hook form
+                        onChange={(e, { value }) => onChange(type === 'number' ? Number(value) : value)} // send value to hook form
                         onBlur={onBlur} // notify when input is touched
                         inputRef={ref} // wire up the input ref
                         placeholder={label}

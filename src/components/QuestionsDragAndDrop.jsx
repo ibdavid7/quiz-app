@@ -14,6 +14,9 @@ const QuestionsDragAndDrop = ({ testId }) => {
         isLoading: editQuestionOrderIsLoading, isSuccess: editQuestionOrderIsSuccess,
         isError: editQuestionOrderIsError }] = useEditTestReorderQuestionsMutation();
 
+    const [editTest, { data: editTestData, error: editTestError, isLoading: editTestIsLoading,
+        isSuccess: editTestIsSuccess, isError: editTestIsError }] = useEditTestMutation();
+
 
     useEffect(() => {
         if (isTestSuccess) {
@@ -24,26 +27,22 @@ const QuestionsDragAndDrop = ({ testId }) => {
     const [questions, setQuestions] = useState([]);
 
     function handleOnDragEnd(result) {
+        // if destination outside Droppable context
         if (!result.destination) return;
-        // console.log(result)
 
+        // update state
         const items = Array.from(questions);
         const [reorderedItem] = items.splice(result.source.index, 1);
         items.splice(result.destination.index, 0, reorderedItem);
-
         setQuestions(items);
 
+        // optimistic update to back-up, un-do optimistic update if error
         const body = {
-            // question: {
-            //     ...data,
-            // },
             sourceIndex: result.source.index,
             destinationIndex: result.destination.index,
             testId,
             scope: 'questionOrder',
         }
-
-        // console.log(body)
 
         editQuestionOrder(body)
             .unwrap()
@@ -68,22 +67,40 @@ const QuestionsDragAndDrop = ({ testId }) => {
                 })
                 console.log(err)
             })
+    }
 
-        // {
-        //     "draggableId": "1",
-        //     "type": "DEFAULT",
-        //     "source": {
-        //         "index": 0,
-        //         "droppableId": "characters"
-        //     },
-        //     "reason": "DROP",
-        //     "mode": "FLUID",
-        //     "destination": {
-        //         "droppableId": "characters",
-        //         "index": 1
-        //     },
-        //     "combine": null
-        // }
+    const handleOnDelete = (e, { questionIndex }) => {
+        e.preventDefault();
+
+        const body = {
+            questionIndex,
+            testId,
+            scope: 'questionDelete',
+        }
+
+        editTest(body)
+            .unwrap()
+            .then((fullfilled) => {
+                Swal.fire({
+                    position: 'bottom',
+                    toast: true,
+                    icon: 'success',
+                    title: `Question Deleted`,
+                    showConfirmButton: false,
+                    timer: 3000
+                })
+            })
+            .catch((err) => {
+                Swal.fire({
+                    position: 'bottom',
+                    toast: true,
+                    icon: 'error',
+                    title: `Unable to Delete Question `,
+                    showConfirmButton: false,
+                    timer: 3000
+                })
+                console.log(err)
+            })
     }
 
     return (
@@ -158,23 +175,11 @@ const QuestionsDragAndDrop = ({ testId }) => {
                                                             <Button
                                                                 basic
                                                                 size='small'
-                                                                color='blue'
+                                                                color='red'
                                                                 fluid
-                                                                compact
-                                                                icon={'arrow alternate circle up'}
-                                                                content={'Up'}
-                                                                onClick={() => { }}
-                                                                disabled={index === 0}
-                                                            />
-                                                            <Button
-                                                                basic
-                                                                size='small'
-                                                                color='blue'
-                                                                fluid
-                                                                compact
-                                                                icon={'arrow alternate circle down'}
-                                                                content={'Down'}
-                                                                onClick={() => { }}
+                                                                icon={'remove circle'}
+                                                                content={'Delete Question'}
+                                                                onClick={(e) => handleOnDelete(e, { questionIndex: index })}
                                                             />
                                                         </div >
                                                     </Card.Content>

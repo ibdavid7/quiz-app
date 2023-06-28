@@ -1,7 +1,6 @@
-import React, { useRef, useState, useReducer } from 'react';
+import React, { useRef, useState, useReducer, useEffect } from 'react';
 import { Container, Menu, Segment, Header, Icon, } from 'semantic-ui-react';
-import { useLoaderData, useNavigate, Outlet, useLocation } from "react-router-dom";
-import TestEditHeader from './TestEditHeader';
+import { useLoaderData, useNavigate, Outlet, useLocation, useParams, useResolvedPath } from "react-router-dom";
 import { useGetFullTestQuery } from '../store/testsSlice';
 import Overview from './Overview'
 import OverviewEditor from './OverviewEditor';
@@ -16,23 +15,25 @@ import ImageGallery from './ImageGallery';
 import ImageUploader from './ImageUploader';
 import InstructionsTestDisplay from './InstructionsTestDisplay';
 import QuestionsDragAndDrop from './QuestionsDragAndDrop';
+import TestEditLayout from './TestEditLayout';
+import { EDIT_TEST_SECTIONS } from '../constants/editTestSections';
 
-
-
-export async function loader({ params }) {
-    // console.log(params)
+// Not used
+export async function loader({ params, request }) {
+    console.log(params)
+    // console.log(request)
     return params;
 }
 
-const [OVERVIEW, CARD, INSTRUCTIONS, SCORING, QUESTIONS, QUESTIONS_ORDER, IMAGES] =
-    ['overview', 'card', 'instructions', 'scoring', 'questions', 'questions order', 'image gallery'];
+// const [OVERVIEW, CARD, INSTRUCTIONS, SCORING, QUESTIONS, QUESTIONS_ORDER, IMAGES] =
+//     ['overview', 'card', 'instructions', 'scoring', 'questions', 'questions order', 'image gallery'];
 
 
 const reducer = (state, action) => {
     // console.log(action)
 
     switch (action.type) {
-        case OVERVIEW: {
+        case EDIT_TEST_SECTIONS.OVERVIEW.value: {
             // TODO add test data
             const DisplayComponent = (props) => <Overview  {...props} testId={action.payload} />
             const EditComponent = (props) => <  OverviewEditor {...props} testId={action.payload} />
@@ -43,7 +44,7 @@ const reducer = (state, action) => {
                 testId: action.payload,
             };
         }
-        case CARD: {
+        case EDIT_TEST_SECTIONS.CARD.value: {
             const DisplayComponent = (props) => <Card  {...props} testId={action.payload} />
             const EditComponent = (props) => <  CardEditor {...props} testId={action.payload} />
             return {
@@ -53,7 +54,7 @@ const reducer = (state, action) => {
                 testId: action.payload,
             };
         }
-        case INSTRUCTIONS: {
+        case EDIT_TEST_SECTIONS.INSTRUCTIONS.value: {
             const DisplayComponent = (props) => <InstructionsTestDisplay  {...props} testId={action.payload} />
             const EditComponent = (props) => <  InstructionsEditor {...props} testId={action.payload} />
             return {
@@ -63,7 +64,7 @@ const reducer = (state, action) => {
                 testId: action.payload,
             };
         }
-        case SCORING: {
+        case EDIT_TEST_SECTIONS.SCORING.value: {
             const DisplayComponent = (props) => <Scoring  {...props} testId={action.payload} />
             const EditComponent = (props) => <  ScoringEditor {...props} testId={action.payload} />
             return {
@@ -73,7 +74,7 @@ const reducer = (state, action) => {
                 testId: action.payload,
             };
         }
-        case QUESTIONS: {
+        case EDIT_TEST_SECTIONS.QUESTIONS.value: {
             const DisplayComponent = (props) => <QuestionsViewer  {...props} testId={action.payload} />
             return {
                 DisplayComponent,
@@ -81,7 +82,7 @@ const reducer = (state, action) => {
                 testId: action.payload,
             };
         }
-        case QUESTIONS_ORDER: {
+        case EDIT_TEST_SECTIONS.QUESTIONS_ORDER.value: {
             const DisplayComponent = (props) => <QuestionsDragAndDrop  {...props} testId={action.payload} />
             return {
                 DisplayComponent,
@@ -89,7 +90,7 @@ const reducer = (state, action) => {
                 testId: action.payload,
             };
         }
-        case IMAGES: {
+        case EDIT_TEST_SECTIONS.IMAGES.value: {
             const DisplayComponent = (props) => <ImageGallery  {...props} testId={action.payload} />
             const EditComponent = (props) => <ImageUploader {...props} testId={action.payload} />
             return {
@@ -105,14 +106,18 @@ const reducer = (state, action) => {
 }
 
 
-const TestEditForm = () => {
-
-    const { testId } = useLoaderData();
+const TestEditForm = ({ section }) => {
+    const { testId } = useParams();
+    
+    // const { testId } = useLoaderData();
+    // console.log(section)
+    // const location = useLocation()
+    // console.log(location)
     // console.log(testId)
     // const location = useLocation()
     // console.log(location)
 
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     // const { data: test, isLoading: isTestLoading, isError: isTestError, error: testError, isSuccess: isTestSuccess, refetch: refetchTest } = useGetFullTestQuery(testId);
     // console.log(isTestSuccess)
@@ -122,74 +127,72 @@ const TestEditForm = () => {
     const [editableContent, editableContentDispatch] = useReducer(
         reducer,
         // initialArg
-        { type: OVERVIEW, payload: testId },
+        { type: section, payload: testId },
         // Initilizer Function, gets called with initialArg
         (initialState) => reducer(null, initialState)
     );
 
-    // console.log(editableContent?.DisplayComponent)
-
 
     // Handler function for TestEditHeader: controlled element
-    const [activeItem, setActiveItem] = useState('overview');
+    // const [activeItem, setActiveItem] = useState(section);
+    // console.log('activeItem', section)
 
     const handleItemClick = (e, { name }) => {
 
         switch (name) {
-            case OVERVIEW:
-                editableContentDispatch(({ type: OVERVIEW, payload: testId }))
-                setActiveItem(OVERVIEW);
+            case EDIT_TEST_SECTIONS.OVERVIEW.value:
+                editableContentDispatch(({ type: EDIT_TEST_SECTIONS.OVERVIEW.value, payload: testId }))
+                // setActiveItem(EDIT_TEST_SECTIONS.OVERVIEW.value);
                 break;
-            case CARD:
-                editableContentDispatch(({ type: CARD, payload: testId }))
-                setActiveItem(CARD);
+            case EDIT_TEST_SECTIONS.CARD.value:
+                editableContentDispatch(({ type: EDIT_TEST_SECTIONS.CARD.value, payload: testId }))
+                // setActiveItem(EDIT_TEST_SECTIONS.CARD.value);
                 break;
-            case INSTRUCTIONS:
-                editableContentDispatch(({ type: INSTRUCTIONS, payload: testId }))
-                setActiveItem(INSTRUCTIONS);
+            case EDIT_TEST_SECTIONS.INSTRUCTIONS.value:
+                editableContentDispatch(({ type: EDIT_TEST_SECTIONS.INSTRUCTIONS.value, payload: testId }))
+                // setActiveItem(EDIT_TEST_SECTIONS.INSTRUCTIONS.value);
                 break;
-            case SCORING:
-                editableContentDispatch(({ type: SCORING, payload: testId }))
-                setActiveItem(SCORING);
+            case EDIT_TEST_SECTIONS.SCORING.value:
+                editableContentDispatch(({ type: EDIT_TEST_SECTIONS.SCORING.value, payload: testId }))
+                // setActiveItem(EDIT_TEST_SECTIONS.SCORING.value);
                 break;
-            case QUESTIONS:
-                editableContentDispatch(({ type: QUESTIONS, payload: testId }))
-                setActiveItem(QUESTIONS);
+            case EDIT_TEST_SECTIONS.QUESTIONS.value:
+                editableContentDispatch(({ type: EDIT_TEST_SECTIONS.QUESTIONS.value, payload: testId }))
+                // setActiveItem(EDIT_TEST_SECTIONS.QUESTIONS.value);
                 break;
-            case QUESTIONS_ORDER:
-                editableContentDispatch(({ type: QUESTIONS_ORDER, payload: testId }))
-                setActiveItem(QUESTIONS_ORDER);
+            case EDIT_TEST_SECTIONS.QUESTIONS_ORDER.value:
+                editableContentDispatch(({ type: EDIT_TEST_SECTIONS.QUESTIONS_ORDER.value, payload: testId }))
+                // setActiveItem(EDIT_TEST_SECTIONS.QUESTIONS_ORDER.value);
                 break;
-            case IMAGES:
-                editableContentDispatch(({ type: IMAGES, payload: testId }))
-                setActiveItem(IMAGES);
+            case EDIT_TEST_SECTIONS.IMAGES.value:
+                editableContentDispatch(({ type: EDIT_TEST_SECTIONS.IMAGES.value, payload: testId }))
+                // setActiveItem(EDIT_TEST_SECTIONS.IMAGES.value);
                 break;
             default:
                 console.log(`Error : '${name}' menu item not recognized`)
                 return;
         }
 
-
-
     }
+    useEffect(() => {
+        handleItemClick(null, { name: section })
+    }, [section]);
+
+    // console.log(editableContent)
 
     return (
         <Container style={{ marginTop: '2rem', marginBottom: '2rem' }}>
 
-            <Header as='h2'>
+            {/* <Header as='h2'>
                 <Icon name='settings' />
                 <Header.Content>
-                    Edit Test
+                Edit Test
                     <Header.Subheader>Manage your test content and submit for review to publish</Header.Subheader>
-                </Header.Content>
+                    </Header.Content>
             </Header>
 
 
-            <TestEditHeader activeItem={activeItem} handleItemClick={handleItemClick} />
-
-            {/* <div id='edit-detail'> */}
-            {/* <Outlet /> */}
-            {/* </div> */}
+            <TestEditLayout activeItem={activeItem} handleItemClick={handleItemClick} /> */}
 
             <Editable {...editableContent}>
 

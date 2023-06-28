@@ -10,66 +10,14 @@ const QuestionOptionEditor = ({
     name,
     index,
     setModalState,
-    remove,
-    swap,
+    onDelete,
+    onMove,
+    onMarkCorrect,
+    watch,
+    control,
 }) => {
 
-    const { watch, setValue, control, getValues } = useFormContext();
     const watchImage = watch(`${name}.option_image`)
-    const watchFields = watch('options')
-    // console.log('watchFields', watchFields)
-
-    const { fields, update, append, prepend, move, insert } = useFieldArray({
-        control,
-        name: 'options',
-        // rules: { minLength: 1, maxLength: 4 },
-    });
-
-    console.log('fields', fields)
-
-    const handleOnMove = (e, { from, to }) => {
-        e.preventDefault();
-
-        // validate from and to indices
-        if (from < 0 || to < 0 || from >= fields.length || to >= fields.length) return;
-
-        swap(from, to);
-
-    }
-
-    const handleOnDelete = (e, { index, value }) => {
-        e.preventDefault()
-
-        if (value.option_id === getValues('answer_id')) {
-            setValue('answer_id', '', {
-                shouldValidate: true,
-                shouldDirty: true,
-                shouldTouch: true,
-            });
-        }
-
-        remove(index)
-
-    }
-
-    const handleOnMarkCorrect = (e, { value }) => {
-        e.preventDefault()
-        // console.log(e)
-
-        if (value.option_id === getValues('answer.answer_id')) {
-            setValue('answer.answer_id', '', {
-                shouldValidate: true,
-                shouldDirty: true,
-                shouldTouch: true,
-            });
-        } else {
-            setValue('answer.answer_id', value.option_id, {
-                shouldValidate: true,
-                shouldDirty: true,
-                shouldTouch: true,
-            });
-        }
-    }
 
     return (
 
@@ -85,7 +33,7 @@ const QuestionOptionEditor = ({
                     <Card
                         fluid
                         key={value.option_id}
-                        color={watch('answer.answer_id') === (value.option_id) ? 'green' : 'grey'}
+                        // color={watch('answer.answer_id') === (value.option_id) ? 'green' : 'grey'}
                         // className={watch('answer.answer_id') === (value.option_id) ? 'ui raised green' : 'ui raised'}
                         style={{ cursor: 'pointer' }}
                     // raised
@@ -103,6 +51,7 @@ const QuestionOptionEditor = ({
                                 />
                             </Card.Meta>
 
+
                             <Card.Description>
                                 <HookFormControlledField
                                     label={'Enter Option Text'}
@@ -119,6 +68,8 @@ const QuestionOptionEditor = ({
                                 size={'large'} src={watchImage}
                             />
                         }
+
+
 
                         <Card.Content extra>
                             <HookFormControlledImagePicker
@@ -139,7 +90,7 @@ const QuestionOptionEditor = ({
                                         compact
                                         icon={'arrow alternate circle up'}
                                         content={'Up'}
-                                        onClick={(e) => handleOnMove(e, { from: index, to: index - 1 })}
+                                        onClick={(e) => onMove(e, { from: index, to: index - 1 })}
                                         disabled={index === 0}
                                     />
                                     <Button
@@ -150,8 +101,8 @@ const QuestionOptionEditor = ({
                                         compact
                                         icon={'arrow alternate circle down'}
                                         content={'Down'}
-                                        onClick={(e) => handleOnMove(e, { from: index, to: index + 1 })}
-                                        // disabled={!watchFields.length && index >= watchFields.length - 1}
+                                        onClick={(e) => onMove(e, { from: index, to: index + 1 })}
+                                    // disabled={!watchFields.length && index >= watchFields.length - 1}
                                     />
                                     <Button basic
                                         size='small'
@@ -160,7 +111,7 @@ const QuestionOptionEditor = ({
                                         compact
                                         icon={'remove circle'}
                                         content={'Delete'}
-                                        onClick={(e) => handleOnDelete(e, { index, value })}
+                                        onClick={(e) => onDelete(e, { index, value })}
                                     />
                                 </div>
                                 <div className='ui two buttons'>
@@ -171,13 +122,15 @@ const QuestionOptionEditor = ({
                                         fluid compact
                                         icon={'check circle'}
                                         content={'Mark As Correct Answer'}
-                                        onClick={(e) => handleOnMarkCorrect(e, { value })}
+                                        onClick={(e) => onMarkCorrect(e, { value })}
                                     />
                                 </div>
 
 
                             </div >
+
                         </Card.Content>
+
                     </Card>
 
 

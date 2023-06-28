@@ -14,7 +14,7 @@ const HookFormControlledTextEditor = ({
   return (
 
     <Form.Field>
-      <label>{label}</label>
+      <label for={name}>{label}</label>
 
       <Controller
         control={control}
@@ -31,6 +31,7 @@ const HookFormControlledTextEditor = ({
           fieldState: { invalid, isTouched, isDirty, error },
         }) => (
           <Form.TextArea
+            id={name}
             value={value}
             onChange={onChange} // send value to hook form
             onBlur={onBlur} // notify when input is touched

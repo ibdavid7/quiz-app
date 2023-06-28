@@ -1,9 +1,9 @@
 import { Link, Outlet } from 'react-router-dom';
 
 import React from 'react'
-import Header from '../components/Header';
+import Header from './Header';
 
-const Root = () => {
+const Layout = () => {
     return (
         <>
             <Header />
@@ -14,4 +14,4 @@ const Root = () => {
     )
 }
 
-export default Root;
+export default Layout;

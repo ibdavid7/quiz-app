@@ -3,11 +3,17 @@ import { Form } from 'semantic-ui-react';
 
 
 
-const HookFormControlledDropdown = ({ options, label, name, control, disabled = false }) => {
+const HookFormControlledDropdown = ({
+    options,
+    label,
+    name,
+    control,
+    disabled = false
+}) => {
     return (
 
         <Form.Field>
-            <label>{label}</label>
+            <label for={name}>{label}</label>
 
             <Controller
                 control={control}
@@ -17,6 +23,7 @@ const HookFormControlledDropdown = ({ options, label, name, control, disabled = 
                     fieldState: { invalid, isTouched, isDirty, error },
                 }) => (
                     <Form.Dropdown
+                        id={name}
                         value={value}
                         onChange={(e, { value }) => onChange(value)} // send value to hook form
                         onBlur={onBlur} // notify when input is touched

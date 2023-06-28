@@ -10,7 +10,7 @@ import {
   Message,
 } from 'semantic-ui-react';
 
-import mindImg from '../../images/mind.svg';
+import mindImg from '../../images/mind_copy.svg';
 
 import {
   CATEGORIES,

@@ -17,6 +17,7 @@
     "@tinymce/tinymce-react": "^4.3.0",
     "aws-amplify": "^5.2.4",
     "chart.js": "^4.3.0",
+    "dompurify": "^3.0.3",
     "he": "^1.2.0",
     "json-server": "^0.17.3",
     "normalizr": "^3.6.2",

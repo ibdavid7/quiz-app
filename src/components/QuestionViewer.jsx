@@ -1,56 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Header, Divider, Table, Icon, Image, Button, Progress, Grid, Segment, Label } from 'semantic-ui-react'
-import {alphabet} from '../constants'
-
-import { useGetQuestionsQuery, useGetSessionQuery, useSubmitAnswerMutation } from '../store/testsSlice';
+import { Container, Header, Divider, Table, Icon, Image, Button, Progress, Grid, Segment, Label, Card } from 'semantic-ui-react'
+import { alphabet } from '../constants'
+import { LayoutValue } from '../constants/layouts';
+import DOMPurify from "dompurify";
 
 // Controlled Component
 const QuestionViewer = ({ question, questionCount, questionIndex }) => {
 
-    const Options = ({ colsPerRow }) => {
 
-        let r = 0, c = 0, l = question?.options?.length;
+    const myHtml = question.answer_text;
+    const mySafeHtml = DOMPurify.sanitize(myHtml);
 
-        const options = [];
-
-        for (r = 0; r < (l + 1) / 2; r++) {
-            const cols = [];
-            // line.push(<Grid.Row key={r}>)
-            for (c = 0; c < 2 && (r * 2 + c) < l; c++) {
-                const index = r * 2 + c;
-                const optionId = question?.options?.[index]?.['option_id'];
-                const col = (
-                    <Grid.Column width={16 / colsPerRow} key={optionId}>
-                        <Segment
-                            id={optionId}
-                            // onClick={() => handleSelectionOnClick(optionId)}
-                            className={question?.answer_id === optionId ? 'raised green' : 'basic'}
-                            style={{ cursor: 'pointer' }}
-                        >
-                            <span>{alphabet(index)}. </span>
-                            {question?.options?.[index]?.['option_text'] && question?.options?.[index]?.['option_text']}
-                            {question?.options?.[index]?.['option_image'] && <Image src={question?.options?.[index]?.['option_image']} />}
-                        </Segment>
-                    </Grid.Column>
-                );
-
-                cols.push(col);
-            }
-
-            options.push(
-                <Grid.Row key={r}>
-                    {cols}
-                </Grid.Row>
-            );
-        }
-
-        return (
-            <Grid stackable relaxed>
-                {options}
-            </Grid>
-        )
-    }
-
+    const optionStyle = question?.answer
 
     return (
         <Container>
@@ -103,14 +64,88 @@ const QuestionViewer = ({ question, questionCount, questionIndex }) => {
 
             <Container fluid>
 
-                <Grid stackable>
-                    <Grid.Column width={8}>
-                        <Image src={question?.question_image} />
-                    </Grid.Column>
-                    <Grid.Column width={8}>
-                        {question.difficulty && <Label attached='bottom right'>{question.difficulty}</Label>}
-                        <Options colsPerRow={2} />
+                <Grid
+                    columns={LayoutValue[question?.layout]?.['grid_cols'] ?? LayoutValue['compact']?.['grid_cols']}
+                    stackable
+                >
+                    <Grid.Column
+                        // width={8}
+                        width={LayoutValue[question?.layout]?.['question_col'] ?? LayoutValue['compact']?.['question_col']}
 
+                    >
+
+                        <Image src={question?.question_image} />
+
+                    </Grid.Column>
+
+                    <Grid.Column
+                        width={LayoutValue[question?.layout]?.['answers_col'] ?? LayoutValue['compact']?.['answers_col']}
+                    >
+                        {question?.difficulty && <Label attached='bottom right'>{question.difficulty}</Label>}
+
+                        {/* <Options colsPerRow={2} /> */}
+
+                        <Grid
+                            columns={LayoutValue[question?.layout]?.['cols_per_answer_col'] ?? LayoutValue['compact']?.['cols_per_answer_col']}
+                            stackable
+                        >
+
+                            {question?.options.map(({ option_id, option_text, option_image }, index) => {
+                                return (
+
+
+
+                                    <Grid.Column
+                                        key={option_id}
+                                        width={LayoutValue[question?.layout]?.['answer_subCol'] ?? LayoutValue['compact']?.['answer_subCol']}
+                                    >
+                                        <Card
+                                            fluid
+                                            key={option_id}
+                                            raised
+                                            style={{cursor: 'pointer'}}
+                                            // color={watch('answer.answer_id') === (value.option_id) ? 'green' : 'grey'}
+                                            // className={watch('answer.answer_id') === (value.option_id) ? 'ui raised green' : 'ui raised'}
+                                            // style={
+                                            //     question?.answer_id === option_id
+                                            //         ? {
+                                            //             cursor: 'pointer', outlineColor: '#4caf50',
+                                            //             outlineStyle: 'solid', outlineRadius: '8px', outlineWidth: 'thick',
+                                            //             boxShadow: '0 0 15px 12px #a5d6a7'
+                                            //         }
+                                            //         : {
+                                            //             cursor: 'pointer'
+                                            //         }
+                                            // }
+                                        // color={'green'}
+                                        >
+
+                                            <Card.Content>
+                                                <Card.Header>{`${alphabet(index)}`}</Card.Header>
+                                                
+                                                {
+                                                    option_text &&
+                                                    <Card.Description>
+                                                        {option_text}
+                                                    </Card.Description>
+                                                }
+
+                                            </Card.Content>
+
+                                            {option_image &&
+                                                <Image
+                                                    wrapped ui={false}
+                                                    size={'large'} src={option_image}
+                                                />
+                                            }
+
+                                        </Card>
+
+                                    </Grid.Column>
+                                )
+                            })}
+
+                        </Grid>
                     </Grid.Column>
                 </Grid>
             </Container>
@@ -119,18 +154,24 @@ const QuestionViewer = ({ question, questionCount, questionIndex }) => {
             <Divider horizontal>
                 <Header as='h4'>
                     <Icon name='clipboard' />
-                    Answer Content
+                    Answer Explanation
                 </Header>
             </Divider>
 
 
-            <Container
-                style={{ marginTop: '2rem', marginBottom: '2rem' }}
-                text
-                dangerouslySetInnerHTML={{ __html: question?.answer_text }}
-            >
-            </Container>
-            <Image src={question?.answer_image} fluid />
+            {
+                mySafeHtml &&
+                <Container
+                    style={{ marginTop: '2rem', marginBottom: '2rem' }}
+                    text
+                    dangerouslySetInnerHTML={{ __html: mySafeHtml }}
+                >
+                </Container>
+            }
+            {
+                question?.answer_image &&
+                <Image src={question?.answer_image} fluid />
+            }
 
 
         </Container>

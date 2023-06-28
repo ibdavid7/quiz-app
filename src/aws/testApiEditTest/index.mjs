@@ -249,7 +249,51 @@ export const handler = async (event, context, callback) => {
 
                 break;
 
-            // 7. scope = photo 'tags'
+            // 7. scope = 'questionOrder'
+            case QUESTION_ORDER:
+                var { sourceIndex, destinationIndex } = JSON.parse(event.body);
+
+                // getQuestions
+                const getTestParam = {
+                    TableName: TEST_TABLE,
+                    Key: {
+                        id: path_parameter,
+                    },
+                    // By default, reads are eventually consistent. "ConsistentRead: true" represents
+                    // a strongly consistent read. This guarantees that the most up-to-date data is returned. It
+                    // can also result in higher latency and a potential for server errors.
+                    ConsistentRead: true,
+                    // IMPORTANT: list of attributes that is passed to the public getTest call
+                    ProjectionExpression: "questions",
+                }
+
+                const item = await getItem(getTestParam);
+                const { questions } = item;
+                // create array copy and reorder
+                const items = Array.from(questions)
+                const [reorderedItem] = items.splice(sourceIndex, 1);
+                items.splice(destinationIndex, 0, reorderedItem);
+
+                params = {
+                    TableName: TEST_TABLE,
+                    Key: {
+                        id: path_parameter,
+                    },
+                    UpdateExpression: `SET #list = :new_value1`,
+                    ExpressionAttributeNames: {
+                        '#list': 'questions',
+                    },
+                    ExpressionAttributeValues: {
+                        ':new_value1': items,
+                    }
+                }
+
+
+                break;
+
+
+
+            // 8. scope = photo 'tags'
             case TAGS:
                 const { tag, identityId } = JSON.parse(event.body);
 

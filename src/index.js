@@ -12,7 +12,7 @@ import {
     createBrowserRouter,
     RouterProvider,
 } from "react-router-dom";
-import Root from './routes/Root';
+import Layout from './components/Layout';
 import ErrorPage from './components/ErrorPage';
 import Listing from './components/Card';
 import Session, { loader as sessionLoader } from './components/Session';
@@ -24,11 +24,13 @@ import { loader as testEditLoader } from './components/TestEditForm';
 import Editable from './components/Editable';
 import LoginFormModal from './components/LoginFormModal';
 import { Authenticator } from '@aws-amplify/ui-react';
+import { EDIT_TEST_SECTIONS } from './constants/editTestSections';
+import TestEditLayout from './components/TestEditLayout';
 
 const router = createBrowserRouter([
     {
         path: '/',
-        element: <Root />,
+        element: <Layout />,
         errorElement: <ErrorPage />,
         children: [
             {
@@ -49,19 +51,49 @@ const router = createBrowserRouter([
                 element: <TestCreateNew />
             },
             {
-                path: 'tests/:testId/edit',
-                element: <TestEditForm />,
-                loader: testEditLoader,
-                // children: [
-                //     {
-                //         path: 'overview',
-                //         element: <Editable />,
-                //     },
-                //     {
-                //         path: 'card',
-                //         element: <Card test modal />,
-                //     }
-                // ],
+                path: 'tests/:testId/edit/',
+                element: <TestEditLayout />,
+                children: [
+                    {
+                        errorElement: <ErrorPage />,
+                        children: [
+                            {
+                                index: true,
+                                // path: EDIT_TEST_SECTIONS.OVERVIEW.value,
+                                element: <TestEditForm section={EDIT_TEST_SECTIONS.OVERVIEW.value} />,
+                            },
+                            {
+                                path: EDIT_TEST_SECTIONS.OVERVIEW.value,
+                                element: <TestEditForm section={EDIT_TEST_SECTIONS.OVERVIEW.value} />,
+                            },
+                            {
+                                path: EDIT_TEST_SECTIONS.CARD.value,
+                                element: <TestEditForm section={EDIT_TEST_SECTIONS.CARD.value} />,
+                            },
+                            {
+                                path: EDIT_TEST_SECTIONS.INSTRUCTIONS.value,
+                                element: <TestEditForm section={EDIT_TEST_SECTIONS.INSTRUCTIONS.value} />,
+                            },
+                            {
+                                path: EDIT_TEST_SECTIONS.SCORING.value,
+                                element: <TestEditForm section={EDIT_TEST_SECTIONS.SCORING.value} />,
+                            },
+                            {
+                                path: EDIT_TEST_SECTIONS.QUESTIONS.value,
+                                element: <TestEditForm section={EDIT_TEST_SECTIONS.QUESTIONS.value} />,
+                            },
+                            {
+                                path: EDIT_TEST_SECTIONS.QUESTIONS_ORDER.value,
+                                element: <TestEditForm section={EDIT_TEST_SECTIONS.QUESTIONS_ORDER.value} />,
+                            },
+                            {
+                                path: EDIT_TEST_SECTIONS.IMAGES.value,
+                                element: <TestEditForm section={EDIT_TEST_SECTIONS.IMAGES.value} />,
+                            },
+                        ],
+                    },
+                ],
+
             },
             {
                 path: '/sessions/:sessionId/',
