@@ -11,6 +11,7 @@ import Test from '../../api/test';
 import Listing from '../Listing';
 
 import { useGetTestsQuery } from '../../store/store';
+import Hero from '../Hero';
 
 
 // import { ThemeProvider  } from '@aws-amplify/ui-react';
@@ -89,6 +90,7 @@ const App = () => {
 
   return (
     <>
+      <Hero />
       {/* <Layout> */}
       {/* Test only, remove */}
       {/* <Test /> */}
@@ -98,6 +100,7 @@ const App = () => {
       {isTestsSuccess && <Listing tests={tests} />}
 
       {loading && <Loader />}
+      {/* 
       {!loading && !isQuizStarted && !isQuizCompleted && (
         <Main startQuiz={startQuiz} />
       )}
@@ -106,7 +109,8 @@ const App = () => {
       )}
       {!loading && isQuizCompleted && (
         <Result {...resultData} replayQuiz={replayQuiz} resetQuiz={resetQuiz} />
-      )}
+      )} 
+      */}
       {/* <AmplifyAuthenticator usernameAlias="email" /> */}
       {/* </Layout> */}
     </>
